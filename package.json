@@ -1,0 +1,21 @@
+{
+  "name": "lab06",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node ./tasks/seed.js"
+  },
+  "keywords": [],
+  "author": "Anthony Webster 10472220",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.1",
+    "luxon": "^3.4.4",
+    "mongodb": "^6.5.0"
+  }
+}
