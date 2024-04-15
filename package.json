@@ -10,7 +10,7 @@
     "seed": "node ./tasks/seed.js"
   },
   "keywords": [],
-  "author": "Anthony Webster 10472220",
+  "author": "",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "body-parser": "^1.20.2",
