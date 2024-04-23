@@ -1,57 +1,12 @@
-import {MongoClient, Db} from 'mongodb';
-import {mongoConfig} from './settings.js';
-
-// For getting proper types in JSDoc
-import mongoPackage from 'mongodb';
-const {Collection, Document} = mongoPackage;
+import {connect} from "mongoose";
+import {mongoConfig} from "./settings.js";
 
 /**
+ * Connects to the database.
  *
- * @type {MongoClient}
- * @private
+ * @returns A database connection.
  */
-let _connection = undefined;
-
-/**
- *
- * @type {Db}
- * @private
- */
-let _db = undefined;
-
-/**
- *
- * @returns {Promise<Db>}
- */
-const dbConnection = async () =>
+export const connectToDatabase = async () =>
 {
-    if (!_connection)
-    {
-        _connection = await MongoClient.connect(mongoConfig.serverUrl);
-        _db = _connection.db(mongoConfig.database);
-    }
-
-    return _db;
+    return await connect(`${mongoConfig.serverUrl}/${mongoConfig.database}`)
 };
-
-/**
- *
- * @returns {Promise<void>}
- */
-export const dropDatabase = async () =>
-{
-    const db = await dbConnection();
-    await db.dropDatabase();
-};
-
-
-/**
- *
- * @returns {Promise<void>}
- */
-const closeConnection = async () =>
-{
-    await _connection.close();
-};
-
-export {dbConnection, closeConnection};
