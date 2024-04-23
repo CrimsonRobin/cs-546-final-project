@@ -55,6 +55,6 @@ const placesSchema = new Schema({
     ]
 });
 
-const disabilityCategories = model("disabilityCategories", disabilityCategoriesSchema);
-const users = model("users", usersSchema);
-const places = model("places", placesSchema);
+export const disabilityCategories = model("disabilityCategories", disabilityCategoriesSchema);
+export const users = model("users", usersSchema);
+export const places = model("places", placesSchema);

@@ -1,5 +1,5 @@
-import {connect} from "mongoose";
-import {mongoConfig} from "./settings.js";
+import {connect, connection} from "mongoose";
+import {getMongoConfig} from "./settings.js";
 
 /**
  * Connects to the database.
@@ -8,5 +8,11 @@ import {mongoConfig} from "./settings.js";
  */
 export const connectToDatabase = async () =>
 {
-    return await connect(`${mongoConfig.serverUrl}/${mongoConfig.database}`)
+    const {database, serverUrl} = getMongoConfig();
+    return await connect(`${serverUrl}/${database}`)
 };
+
+export const closeDatabaseConnection = async () =>
+{
+    await connection.close();
+}
