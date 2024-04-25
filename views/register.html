@@ -1,0 +1,43 @@
+<form name="signup-form" id="signup-form" action="/register" method="POST">
+  <label for="firstName">First Name:
+    <input type="text" name="firstName" id="firstName" />
+  </label>
+
+  <br />
+  <label for="lastName">Last Name:
+    <input type="text" name="lastName" id="lastName" />
+  </label>
+
+  <br />
+  <label for="username">Username:
+    <input type="text" name="username" id="username" />
+  </label>
+
+  <br />
+  <label for="password">Password:
+    <input type="password" name="password" id="password" />
+  </label>
+
+  <br />
+  <label for="confirmPassword">Confirm Password:
+    <input type="password" name="confirmPassword" id="confirmPassword" />
+  </label>
+
+  <br />
+  <label for="neededAccessibility">Accessibility:
+    <input type="text" name="neededAccessibility" id="neededAccessibility" />
+  </label>
+
+  <br />
+  <label for="themePreference">Theme Preference:
+    <select name="themePreference" id="themePreference">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>
+
+  <br />
+  <button name="submitButton" id="submitButton" type="submit">Submit</button>
+</form>
+<div id="error" class="error" hidden>Error</div>
+<p>Already have an account? <a href="/login">Click here to log-in</a></p>
