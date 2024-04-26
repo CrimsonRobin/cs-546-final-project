@@ -24,17 +24,34 @@
   </label>
 
   <br />
-  <label for="neededAccessibility">Accessibility:
-    <input type="text" name="neededAccessibility" id="neededAccessibility" />
-  </label>
+  <div>
+    <label for="neededAccessibility">Accessibility:
+      <input
+        type="checkbox"
+        name="neededAccessibility"
+        id="neededAccessibility"
+      />
+    </label>
+  </div>
 
-  <br />
-  <label for="themePreference">Theme Preference:
-    <select name="themePreference" id="themePreference">
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-    </select>
-  </label>
+  <fieldset>
+    <legend>Choose your catergory:</legend>
+
+    <div>
+      <input type="checkbox" id="Physical" name="Physical" checked />
+      <label for="Physical">Physical</label>
+    </div>
+
+    <div>
+      <input type="checkbox" id="Sensory" name="Sensory" />
+      <label for="Sensory">Sensory</label>
+    </div>
+
+    <div>
+      <input type="checkbox" id="Neurodivergency" name="Neurodivergency" />
+      <label for="Neurodivergency">Neurodivergency</label>
+    </div>
+  </fieldset>
 
   <br />
   <button name="submitButton" id="submitButton" type="submit">Submit</button>
