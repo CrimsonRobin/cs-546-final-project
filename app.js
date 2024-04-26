@@ -34,8 +34,30 @@ app.use("/", (req, res, next) => {
 		authUser = true;
 	}
 	console.log("Authenticated User: " + authUser);
-	if (req.originalUrl === "/") {
-		return res.redirect("/home");
+	if (req.originalUrl !== "/") {
+		next();
+	}
+});
+
+app.use("/login", (req, res, next) => {
+	if (req.session.user) {
+		res.redirect("/");
+	} else {
+		next();
+	}
+});
+
+app.use("/register", (req, res, next) => {
+	if (req.session.user) {
+		res.redirect("/");
+	} else {
+		next();
+	}
+});
+
+app.use("/logout", (req, res, next) => {
+	if (!req.session.user) {
+		res.redirect("/login");
 	} else {
 		next();
 	}
