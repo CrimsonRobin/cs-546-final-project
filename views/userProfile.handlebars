@@ -1,52 +1,18 @@
-<head>
-    <title>{{movie.Title}}</title>
-  </head>
-  <article>
-    <h1>{{movie.Title}}</h1>
-    <!-- <img alt="{{Title}} Poster" src={{movie.Poster}} /> -->
-  
-    <h2>Plot</h2>
-    <p>{{movie.Plot}}</p>
-    <section>
-      <h3>Info</h3>
-      <dl>
-        <dt>Year Released:</dt>
-        <dd>{{movie.Year}}</dd>
-        <dt>Rated:</dt>
-        <dd>{{movie.Rated}}</dd>
-        <dt>Runtime:</dt>
-        <dd>{{movie.Runtime}}</dd>
-        <dt>Genre(s):</dt>
-        <dd>{{movie.Genre}}</dd>
-        <dt>Box Office Earnings:</dt>
-        <dd>{{movie.BoxOffice}}</dd>
-        <dt>DVD Release Date:</dt>
-        <dd>{{movie.DVD}}</dd>
-      </dl>
-    </section>
-  
-    <section>
-      <h4>Cast and Crew</h4>
-      <p><strong>Director:</strong> {{movie.Director}}</p>
-      <p><strong>Writer:</strong> {{movie.Writer}}</p>
-      <p><strong>Cast:</strong>
-        {{movie.Actors}}</p>
-    </section>
-  
-    <section>
-      <h4>Ratings</h4>
-      <table class="my_coolratings_table">
-        <tr>
-          <th>Source</th>
-          <th>Rating</th>
-        </tr>
-        {{#each movie.Ratings}}
-          <tr>
-            <td>{{Source}}</td>
-            <td>{{Value}}</td>
-          </tr>
-        {{/each}}
-      </table>
-    </section>
-  </article>
-  <tag><a href="/">Back to Movie Search</a></tag>
+<h1>{{user.Username}}</h1>
+
+<h2>Bio</h2>
+<p>{{user.Bio}}</p>
+<section>
+  <h3>Qualifications:</h3>
+  {{#each user.qualifications}}
+    <p>{{qualification}}</p>
+  {{/each}}
+</section>
+
+<section>
+  <h4>Reviews:</h4>
+  {{#each user.Reviews}}
+    <p>{{review}}</p>
+  {{/each}}
+</section>
+<tag><a href="/">Back to Home</a></tag>

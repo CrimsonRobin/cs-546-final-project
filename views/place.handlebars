@@ -1,0 +1,18 @@
+<h1>{{user.Username}}</h1>
+
+<h2>Bio</h2>
+<p>{{user.Bio}}</p>
+<section>
+  <h3>Qualifications:</h3>
+  {{#each user.qualifications}}
+    <p>{{qualification}}</p>
+  {{/each}}
+</section>
+
+<section>
+  <h4>Reviews:</h4>
+  {{#each user.Reviews}}
+    <p>{{review}}</p>
+  {{/each}}
+</section>
+<tag><a href="/">Back to Home</a></tag>
