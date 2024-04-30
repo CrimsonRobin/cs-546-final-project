@@ -192,3 +192,25 @@ export const roundTo = (n, places = 0) =>
     return Math.floor(n * places) / places;
 };
 
+/**
+ * Extracts the only element from the given array.
+ *
+ * If the array is empty, has more than one element, or is not an array, this method throws an exception.
+ *
+ * @template T
+ * @param {T[]} arr The array to extract the element from.
+ * @param {string} paramName The name of the parameter (used in exception messages).
+ * @returns {T} The element at index zero of the given array.
+ * @author Anthony Webster
+ */
+export const exactlyOneElement = (arr, paramName = "array") =>
+{
+    paramName = nonEmptyStringOrDefault(paramName, "array");
+    assertTypeIs(arr, "array", paramName);
+    if (arr.length !== 1)
+    {
+        throw new Error(`Expected exactly one element for ${paramName} but got ${arr.length}`);
+    }
+    return arr[0];
+}
+

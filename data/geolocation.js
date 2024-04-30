@@ -1,17 +1,12 @@
 import axios from "axios";
-import {
-    assertTypeIs,
-    isNullOrUndefined,
-    parseNonEmptyString,
-    throwIfNotString,
-    throwIfNullOrUndefined
-} from "../helpers.js";
-import * as url from "node:url";
+import {assertTypeIs, exactlyOneElement, isNullOrUndefined, parseNonEmptyString, throwIfNotString} from "../helpers.js";
 
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
 const NOMINATIM_API_SEARCH_ENDPOINT = "/search";
 const NOMINATIM_API_DETAILS_ENDPOINT = "/details";
+
+const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
 
 export const OSM_TYPE_NODE = "N";
 export const OSM_TYPE_WAY = "W";
@@ -103,77 +98,109 @@ const getNominatimApiUrl = (endpoint) =>
     return new URL(endpoint, NOMINATIM_API_BASE_URL);
 }
 
+// TODO: Create separate typedefs where some of this stuff gets too "noisy".
+/**
+ * @typedef {{addressTags: {country: string, country_code: string, state: string, city: string},
+ * osmId: string, displayName: string, addressType: string, name: string, osmType: string, category: string,
+ * subcategory: string, extraTags: any}} NominatimPlaceData
+ */
+
+/**
+ *
+ * @param data
+ * @returns {NominatimPlaceData}
+ */
+const parseNominatimLookupResult = (data) =>
+{
+    return {
+        // OSM data
+        osmType: parseOsmType(data.osm_type),
+        osmId: parseOsmId(data.osm_id),
+
+        // Place names
+        name: data.name,
+        displayName: data.displayName,
+
+        // Place tags (building, highway, etc.)
+        category: data.category,
+        subcategory: data.type,
+
+        // Address information
+        addressTags: jsonClone(data.address),
+        addressType: data.addressType,
+
+        // Extra information
+        extraTags: jsonClone(data.extratags)
+    };
+}
+
+/**
+ *
+ * @param {string[][]} typeIdPairs
+ * @returns {Promise<NominatimPlaceData[]>}
+ */
+const nominatimLookupMany = async (typeIdPairs) =>
+{
+    // We can only query the API with up to 50 places at a time.
+    const requests = [];
+
+    for (let i = 0; i < typeIdPairs.length; i += NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
+    {
+        const url = getNominatimApiUrl(NOMINATIM_API_LOOKUP_ENDPOINT);
+
+        // Need results in JSON format
+        url.searchParams.format = "jsonv2";
+
+        // include a full list of names for the result. These may include language variants,
+        // older names, references and brand.
+        url.searchParams.namedetails = 1;
+
+        // Include extra address details
+        url.searchParams.addressdetails = 1;
+
+        // Include extra info about the place
+        url.searchParams.extratags = 1;
+
+        url.searchParams.osm_ids = typeIdPairs
+            .slice(i, i + NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
+            .map(pair => `${parseOsmType(pair[0])}${parseOsmId(pair[1])}`)
+            .join(",");
+
+        if (url.searchParams.osm_ids.length === 0)
+        {
+            // Well this shouldn't have happened...
+            // TODO: Will this ever happen?
+            throw new Error("Bad chunk when looking up many places in Nominatim");
+        }
+
+        requests.push(axios.get(url.toString()));
+    }
+
+    const axiosResults = await Promise.all(requests);
+    // TODO: What happens if an axios call result doesn't have a data field on it?
+    return axiosResults.flatMap(x => parseNominatimLookupResult(x.data));
+};
+
 /**
  * Gets the details for the place identified by the given OSM type and OSM ID.
  *
  * @param {string} osmType The object's OSM type
  * @param {string} osmId The object's OSM ID
- * @param {string | null} osmClass The object's OSM class.
- * @returns {Promise<{data, osmId: string, osmType: string}>}
+ * @returns {Promise<NominatimPlaceData>}
  * @author Anthony Webster
  */
-export const nominatimDetails = async (osmType, osmId, osmClass = null) =>
+export const nominatimLookup = async (osmType, osmId) =>
 {
-    const url = getNominatimApiUrl(NOMINATIM_API_DETAILS_ENDPOINT);
-
-    // Need results in JSON format
-    url.searchParams.format = "json";
-
-    // include a full list of names for the result. These may include language variants,
-    // older names, references and brand.
-    url.searchParams.namedetails = 1;
-
-    url.searchParams.osmType = parseOsmType(osmType);
-    url.searchParams.osmId = parseOsmId(osmId);
-
-    if (!isNullOrUndefined(osmClass))
-    {
-        url.searchParams.osmClass = parseOsmClass(osmClass);
-    }
-
-    const {data} = await axios.get(url.toString());
-    return createNominatimApiCallResult(data.osm_type, data.osm_id, data);
-};
-
-export const nominatimLookup = async (osmType, osmId, osmClass = null) =>
-{
-    // TODO
+    return exactlyOneElement(await nominatimLookupMany([[osmType, osmId]]), "nominatim lookup");
 };
 
 const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 /**
- * A result of querying Nominatim's search endpoint.
- * @typedef {{address: any, osmId: string, displayName: string, importance: number, name: string, osmType: string, category: string, subcategory: string, addressRefersTo: string}} NominatimSearchResult
- */
-
-/**
- * Parses a raw search result from Nominatim into a more relevant search result.
- *
- * @param searchResult A raw search result from Nominatim.
- * @returns {NominatimSearchResult} The parsed search result from Nominatim.
- * @author Anthony Webster
- */
-const parseSearchResult = (searchResult) =>
-{
-    return {
-        osmType: parseOsmType(searchResult.osm_type),
-        osmId: searchResult.osm_id.toString(),
-        name: searchResult.name,
-        displayName: searchResult.displayName,
-        category: searchResult.category,
-        subcategory: searchResult.type,
-        addressRefersTo: searchResult.addressType,
-        address: jsonClone(searchResult.address),
-        importance: searchResult.importance
-    };
-}
-
-/**
  * Searches the Nominatim database with the given query.
  *
  * @param query The query to search Nominatim.
- * @returns {Promise<NominatimSearchResult[]>} An array of search results from Nominatim.
+ * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
  */
 export const nominatimSearch = async (query) =>
 {
@@ -183,43 +210,5 @@ export const nominatimSearch = async (query) =>
     url.searchParams.addressdetails = 1;
     url.searchParams.format = "jsonv2";
     const {data} = await axios.get(url.toString());
-    return data.map(parseSearchResult);
-};
-
-/**
- * Gets the name of the place in English, falling back to the default name of the place if no explicit
- * English name is provided.
- *
- * @param osmType
- * @param osmId
- * @param osmClass
- * @returns {Promise<string>}
- */
-export const getEnglishName = async (osmType, osmId, osmClass = null) =>
-{
-    const {data} = await nominatimDetails(osmType, osmId, osmClass);
-    const names = data.names;
-    if (!isNullOrUndefined(names) || typeof names === "object")
-    {
-        const englishName = names["name:en"];
-        if (!isNullOrUndefined(englishName) && typeof englishName === "string")
-        {
-            return englishName;
-        }
-
-        const name = names["name"];
-        if (!isNullOrUndefined(name) && typeof name === "string")
-        {
-            return name;
-        }
-    }
-
-    // Try to get local name instead
-    const localName = data.localname;
-    if (isNullOrUndefined(localName))
-    {
-        throw new Error("Internal error: Nominatim did not provide a local name");
-    }
-    assertTypeIs(localName, "string", "Local name");
-    return localName;
+    return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
 };
