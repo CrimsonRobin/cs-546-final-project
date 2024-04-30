@@ -214,3 +214,104 @@ export const exactlyOneElement = (arr, paramName = "array") =>
     return arr[0];
 }
 
+/**
+ * Converts degrees to radians.
+ *
+ * @param {!number} degrees The degrees to convert to radians.
+ * @returns {!number} The given degrees converted to radians.
+ * @author Anthony Webster
+ */
+export const degreesToRadians = (degrees) =>
+{
+    assertTypeIs(degrees, "number", "degrees");
+    return degrees * (Math.PI / 180.0);
+}
+
+/**
+ * Computes the haversine of the given angle.
+ *
+ * @param {!number} theta The angle in radians.
+ * @returns {!number} The haversine of the given angle.
+ * @author Anthony Webster
+ */
+export const haversin = (theta) =>
+{
+    assertTypeIs(theta, "number", "angle");
+    const s = Math.sin(theta / 2.0);
+    return s * s;
+}
+
+/**
+ * Parse an object to a number (either integral or floating-point).
+ *
+ * @param {*} str The object to parse. If it's already of type `Number` and is not NaN, then no parsing is
+ *                done and `str` is returned as-is.
+ * @param {boolean} [trim = false] Indicates if leading and trailing whitespace should be trimmed before
+ *                                 parsing.
+ * @returns {number} The parsed value, as a number.
+ * @throws {Error} If `str` is not a number, not a string, undefined, null, NaN, or if it cannot be
+ *                 otherwise parsed to a number.
+ * @author Anthony Webster
+ */
+export const parseNumber = (str, trim = false) =>
+{
+    // Normal languages (not JS) don't let you parse garbage like "   56 " or "45qwerty" into an int.
+    // This function restores this NORMAL functionality that already should exist in JS.
+
+    if (str === undefined)
+    {
+        throw new Error("Cannot convert undefined to a number");
+    }
+    if (str === null)
+    {
+        throw new Error("Cannot convert null to a number");
+    }
+    if (Number.isNaN(str))
+    {
+        throw new Error("Cannot convert NaN to a number");
+    }
+    if (isNumber(str))
+    {
+        // If we got a number, then we're in luck. No need to actually parse anything.
+        return str;
+    }
+    if (typeof str !== "string")
+    {
+        throw new Error(`Cannot parse object of type ${typeof str} to number`);
+    }
+
+    if (isNullOrUndefined(trim))
+    {
+        trim = false;
+    }
+
+    if (typeof trim !== "boolean")
+    {
+        throw new Error("Value for trim must have type boolean");
+    }
+
+    if (trim)
+    {
+        str = str.trim();
+    }
+
+    // Yeah, I know this is probably not the best, but it'll do.
+    const intRegex = /^([-+]?)([0-9]+)$/gui;
+    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/gui;
+
+    if (str.match(intRegex) || str.match(floatRegex))
+    {
+        const parsed = parseFloat(str);
+
+        // This should *never* be NaN, but we'll do a sanity check just in case. I am convinced that JS
+        // function behavior changes based on the position of stars in the universe and quantum mechanics
+        // or something ridiculous.
+        if (!Number.isNaN(parsed))
+        {
+            return parsed;
+        }
+    }
+
+    throw new Error("Cannot convert non-numeric value to a number");
+}
+
