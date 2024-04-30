@@ -242,6 +242,19 @@ export const haversin = (theta) =>
 }
 
 /**
+ * Test if the given object is a number and not NaN.
+ *
+ * @param x {any} The object to test.
+ * @returns {boolean} True if `x` is not null, not undefined, not NaN, and its type is `number`;
+ *                    otherwise, false.
+ * @author Anthony Webster
+ */
+export const isNumber = (x) =>
+{
+    return !isNullOrUndefined(x) && typeof x === "number" && !Number.isNaN(x);
+};
+
+/**
  * Parse an object to a number (either integral or floating-point).
  *
  * @param {*} str The object to parse. If it's already of type `Number` and is not NaN, then no parsing is
