@@ -222,14 +222,17 @@ const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
 const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
 {
     // Adapted from <https://stackoverflow.com/a/27943> and <https://en.wikipedia.org/wiki/Haversine_formula>
-    // Equatorial radius according to Wikipedia
-    const equatorialRadius = 3963.191;
+    // Data according to Wikipedia
+    // const polarRadius = 3949.903;
+    // const equatorialRadius = 3963.191;
+    // const meanRadius = 3958.8;
+    const radius = 3958.8;
     const dLat = degreesToRadians(lat2 - lat1);
     const dLon = degreesToRadians(lon2 - lon1);
     const a =
         haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return equatorialRadius * c;
+    return radius * c;
 };
 
 /**
@@ -290,7 +293,58 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     // depend on where the coordinates for a place lands. For right now, we'll just consider that to
     // be user error :)
     // TODO: FUTURE: Handle places that span multiple miles.
-    searchRadius += 1;
+
+    // I did some testing. The correct distances vary by location (because Earth's radius is different
+    // everywhere in the world). And there's no perfect formula to do this calculation because Earth
+    // is anything but constant (and even weather and climate changes things....). My tests were definitely
+    // not perfect because they worked in a straight line and not in a radius, but hopefully these
+    // estimations help make things slightly more accurate. All actual numbers are according to Wolfram Alpha.
+    //
+    // Here is a summary of some differences when moving generally southwest from NJ:
+    // | Distance               | Approximate difference between haversine and actual distance |
+    // | ---------------------- | ------------------------------------------------------------ |
+    // | [0, 12.2] miles        | [0, 0.028] miles ~= [0, 148] feet                            |
+    // | (12.2, 24.6] miles     | (0.028, 0.07] miles ~= (148, 370] feet                       |
+    // | (24.6, 39.5] miles     | (0.07, 0.125] miles ~= (370, 660] feet                       |
+    // | (39.5, 56.46] miles    | (0.125, 0.163] miles ~= (660, 861] feet                      |
+    // | (56.46, 104.2] miles   | (0.163, 0.253] miles ~= (861, 1336] feet                     |
+    // | (104.2, 168.3] miles   | (0.253, 0.411] miles ~= (1336, 2170] feet                    |
+    // | (168.3, 196.1] miles   | (0.411, 0.548] miles ~= (2170, 2893] feet                    |
+    // | > 196.1 miles          | > 0.548 miles ~= > 2893 feet                                 |
+    //
+    // Luckily, the formula is actually not to wildly inaccurate - it's always within a mile or so
+    // for "reasonable" distances. Remember though that these distances are based on a small subset
+    // of possible points within a given radius, so the difference could be larger or smaller. This
+    // error is reflected below when we change the search radius.
+
+    if (searchRadius > 200)
+    {
+        // > 200 mile radius could have significant error. Consider +/- 2 miles.
+        searchRadius += 2;
+    }
+    else if (searchRadius > 100)
+    {
+        // Between 100 and 200 miles is more accurate, but we'll call it a mile of wiggle room.
+        searchRadius += 1;
+    }
+    else if (searchRadius > 50)
+    {
+        searchRadius += 0.5;
+    }
+    else if (searchRadius > 25)
+    {
+        searchRadius += 0.25;
+    }
+    else if (searchRadius > 10)
+    {
+        searchRadius += 0.1;
+    } else {
+        // If the search radius is smaller than 10 miles, the calculated distances will probably be
+        // good enough. We'll add just a little bit to account for any other errors (such as floating
+        // point error, different anchor point for a place, etc.)
+        searchRadius += 0.02;  // About 150 feet
+    }
+
 
     const placesToLookup = [];
     const placeIdsToExclude = [];
@@ -310,7 +364,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         url.searchParams.format = "jsonv2";
         url.searchParams.exclude_place_ids = placeIdsToExclude.join(",");
         const {data} = await axios.get(url.toString());
-        
+
         // If at any point we don't get any results back, then break.
         if (data.length === 0)
         {
