@@ -92,6 +92,11 @@ export const parseOsmClass = (osmClass) =>
  */
 export const parseOsmId = (osmId) =>
 {
+    if (typeof osmId === "number")
+    {
+        return osmId.toString();
+    }
+
     throwIfNotString(osmId, "OSM ID");
     if (osmId.length === 0)
     {
@@ -104,6 +109,30 @@ const getNominatimApiUrl = (endpoint) =>
 {
     return new URL(endpoint, NOMINATIM_API_BASE_URL);
 }
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+
+const makeNominatimApiRequest = async (url) =>
+{
+    // [deep sigh and exhale]
+    // Nominatim has a strict maximum of one request per second.
+    // This is a bit of a nuclear option, but we'll pause before making any requests to be sure that
+    // we don't exceed that limit. While it's nuclear and a little obnoxious, it makes sure that we
+    // abide by the rules and respect the service. I like to think of it also as a "thank you" for
+    // the service being FOSS.
+    await sleep(1250);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        // body: params,
+        headers: {
+            "User-Agent": "curl/8.7.1"
+        }
+    });
+
+    return await response.json();
+};
 
 // TODO: Create separate typedefs where some of this stuff gets too "noisy".
 /**
@@ -154,43 +183,43 @@ const nominatimLookupMany = async (typeIdPairs) =>
     }
 
     // We can only query the API with up to 50 places at a time.
-    const requests = [];
+    const results = [];
 
     for (let i = 0; i < typeIdPairs.length; i += NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
     {
         const url = getNominatimApiUrl(NOMINATIM_API_LOOKUP_ENDPOINT);
+        const params = [
+            // Need results in JSON format
+            ["format", "jsonv2"],
+            // include a full list of names for the result. These may include language variants,
+            // older names, references and brand.
+            ["namedetails", "1"],
+            // Include extra address details
+            ["addressdetails", "1"],
+            // Include extra info about the place
+            ["extratags", "1"]
+        ];
 
-        // Need results in JSON format
-        url.searchParams.format = "jsonv2";
+        params.forEach(p => url.searchParams.append(p[0], p[1]));
 
-        // include a full list of names for the result. These may include language variants,
-        // older names, references and brand.
-        url.searchParams.namedetails = 1;
-
-        // Include extra address details
-        url.searchParams.addressdetails = 1;
-
-        // Include extra info about the place
-        url.searchParams.extratags = 1;
-
-        url.searchParams.osm_ids = typeIdPairs
-            .slice(i, i + NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
-            .map(pair => `${parseOsmType(pair[0])}${parseOsmId(pair[1])}`)
+        const waypoints = typeIdPairs
+            .map(p => `${parseOsmType(p[0])}${parseOsmId(p[1])}`)
+            .map(p => encodeURIComponent(p))
             .join(",");
 
-        if (url.searchParams.osm_ids.length === 0)
+        const urlString = `${url.toString()}&osm_ids=${waypoints}`;
+
+        if (waypoints.length === 0)
         {
             // Well this shouldn't have happened...
             // TODO: Will this ever happen?
             throw new Error("Bad chunk when looking up many places in Nominatim");
         }
 
-        requests.push(axios.get(url.toString()));
+        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(x));
     }
 
-    const axiosResults = await Promise.all(requests);
-    // TODO: What happens if an axios call result doesn't have a data field on it?
-    return axiosResults.flatMap(x => parseNominatimLookupResult(x.data));
+    return results;
 };
 
 /**
@@ -251,37 +280,21 @@ export const nominatimSearch = async (query) =>
     return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
 };
 
-/**
- * Searches the Nominatim database with the given query within a given radius from a given point.
- *
- * @param query The query to search Nominatim.
- * @param {number} currentLatitude The latitude of the current location.
- * @param {number} currentLongitude The longitude of the current location.
- * @param {number} searchRadius The maximum radius to search for results in miles.
- * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
- */
-export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) =>
+const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) =>
 {
-    // TODO: Check that latitude and longitude fall within an acceptable range.
+    const milesPerDegreeOfLongitudeAtEquator = 69.17;
+    return Math.cos(degreesToRadians(latitudeDegrees)) * milesPerDegreeOfLongitudeAtEquator;
+};
 
-    query = parseNonEmptyString(query, "Search query");
-    assertTypeIs(currentLatitude, "number", "current latitude");
-    assertTypeIs(currentLongitude, "number", "current longitude");
-    assertTypeIs(searchRadius, "number", "search radius");
-
-    if (searchRadius < 0)
-    {
-        throw new Error("Search radius cannot be negative");
-    }
-
-    // 0.01 miles is just about 50 feet. Therefore, rounding to two places should be more than
-    // enough for all practical purposes.
-    searchRadius = roundTo(searchRadius, 2);
-    if (searchRadius === 0)
-    {
-        return [];
-    }
-
+/**
+ *
+ * @param currentLatitude
+ * @param currentLongitude
+ * @param searchRadius
+ * @returns {{x1: number, y1: number, x2: number, y2: number}}
+ */
+const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
+{
     // We will increase the search radius by 1 to account for any floating point garbage and the fact
     // that the haversine formula isn't perfect for oblate spheroids like our beautiful home, Earth.
     // If anything falls outside the radius after this, then we can be quite sure that that place isn't
@@ -338,13 +351,78 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     else if (searchRadius > 10)
     {
         searchRadius += 0.1;
-    } else {
+    }
+    else
+    {
         // If the search radius is smaller than 10 miles, the calculated distances will probably be
         // good enough. We'll add just a little bit to account for any other errors (such as floating
         // point error, different anchor point for a place, etc.)
         searchRadius += 0.02;  // About 150 feet
     }
 
+    // const halfRadius = searchRadius / 2.0;  // miles
+    searchRadius /= 2.0;
+
+    const milesPerDegreeOfLongitudeAtEquator = 69.17;
+    const latDeg = degreesToRadians(currentLatitude);
+    const lonDeg = degreesToRadians(currentLongitude);
+
+    // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
+    const milesPerDegreeOfLatitude = 69.0;  // mi/deg
+    const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude);  // mi/deg
+
+    // Compute how many degrees we need to move
+    // (mi/deg) * (1/mi) = 1/deg
+    // ^-1 = deg
+
+    // Have miles and current location (in deg)
+    // Have miles/deg
+    const longitudeDegPerMile = 1 / milesPerLongitude;
+    const latitudeDegPerMile = 1 / milesPerDegreeOfLatitude;
+
+    // TODO: Wrap on overflow
+    return {
+        // Pair 1 will be the top left corner
+        x1: currentLatitude + (latitudeDegPerMile * searchRadius),
+        y1: currentLongitude < 0 ? currentLongitude - (longitudeDegPerMile * searchRadius) : currentLongitude + (longitudeDegPerMile * searchRadius),
+        // Pair 2 will be the bottom right corner
+        x2: currentLatitude - (latitudeDegPerMile * searchRadius),
+        y2: currentLongitude < 0 ? currentLongitude + (longitudeDegPerMile * searchRadius) : currentLongitude - (longitudeDegPerMile * searchRadius)
+    };
+};
+
+/**
+ * Searches the Nominatim database with the given query within a given radius from a given point.
+ *
+ * @param query The query to search Nominatim.
+ * @param {number} currentLatitude The latitude of the current location.
+ * @param {number} currentLongitude The longitude of the current location.
+ * @param {number} searchRadius The maximum radius to search for results in miles.
+ * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
+ */
+export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) =>
+{
+    // TODO: Check that latitude and longitude fall within an acceptable range.
+
+    query = parseNonEmptyString(query, "Search query");
+    assertTypeIs(currentLatitude, "number", "current latitude");
+    assertTypeIs(currentLongitude, "number", "current longitude");
+    assertTypeIs(searchRadius, "number", "search radius");
+
+    if (searchRadius < 0)
+    {
+        throw new Error("Search radius cannot be negative");
+    }
+
+    // 0.01 miles is just about 50 feet. Therefore, rounding to two places should be more than
+    // enough for all practical purposes.
+    searchRadius = roundTo(searchRadius, 2);
+    if (searchRadius === 0)
+    {
+        return [];
+    }
+
+    const searchArea = computeBoundingBox(currentLatitude, currentLongitude, searchRadius);
 
     const placesToLookup = [];
     const placeIdsToExclude = [];
@@ -352,18 +430,49 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     // We'll do this search up to 10 times. Prevents us from "over-searching" but is also a reasonable
     // number of times to search. Why 10? Seemed like a good number, that's all.
     // However, we'll go a little extra if we still don't have any nearby results.
-    // TODO: This is potentially a nasty performance hit. 10 API calls is quite a bit!
-    for (let i = 0; i < 10 || (placesToLookup.length === 0 && i < 20); i++)
+    for (let i = 0; i < 2 || (placesToLookup.length === 0 && i < 4); i++)
     {
-        // TODO: Explore using bounded + viewbox.
-
         const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
         // We only really need place IDs, OSM type, OSM ID, and latitude/longitude. Don't include any
         // extra address info and whatever - we'll get that when we do the lookup.
-        url.searchParams.q = query;
-        url.searchParams.format = "jsonv2";
-        url.searchParams.exclude_place_ids = placeIdsToExclude.join(",");
-        const {data} = await axios.get(url.toString());
+        url.searchParams.append("q", query);
+
+        // From Nominatim:
+        // > Cannot be more than 40. Nominatim may decide to return less results than
+        // > given, if additional results do not sufficiently match the query.
+        //
+        // Explicitly limiting to 40 does, in fact, limit us to 40. However, it overrides any default limit
+        // there may be so we can get back the biggest set of results at a time.
+        url.searchParams.append("limit", "40");
+
+        // Enable deduplication to avoid getting parts of the same place
+        url.searchParams.append("dedupe", "1");
+
+        // Only results in the US
+        url.searchParams.append("countrycodes", "us");
+
+        // Keep results in search area
+        // url.searchParams.append("bounded", "1");
+
+        url.searchParams.append("accept-language", "en");
+        url.searchParams.append("format", "jsonv2");
+        url.searchParams.append("email", `jeff${Math.floor(Math.random() * 100000)}@example.com`);
+
+        let urlString = url.toString();
+
+        urlString += `&viewbox=${encodeURIComponent(searchArea.x1)},${encodeURIComponent(searchArea.y1)},${encodeURIComponent(searchArea.x2)},${encodeURIComponent(searchArea.y2)}`;
+
+
+        if (placeIdsToExclude.length > 0)
+        {
+            // We explicitly need commas here
+            const toExclude = placeIdsToExclude.map(i => encodeURIComponent(i)).join(",");
+            urlString = `${urlString}&exclude_place_ids=${toExclude}`;
+        }
+
+
+        console.log("URL: ", urlString);
+        const data = await makeNominatimApiRequest(urlString);
 
         // If at any point we don't get any results back, then break.
         if (data.length === 0)
@@ -376,15 +485,17 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         {
             placeIdsToExclude.push(d.place_id.toString());
 
-            const lat = parseNumber(d.lat, true);
-            const long = parseNumber(d.lon, true);
-            const distance = distanceBetweenPointsMiles(currentLatitude, currentLongitude, lat, long);
-            if (distance <= searchRadius)
-            {
-                placesToLookup.push([d.osm_type, d.osm_id]);
-            }
+            placesToLookup.push([d.osm_type, d.osm_id]);
+            // const lat = parseNumber(d.lat, true);
+            // const long = parseNumber(d.lon, true);
+            // const distance = distanceBetweenPointsMiles(currentLatitude, currentLongitude, lat, long);
+            // if (distance <= searchRadius)
+            // {
+            //     placesToLookup.push([d.osm_type, d.osm_id]);
+            // }
         });
     }
+    console.log("Places to lookup: ", placesToLookup)
     return await nominatimLookupMany(placesToLookup);
 };
 
