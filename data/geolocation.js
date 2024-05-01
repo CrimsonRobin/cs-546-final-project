@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
     assertTypeIs,
     degreesToRadians,
@@ -113,6 +112,11 @@ const makeNominatimApiRequest = async (url) =>
     // abide by the rules and respect the service. I like to think of it also as a "thank you" for
     // the service being FOSS.
     await sleep(1250);
+
+    if (url instanceof URL)
+    {
+        url = url.toString();
+    }
 
     const response = await fetch(url, {
         method: 'GET',
@@ -239,9 +243,9 @@ export const nominatimSearch = async (query) =>
 {
     query = parseNonEmptyString(query, "Search query");
     const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
-    url.searchParams.q = query;
-    url.searchParams.format = "jsonv2";
-    const {data} = await axios.get(url.toString());
+    url.searchParams.append("q", query);
+    url.searchParams.append("format", "jsonv2");
+    const data = await makeNominatimApiRequest(url.toString());
     return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
 };
 
