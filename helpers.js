@@ -326,5 +326,69 @@ export const parseNumber = (str, trim = false) =>
     }
 
     throw new Error("Cannot convert non-numeric value to a number");
-}
+};
 
+/**
+ * Parse a latitude value, asserting that it is in the correct range of latitude values.
+ *
+ * A positive latitude indicates north, negative indicates south.
+ *
+ * @param {number} latitude The latitude to parse
+ * @returns {number} The parsed latitude
+ * @author Anthony Webster
+ */
+export const parseLatitude = (latitude) =>
+{
+    assertTypeIs(latitude, "number", "latitude");
+    if (latitude < -90 || latitude > 90)
+    {
+        throw new Error("Latitude must be between -90 and 90");
+    }
+    return latitude;
+};
+
+/**
+ * Normalize a longitude value, wrapping around if it is greater than 180 or less than -180.
+ *
+ * A positive longitude indicates east, negative indicates west.
+ *
+ * @param {number} longitude The longitude to normalize.
+ * @returns {number} The normalized longitude.
+ * @author Anthony Webster
+ */
+export const normalizeLongitude = (longitude) =>
+{
+    assertTypeIs(longitude, "number", "Longitude");
+    if (isInfinity(longitude) || Number.isNaN(longitude))
+    {
+        throw new Error(`Invalid longitude ${longitude}`);
+    }
+
+    const sign = longitude < 0 ? -1 : 1;
+    longitude = Math.abs(longitude);
+
+    // This isn't a great way to do this, but it'll work.
+    while (longitude > 180)
+    {
+        longitude -= 360;
+    }
+
+    return longitude * sign;
+};
+
+/**
+ * Sleep for the given number of milliseconds.
+ *
+ * @param milliseconds The number of milliseconds to sleep for.
+ * @returns {Promise<any>}
+ * @author Anthony Webster
+ */
+export const sleep = (milliseconds) =>
+{
+    assertTypeIs(milliseconds, "number", "milliseconds");
+    if (milliseconds <= 0)
+    {
+        return Promise.resolve();
+    }
+    return new Promise(r => setTimeout(r, milliseconds))
+};

@@ -4,14 +4,13 @@ import {
     degreesToRadians,
     exactlyOneElement, haversin,
     isNullOrUndefined,
-    parseNonEmptyString, parseNumber, roundTo,
+    parseNonEmptyString, parseNumber, roundTo, sleep,
     throwIfNotString
 } from "../helpers.js";
 
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
 const NOMINATIM_API_SEARCH_ENDPOINT = "/search";
-const NOMINATIM_API_DETAILS_ENDPOINT = "/details";
 
 const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
 
@@ -51,32 +50,11 @@ export const parseOsmType = (osmType) =>
 };
 
 /**
- * Wraps a Nominatim API call result so that the OSM type and OSM ID are consistently available in
- * a deterministic location and in a deterministic form.
- *
- * Unfortunately, Nominatim isn't completely consistent across all its endpoints, so this function
- * provides a consistent interface for accessing the most important information (type and ID).
- *
- * @param osmType
- * @param osmId
- * @param apiResults
- * @returns {{data, osmId: string, osmType: string}}
- */
-const createNominatimApiCallResult = (osmType, osmId, apiResults) =>
-{
-    return {
-        // Regardless of the type Nominatim gives us, we'll convert it to what we use internally.
-        osmType: parseOsmType(osmType),
-        // Nominatim likes to give IDs back as numbers, but we use strings.
-        osmId: osmId.toString(),
-        data: apiResults
-    };
-};
-
-/**
  * Parses an OSM class.
+ *
  * @param {*} osmClass An OSM class.
  * @returns {string} The parsed OSM class.
+ * @author Anthony Webster
  */
 export const parseOsmClass = (osmClass) =>
 {
@@ -105,14 +83,27 @@ export const parseOsmId = (osmId) =>
     return osmId;
 }
 
+/**
+ * Gets the URL for the given Nominatim endpoint.
+ *
+ * @param {string} endpoint The Nominatim endpoint.
+ * @returns {module:url.URL} A URL representing the Nominatim API endpoint.
+ * @author Anthony Webster
+ */
 const getNominatimApiUrl = (endpoint) =>
 {
     return new URL(endpoint, NOMINATIM_API_BASE_URL);
 }
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-
+/**
+ * Make a generic get request to the Nominatim API at the given URL.
+ *
+ * The Nominatim API should respond with JSON.
+ *
+ * @param url The full URL to the Nominatim endpoint with any and all parameters.
+ * @returns {Promise<any>} The data from Nominatim.
+ * @author Anthony Webster
+ */
 const makeNominatimApiRequest = async (url) =>
 {
     // [deep sigh and exhale]
@@ -238,37 +229,11 @@ export const nominatimLookup = async (osmType, osmId) =>
 const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 /**
- * Converts the distance in miles between the given coordinates.
- *
- * North and east should be positive; south and west should be negative.
- *
- * @param lat1 The latitude of the first coordinate.
- * @param lon1 The longitude of the first coordinate.
- * @param lat2 The latitude of the second coordinate.
- * @param lon2 The longitude of the second coordinate.
- * @returns {number} The distance in miles between the given coordinates.
- */
-const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
-{
-    // Adapted from <https://stackoverflow.com/a/27943> and <https://en.wikipedia.org/wiki/Haversine_formula>
-    // Data according to Wikipedia
-    // const polarRadius = 3949.903;
-    // const equatorialRadius = 3963.191;
-    // const meanRadius = 3958.8;
-    const radius = 3958.8;
-    const dLat = degreesToRadians(lat2 - lat1);
-    const dLon = degreesToRadians(lon2 - lon1);
-    const a =
-        haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return radius * c;
-};
-
-/**
  * Searches the Nominatim database with the given query.
  *
  * @param query The query to search Nominatim.
  * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
+ * @author Anthony Webster
  */
 export const nominatimSearch = async (query) =>
 {
@@ -280,6 +245,13 @@ export const nominatimSearch = async (query) =>
     return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
 };
 
+/**
+ * Compute the number of miles between each degree of longitude at a given latitude.
+ *
+ * @param {number} latitudeDegrees The latitude in degrees
+ * @returns {!number} The distance, in miles, between each degree of longitude at the given latitude.
+ * @author Anthony Webster
+ */
 const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) =>
 {
     const milesPerDegreeOfLongitudeAtEquator = 69.17;
@@ -287,14 +259,19 @@ const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) =>
 };
 
 /**
+ * Computes the bounding box that approximately encompasses the given search radius.
  *
- * @param currentLatitude
- * @param currentLongitude
- * @param searchRadius
- * @returns {{x1: number, y1: number, x2: number, y2: number}}
+ * @param {number} currentLatitude The latitude of the center of the search area.
+ * @param {number} currentLongitude The longitude of the center of the search area.
+ * @param {number} searchRadius The search radius, in miles.
+ * @returns {{x1: number, y1: number, x2: number, y2: number}} A set of coordinates with the first being
+ * the top left corner and the second being the bottom right.
+ * @author Anthony Webster
  */
 const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
 {
+    // TODO: What happens if the search radius passes 90deg latitude?
+
     // We will increase the search radius by 1 to account for any floating point garbage and the fact
     // that the haversine formula isn't perfect for oblate spheroids like our beautiful home, Earth.
     // If anything falls outside the radius after this, then we can be quite sure that that place isn't
@@ -363,10 +340,6 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     // const halfRadius = searchRadius / 2.0;  // miles
     searchRadius /= 2.0;
 
-    const milesPerDegreeOfLongitudeAtEquator = 69.17;
-    const latDeg = degreesToRadians(currentLatitude);
-    const lonDeg = degreesToRadians(currentLongitude);
-
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
     const milesPerDegreeOfLatitude = 69.0;  // mi/deg
     const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude);  // mi/deg
@@ -433,6 +406,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     for (let i = 0; i < 2 || (placesToLookup.length === 0 && i < 4); i++)
     {
         const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
+
         // We only really need place IDs, OSM type, OSM ID, and latitude/longitude. Don't include any
         // extra address info and whatever - we'll get that when we do the lookup.
         url.searchParams.append("q", query);
@@ -462,14 +436,12 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
         urlString += `&viewbox=${encodeURIComponent(searchArea.x1)},${encodeURIComponent(searchArea.y1)},${encodeURIComponent(searchArea.x2)},${encodeURIComponent(searchArea.y2)}`;
 
-
         if (placeIdsToExclude.length > 0)
         {
-            // We explicitly need commas here
+            // We explicitly need commas here. Encoding after joining escapes the commas.
             const toExclude = placeIdsToExclude.map(i => encodeURIComponent(i)).join(",");
             urlString = `${urlString}&exclude_place_ids=${toExclude}`;
         }
-
 
         console.log("URL: ", urlString);
         const data = await makeNominatimApiRequest(urlString);
@@ -484,18 +456,10 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         data.forEach(d =>
         {
             placeIdsToExclude.push(d.place_id.toString());
-
             placesToLookup.push([d.osm_type, d.osm_id]);
-            // const lat = parseNumber(d.lat, true);
-            // const long = parseNumber(d.lon, true);
-            // const distance = distanceBetweenPointsMiles(currentLatitude, currentLongitude, lat, long);
-            // if (distance <= searchRadius)
-            // {
-            //     placesToLookup.push([d.osm_type, d.osm_id]);
-            // }
         });
     }
-    console.log("Places to lookup: ", placesToLookup)
+
     return await nominatimLookupMany(placesToLookup);
 };
 
