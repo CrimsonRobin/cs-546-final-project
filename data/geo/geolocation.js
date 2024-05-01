@@ -211,7 +211,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
             throw new Error("Bad chunk when looking up many places in Nominatim");
         }
 
-        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(parseNominatimLookupResult(x)));
+        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(x));
     }
 
     return results;
