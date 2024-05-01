@@ -5,7 +5,7 @@ import {
     isNullOrUndefined,
     parseNonEmptyString, parseNumber, roundTo, sleep,
     throwIfNotString
-} from "../../helpers.js";
+} from "../helpers.js";
 
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
