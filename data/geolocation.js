@@ -1,9 +1,10 @@
 import {
     assertTypeIs,
     degreesToRadians,
-    exactlyOneElement, haversin,
-    isNullOrUndefined,
-    parseNonEmptyString, parseNumber, roundTo, sleep,
+    exactlyOneElement,
+    parseNonEmptyString,
+    roundTo,
+    sleep,
     throwIfNotString
 } from "../helpers.js";
 
@@ -186,7 +187,19 @@ const nominatimLookupMany = async (typeIdPairs) =>
     for (let i = 0; i < typeIdPairs.length; i += NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
     {
         const url = getNominatimApiUrl(NOMINATIM_API_LOOKUP_ENDPOINT);
+        const waypoints = typeIdPairs.slice(i, i + NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY);
+
+        if (waypoints.length === 0)
+        {
+            // Well this shouldn't have happened...
+            // TODO: Will this ever happen?
+            throw new Error("Bad chunk when looking up many places in Nominatim");
+        }
+
         const params = [
+            ["osm_ids", waypoints
+                .map(p => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`))
+                .join(",")],
             // Need results in JSON format
             ["format", "jsonv2"],
             // include a full list of names for the result. These may include language variants,
@@ -200,21 +213,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
 
         params.forEach(p => url.searchParams.append(p[0], p[1]));
 
-        const waypoints = typeIdPairs
-            .map(p => `${parseOsmType(p[0])}${parseOsmId(p[1])}`)
-            .map(p => encodeURIComponent(p))
-            .join(",");
-
-        const urlString = `${url.toString()}&osm_ids=${waypoints}`;
-
-        if (waypoints.length === 0)
-        {
-            // Well this shouldn't have happened...
-            // TODO: Will this ever happen?
-            throw new Error("Bad chunk when looking up many places in Nominatim");
-        }
-
-        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(parseNominatimLookupResult(x)));
+        (await makeNominatimApiRequest(url)).forEach(x => results.push(parseNominatimLookupResult(x)));
     }
 
     return results;
@@ -414,9 +413,12 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     {
         const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
 
-        // We only really need place IDs, OSM type, OSM ID, and latitude/longitude. Don't include any
-        // extra address info and whatever - we'll get that when we do the lookup.
-        url.searchParams.append("q", query);
+        // Search query
+        url.searchParams.append("q", `${query} near [${currentLatitude},${currentLongitude}]`);
+
+        // Narrow search area. Nominatim doesn't explicitly restrict results to this area unless
+        // explicitly asked to do that. However, it will prioritize results in this area.
+        url.searchParams.append("viewbox", `${searchArea.x1},${searchArea.y1},${searchArea.x2},${searchArea.y2}`);
 
         // From Nominatim:
         // > Cannot be more than 40. Nominatim may decide to return less results than
@@ -439,19 +441,13 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         url.searchParams.append("format", "jsonv2");
         url.searchParams.append("email", `jeff${Math.floor(Math.random() * 100000)}@example.com`);
 
-        let urlString = url.toString();
-
-        urlString += `&viewbox=${encodeURIComponent(searchArea.x1)},${encodeURIComponent(searchArea.y1)},${encodeURIComponent(searchArea.x2)},${encodeURIComponent(searchArea.y2)}`;
-
         if (placeIdsToExclude.length > 0)
         {
-            // We explicitly need commas here. Encoding after joining escapes the commas.
-            const toExclude = placeIdsToExclude.map(i => encodeURIComponent(i)).join(",");
-            urlString = `${urlString}&exclude_place_ids=${toExclude}`;
+            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map(i => encodeURIComponent(i)).join(","));
         }
 
-        console.log("URL: ", urlString);
-        const data = await makeNominatimApiRequest(urlString);
+        console.log("URL: ", url.toString());
+        const data = await makeNominatimApiRequest(url);
 
         // If at any point we don't get any results back, then break.
         if (data.length === 0)
