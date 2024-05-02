@@ -137,6 +137,8 @@ const makeNominatimApiRequest = async (url) =>
  * subcategory: string, extraTags: any}} NominatimPlaceData
  */
 
+const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
+
 /**
  *
  * @param data
@@ -144,7 +146,7 @@ const makeNominatimApiRequest = async (url) =>
  */
 const parseNominatimLookupResult = (data) =>
 {
-    return {
+    return jsonClone({
         // OSM data
         osmType: parseOsmType(data.osm_type),
         osmId: parseOsmId(data.osm_id),
@@ -161,12 +163,12 @@ const parseNominatimLookupResult = (data) =>
         subcategory: data.type,
 
         // Address information
-        addressTags: jsonClone(data.address),
+        addressTags: data.address,
         addressType: data.addressType,
 
         // Extra information
-        extraTags: jsonClone(data.extratags)
-    };
+        extraTags: data.extratags
+    });
 }
 
 /**
@@ -231,8 +233,6 @@ export const nominatimLookup = async (osmType, osmId) =>
 {
     return exactlyOneElement(await nominatimLookupMany([[osmType, osmId]]), "nominatim lookup");
 };
-
-const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 /**
  * Searches the Nominatim database with the given query.
