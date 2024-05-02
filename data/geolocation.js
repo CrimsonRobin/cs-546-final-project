@@ -3,12 +3,13 @@ import {
     assertIsNotNaN,
     assertTypeIs,
     degreesToRadians,
-    exactlyOneElement, normalizeLongitude, parseLatitude,
-    parseNonEmptyString,
+    exactlyOneElement, haversin, normalizeLongitude, parseLatitude,
+    parseNonEmptyString, parseNumber,
     roundTo,
     sleep,
     throwIfNotString
 } from "../helpers.js";
+import Enumerable from "linq";
 
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
@@ -16,6 +17,14 @@ const NOMINATIM_API_SEARCH_ENDPOINT = "/search";
 const MINIMUM_SEARCH_RADIUS = 0.1;
 const MAXIMUM_SEARCH_RADIUS = 400;
 const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
+
+/**
+ * The mean radius of Earth, in miles.
+ *
+ * Data is according to Wikipedia. The polar radius is 3949.903 miles; the equatorial radius is 3963.191 miles.
+ * @type {number}
+ */
+const EARTH_RADIUS_IN_MILES = 3958.8;
 
 export const OSM_TYPE_NODE = "N";
 export const OSM_TYPE_WAY = "W";
@@ -137,7 +146,7 @@ const makeNominatimApiRequest = async (url) =>
 /**
  * @typedef {{addressTags: {country: string, country_code: string, state: string, city: string},
  * osmId: string, displayName: string, addressType: string, name: string, osmType: string, category: string,
- * subcategory: string, extraTags: any}} NominatimPlaceData
+ * subcategory: string, extraTags: any, latitude: number, longitude: number}} NominatimPlaceData
  */
 
 const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -154,12 +163,12 @@ const parseNominatimLookupResult = (data) =>
         osmType: parseOsmType(data.osm_type),
         osmId: parseOsmId(data.osm_id),
 
-        latitude: data.lat,
-        longitude: data.lon,
+        latitude: parseNumber(data.lat, true),
+        longitude: parseNumber(data.lon, true),
 
         // Place names
         name: data.name,
-        displayName: data.displayName,
+        displayName: data.display_name,
 
         // Place tags (building, highway, etc.)
         category: data.category,
@@ -167,7 +176,7 @@ const parseNominatimLookupResult = (data) =>
 
         // Address information
         addressTags: data.address,
-        addressType: data.addressType,
+        addressType: data.addresstype,
 
         // Extra information
         extraTags: data.extratags
@@ -399,6 +408,29 @@ const parseSearchRadius = (radius) =>
 };
 
 /**
+ * Converts the distance in miles between the given coordinates.
+ *
+ * North and east should be positive; south and west should be negative.
+ *
+ * @param lat1 The latitude of the first coordinate.
+ * @param lon1 The longitude of the first coordinate.
+ * @param lat2 The latitude of the second coordinate.
+ * @param lon2 The longitude of the second coordinate.
+ * @returns {number} The distance in miles between the given coordinates.
+ * @author Anthony Webster
+ */
+const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
+{
+    // Adapted from <https://stackoverflow.com/a/27943> and <https://en.wikipedia.org/wiki/Haversine_formula>
+    const dLat = degreesToRadians(lat2 - lat1);
+    const dLon = degreesToRadians(lon2 - lon1);
+    const a =
+        haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return EARTH_RADIUS_IN_MILES * c;
+};
+
+/**
  * Searches the Nominatim database with the given query within a given radius from a given point.
  *
  * @param query The query to search Nominatim.
@@ -406,6 +438,7 @@ const parseSearchRadius = (radius) =>
  * @param {number} currentLongitude The longitude of the current location.
  * @param {number} searchRadius The maximum radius to search for results in miles.
  * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
+ * @author Anthony Webster
  */
 export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) =>
 {
@@ -454,14 +487,12 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
         url.searchParams.append("accept-language", "en");
         url.searchParams.append("format", "jsonv2");
-        url.searchParams.append("email", `jeff${Math.floor(Math.random() * 100000)}@example.com`);
 
         if (placeIdsToExclude.length > 0)
         {
             url.searchParams.append("exclude_place_ids", placeIdsToExclude.map(i => encodeURIComponent(i)).join(","));
         }
 
-        console.log("URL: ", url.toString());
         const data = await makeNominatimApiRequest(url);
 
         // If at any point we don't get any results back, then break.
@@ -474,9 +505,18 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         data.forEach(d =>
         {
             placeIdsToExclude.push(d.place_id.toString());
-            placesToLookup.push([d.osm_type, d.osm_id]);
+
+            // Don't lookup duplicate places
+            const osmType = parseOsmType(d.osm_type);
+            const osmId = parseOsmId(d.osm_id);
+            if (!placesToLookup.some(r => r[0] === osmType && r[1] === osmId))
+            {
+                placesToLookup.push([osmType, osmId]);
+            }
         });
     }
 
-    return await nominatimLookupMany(placesToLookup);
+    return Enumerable.from(await nominatimLookupMany(placesToLookup))
+        .orderBy(place => distanceBetweenPointsMiles(currentLatitude, currentLongitude, place.latitude, place.longitude))
+        .toArray();
 };
