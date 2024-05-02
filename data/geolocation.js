@@ -11,11 +11,46 @@ import {
 } from "../helpers.js";
 import Enumerable from "linq";
 
+/**
+ * The base URL for the Nominatim API.
+ * @type {string}
+ @author Anthony Webster
+ */
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
+
+/**
+ * The endpoint for looking up details about a place on Nominatim.
+ * @type {string}
+ * @author Anthony Webster
+ */
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
+
+/**
+ * The endpoint for searching Nominatim.
+ * @type {string}
+ * @author Anthony Webster
+ */
 const NOMINATIM_API_SEARCH_ENDPOINT = "/search";
+
+/**
+ * The minimum search radius for searching Nominatim.
+ * @type {number}
+ * @author Anthony Webster
+ */
 const MINIMUM_SEARCH_RADIUS = 0.1;
+
+/**
+ * The maximum search radius for searching Nominatim.
+ * @type {number}
+ * @author Anthony Webster
+ */
 const MAXIMUM_SEARCH_RADIUS = 400;
+
+/**
+ * The maximum number of places that can be looked up per API request.
+ * @type {number}
+ * @author Anthony Webster
+ */
 const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
 
 /**
@@ -23,11 +58,29 @@ const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
  *
  * Data is according to Wikipedia. The polar radius is 3949.903 miles; the equatorial radius is 3963.191 miles.
  * @type {number}
+ * @author Anthony Webster
  */
 const EARTH_RADIUS_IN_MILES = 3958.8;
 
+/**
+ * The OSM type for nodes.
+ * @type {string}
+ * @author Anthony Webster
+ */
 export const OSM_TYPE_NODE = "N";
+
+/**
+ * The OSM type for ways.
+ * @type {string}
+ * @author Anthony Webster
+ */
 export const OSM_TYPE_WAY = "W";
+
+/**
+ * The OSM type for relations.
+ * @type {string}
+ * @author Anthony Webster
+ */
 export const OSM_TYPE_RELATION = "R";
 
 /**
@@ -149,12 +202,21 @@ const makeNominatimApiRequest = async (url) =>
  * subcategory: string, extraTags: any, latitude: number, longitude: number}} NominatimPlaceData
  */
 
+/**
+ * Clone an object by converting the object to JSON and parsing the converted result.
+ *
+ * @param {any} obj The object to clone.
+ * @returns {any} The cloned object.
+ * @author Anthony Webster
+ */
 const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 /**
+ * Parses a result from the Nominatim lookup API into a more consistent and uniform result.
  *
- * @param data
- * @returns {NominatimPlaceData}
+ * @param {any} data The data from Nominatim's lookup API.
+ * @returns {NominatimPlaceData} The place data.
+ * @author Anthony Webster
  */
 const parseNominatimLookupResult = (data) =>
 {
@@ -184,9 +246,11 @@ const parseNominatimLookupResult = (data) =>
 }
 
 /**
+ * Lookup many places at a time on Nominatim.
  *
- * @param {string[][]} typeIdPairs
- * @returns {Promise<NominatimPlaceData[]>}
+ * @param {string[][]} typeIdPairs A list of pairs of the OSM type and OSM ID.
+ * @returns {Promise<NominatimPlaceData[]>} The result of looking up all the places on Nominatim.
+ * @author Anthony Webster
  */
 const nominatimLookupMany = async (typeIdPairs) =>
 {
@@ -384,6 +448,17 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     };
 };
 
+/**
+ * Parses a search radius.
+ *
+ * Search radii are rounded to 4 digits of precision. Valid radii are between
+ * {@linkcode MINIMUM_SEARCH_RADIUS} and {@linkcode MAXIMUM_SEARCH_RADIUS}. If the radius is
+ * invalid, an exception is thrown.
+ *
+ * @param {number} radius The search radius to parse.
+ * @returns {number} The parsed search radius.
+ * @author Anthony Webster
+ */
 const parseSearchRadius = (radius) =>
 {
     assertTypeIs(radius, "number", "search radius");
@@ -412,10 +487,10 @@ const parseSearchRadius = (radius) =>
  *
  * North and east should be positive; south and west should be negative.
  *
- * @param lat1 The latitude of the first coordinate.
- * @param lon1 The longitude of the first coordinate.
- * @param lat2 The latitude of the second coordinate.
- * @param lon2 The longitude of the second coordinate.
+ * @param {number} lat1 The latitude of the first coordinate.
+ * @param {number} lon1 The longitude of the first coordinate.
+ * @param {number} lat2 The latitude of the second coordinate.
+ * @param {number} lon2 The longitude of the second coordinate.
  * @returns {number} The distance in miles between the given coordinates.
  * @author Anthony Webster
  */
@@ -433,7 +508,7 @@ const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
 /**
  * Searches the Nominatim database with the given query within a given radius from a given point.
  *
- * @param query The query to search Nominatim.
+ * @param {string} query The query to search Nominatim.
  * @param {number} currentLatitude The latitude of the current location.
  * @param {number} currentLongitude The longitude of the current location.
  * @param {number} searchRadius The maximum radius to search for results in miles.
