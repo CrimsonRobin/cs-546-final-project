@@ -1,7 +1,9 @@
 import {
+    assertIsNotInfinity,
+    assertIsNotNaN,
     assertTypeIs,
     degreesToRadians,
-    exactlyOneElement,
+    exactlyOneElement, normalizeLongitude, parseLatitude,
     parseNonEmptyString,
     roundTo,
     sleep,
@@ -11,7 +13,8 @@ import {
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
 const NOMINATIM_API_LOOKUP_ENDPOINT = "/lookup";
 const NOMINATIM_API_SEARCH_ENDPOINT = "/search";
-
+const MINIMUM_SEARCH_RADIUS = 0.1;
+const MAXIMUM_SEARCH_RADIUS = 400;
 const NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY = 50;
 
 export const OSM_TYPE_NODE = "N";
@@ -370,6 +373,29 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     };
 };
 
+const parseSearchRadius = (radius) =>
+{
+    assertTypeIs(radius, "number", "search radius");
+    assertIsNotNaN(radius, "search radius");
+    assertIsNotInfinity(radius, "search radius");
+
+    // More than 4 digits of precision really shouldn't be necessary. This also helps with
+    // floating point garbage.
+    radius = roundTo(radius, 4);
+
+    if (radius < MINIMUM_SEARCH_RADIUS)
+    {
+        throw new Error(`Search radius must be at least ${MINIMUM_SEARCH_RADIUS}`);
+    }
+
+    if (radius > MAXIMUM_SEARCH_RADIUS)
+    {
+        throw new Error(`Search radius cannot exceed ${radius}`);
+    }
+
+    return radius;
+};
+
 /**
  * Searches the Nominatim database with the given query within a given radius from a given point.
  *
@@ -384,25 +410,12 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     // TODO: Check that latitude and longitude fall within an acceptable range.
 
     query = parseNonEmptyString(query, "Search query");
-    assertTypeIs(currentLatitude, "number", "current latitude");
-    assertTypeIs(currentLongitude, "number", "current longitude");
-    assertTypeIs(searchRadius, "number", "search radius");
 
-    if (searchRadius < 0)
-    {
-        throw new Error("Search radius cannot be negative");
-    }
-
-    // 0.01 miles is just about 50 feet. Therefore, rounding to two places should be more than
-    // enough for all practical purposes.
-    searchRadius = roundTo(searchRadius, 2);
-    if (searchRadius === 0)
-    {
-        return [];
-    }
+    currentLatitude = parseLatitude(currentLatitude);
+    currentLongitude = normalizeLongitude(currentLongitude);
+    searchRadius = parseSearchRadius(searchRadius);
 
     const searchArea = computeBoundingBox(currentLatitude, currentLongitude, searchRadius);
-
     const placesToLookup = [];
     const placeIdsToExclude = [];
 
@@ -465,4 +478,3 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
     return await nominatimLookupMany(placesToLookup);
 };
-
