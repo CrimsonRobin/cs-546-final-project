@@ -362,14 +362,16 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     const longitudeDegPerMile = 1 / milesPerLongitude;
     const latitudeDegPerMile = 1 / milesPerDegreeOfLatitude;
 
+    const longitudeDiff = longitudeDegPerMile * searchRadius;
+
     // TODO: Wrap on overflow
     return {
         // Pair 1 will be the top left corner
         x1: currentLatitude + (latitudeDegPerMile * searchRadius),
-        y1: currentLongitude < 0 ? currentLongitude - (longitudeDegPerMile * searchRadius) : currentLongitude + (longitudeDegPerMile * searchRadius),
+        y1: currentLongitude < 0 ? currentLongitude - longitudeDiff : currentLongitude + longitudeDiff,
         // Pair 2 will be the bottom right corner
         x2: currentLatitude - (latitudeDegPerMile * searchRadius),
-        y2: currentLongitude < 0 ? currentLongitude + (longitudeDegPerMile * searchRadius) : currentLongitude - (longitudeDegPerMile * searchRadius)
+        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff
     };
 };
 
