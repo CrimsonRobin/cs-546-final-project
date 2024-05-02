@@ -148,6 +148,9 @@ const parseNominatimLookupResult = (data) =>
         osmType: parseOsmType(data.osm_type),
         osmId: parseOsmId(data.osm_id),
 
+        latitude: data.lat,
+        longitude: data.lon,
+
         // Place names
         name: data.name,
         displayName: data.displayName,
@@ -211,7 +214,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
             throw new Error("Bad chunk when looking up many places in Nominatim");
         }
 
-        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(x));
+        (await makeNominatimApiRequest(urlString)).forEach(x => results.push(parseNominatimLookupResult(x)));
     }
 
     return results;
