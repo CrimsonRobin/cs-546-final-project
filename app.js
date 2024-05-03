@@ -4,14 +4,16 @@
 import express from "express";
 import express_handlebars from "express-handlebars";
 import configRoutes from "./routes/index.js";
-
+import {connectToDatabase} from "./config/mongoConnection.js";
 import exphbs from "express-handlebars";
 import session from "express-session";
-
-const app = express();
+import {configDotenv} from "dotenv";
 
 // Load environment as early as possible
 configDotenv({ path: "./.env" });
+
+const app = express();
+
 app.use("/public", express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -74,7 +76,14 @@ app.use("/logout", (req, res, next) => {
 
 configRoutes(app);
 
-const port = 3000;
-app.listen(port, () => {
-	console.log(`Server listening on port ${port}`);
+connectToDatabase().then(_r =>
+{
+	const port = 3000;
+	app.listen(port, () =>
+	{
+		console.log(`Server listening on port ${port}`);
+	});
+}).catch(e =>
+{
+	console.log(e);
 });
