@@ -1,18 +1,23 @@
-<h1>{{user.Username}}</h1>
+{{> navbar }}
 
-<h2>Bio</h2>
-<p>{{user.Bio}}</p>
-<section>
-  <h3>Qualifications:</h3>
-  {{#each user.qualifications}}
-    <p>{{qualification}}</p>
-  {{/each}}
-</section>
+{{#with place}}
+    <h1>{{name}}</h1>
+    <p>{{description}}</p>
+    <h2>Rating</h2>
+    <p>{{averageRating}}</p>
+    <section>
+        <h3>Physical accessibility:</h3>
+        {{physicalRating}}
+        <h3>Sensory accessibility:</h3>
+        {{sensoryRating}}
+        <h3>Neurodivergent accessibility:</h3>
+        {{neurodivergentRating}}
+    </section>
 
-<section>
-  <h4>Reviews:</h4>
-  {{#each user.Reviews}}
-    <p>{{review}}</p>
-  {{/each}}
-</section>
-<tag><a href="/">Back to Home</a></tag>
+    <section>
+        <h4>Reviews:</h4>
+        {{#each reviews}}
+            <p>{{review}}</p>
+        {{/each}}
+    </section>
+{{/with}}
