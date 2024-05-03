@@ -1,7 +1,7 @@
 {
   "name": "cs546-final-project-a11y",
   "version": "1.0.0",
-  "description": "",
+  "description": "An accessibility review platform",
   "main": "app.js",
   "type": "module",
   "scripts": {
