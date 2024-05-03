@@ -12,34 +12,70 @@
 //     console.log(`Server listening on port ${port}`);
 // });
 
-import * as db from "./config/database.js";
-import {connectToDatabase} from "./config/mongoConnection.js";
-import {configDotenv} from "dotenv";
-import mongoose from "mongoose";
+import exphbs from "express-handlebars";
+import session from "express-session";
+
+const app = express();
 
 // Load environment as early as possible
-configDotenv({path: "./.env"});
+configDotenv({ path: "./.env" });
 
+app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
-try
-{
-    console.log("Connecting to database");
-    const conn = await connectToDatabase();
-    console.log("Find all users");
-    const users = await db.users.find({}).exec();
-    console.log(users);
-}
-catch (e)
-{
-    console.error(e);
-}
+app.use(express.urlencoded({ extended: true }));
+app.use("/public", express.static("public"));
 
-try
-{
-    await mongoose.connection.close();
-}
-catch (e)
-{
-    console.error(e);
-}
+app.use(
+	session({
+		name: "AuthenticationState",
+		secret: "she se on my cret til i-",
+		resave: false,
+		saveUninitialized: false,
+	})
+);
 
+app.use("/", (req, res, next) => {
+	console.log("Current Timestamp: " + new Date().toUTCString());
+	console.log("Request Method: " + req.method);
+	console.log("Request Route: " + req.originalUrl);
+	let authUser = false;
+	if (req.session.user) {
+		authUser = true;
+	}
+	console.log("Authenticated User: " + authUser);
+	if (req.originalUrl !== "/") {
+		next();
+	}
+});
+
+app.use("/login", (req, res, next) => {
+	if (req.session.user) {
+		res.redirect("/");
+	} else {
+		next();
+	}
+});
+
+app.use("/register", (req, res, next) => {
+	if (req.session.user) {
+		res.redirect("/");
+	} else {
+		next();
+	}
+});
+
+app.use("/logout", (req, res, next) => {
+	if (!req.session.user) {
+		res.redirect("/login");
+	} else {
+		next();
+	}
+});
+
+configRoutes(app);
+
+const port = 3000;
+app.listen(port, () => {
+	console.log(`Server listening on port ${port}`);
+});

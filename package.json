@@ -1,12 +1,11 @@
 {
-  "name": "lab06",
+  "name": "cs546-final-project-a11y",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "node ./app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node ./tasks/seed.js"
   },
   "keywords": [],
@@ -14,9 +13,10 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.1",
+    "express-handlebars": "^7.1.2",
+    "express-session": "^1.18.0",
     "luxon": "^3.4.4",
     "mongodb": "^6.5.0",
     "mongoose": "^8.3.2"
