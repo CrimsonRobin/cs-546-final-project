@@ -116,3 +116,25 @@ export const updatePlace = async (
 
     return await get(productId);
 };
+
+
+(function ()
+{
+    console.log("load env");
+    configDotenv({path: "../.env"});
+    console.log(getMongoConfig());
+    console.log("connect");
+    // mongoose.connect("mongodb://localhost:27107/", {
+    //
+    //     // useUnifiedTopology: true
+    // }).then(console.log).catch(console.error);
+    connectToDatabase().then(r =>
+    {
+        console.log("create");
+        createPlace("place 1", "place 1 description", "W", "1234", "123 Main St", 0, 0).then(r =>
+        {
+            closeDatabaseConnection().then(console.log).catch(console.error);
+        }).catch(console.error);
+        console.log("done");
+    }).catch(console.error);
+})();
