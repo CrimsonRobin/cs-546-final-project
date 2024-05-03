@@ -3,11 +3,15 @@ import {
     assertIsNotNaN,
     assertTypeIs,
     degreesToRadians,
-    exactlyOneElement, haversin, normalizeLongitude, parseLatitude,
-    parseNonEmptyString, parseNumber,
+    exactlyOneElement,
+    haversin,
+    normalizeLongitude,
+    parseLatitude,
+    parseNonEmptyString,
+    parseNumber,
     roundTo,
     sleep,
-    throwIfNotString
+    throwIfNotString,
 } from "../helpers.js";
 import Enumerable from "linq";
 
@@ -16,7 +20,7 @@ import Enumerable from "linq";
  * @type {string}
  @author Anthony Webster
  */
-const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
+const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/";
 
 /**
  * The endpoint for looking up details about a place on Nominatim.
@@ -93,13 +97,11 @@ export const OSM_TYPE_RELATION = "R";
  * @returns {string} The parsed OSM type.
  * @author Anthony Webster
  */
-export const parseOsmType = (osmType) =>
-{
+export const parseOsmType = (osmType) => {
     // The OSM type can either be node (N), way (W), or relation (R)
     osmType = parseNonEmptyString(osmType, "OSM type").toLowerCase();
 
-    switch (osmType.toLowerCase())
-    {
+    switch (osmType.toLowerCase()) {
         case "n":
         case "node":
             return OSM_TYPE_NODE;
@@ -121,8 +123,7 @@ export const parseOsmType = (osmType) =>
  * @returns {string} The parsed OSM class.
  * @author Anthony Webster
  */
-export const parseOsmClass = (osmClass) =>
-{
+export const parseOsmClass = (osmClass) => {
     return parseNonEmptyString(osmClass, "OSM class").toLowerCase();
 };
 
@@ -133,20 +134,17 @@ export const parseOsmClass = (osmClass) =>
  * @returns {string} The parsed OSM ID.
  * @author Anthony Webster
  */
-export const parseOsmId = (osmId) =>
-{
-    if (typeof osmId === "number")
-    {
+export const parseOsmId = (osmId) => {
+    if (typeof osmId === "number") {
         return osmId.toString();
     }
 
     throwIfNotString(osmId, "OSM ID");
-    if (osmId.length === 0)
-    {
+    if (osmId.length === 0) {
         throw new Error("OSM ID cannot be an empty string");
     }
     return osmId;
-}
+};
 
 /**
  * Gets the URL for the given Nominatim endpoint.
@@ -155,10 +153,9 @@ export const parseOsmId = (osmId) =>
  * @returns {module:url.URL} A URL representing the Nominatim API endpoint.
  * @author Anthony Webster
  */
-const getNominatimApiUrl = (endpoint) =>
-{
+const getNominatimApiUrl = (endpoint) => {
     return new URL(endpoint, NOMINATIM_API_BASE_URL);
-}
+};
 
 /**
  * Make a generic get request to the Nominatim API at the given URL.
@@ -169,8 +166,7 @@ const getNominatimApiUrl = (endpoint) =>
  * @returns {Promise<any>} The data from Nominatim.
  * @author Anthony Webster
  */
-const makeNominatimApiRequest = async (url) =>
-{
+const makeNominatimApiRequest = async (url) => {
     // [deep sigh and exhale]
     // Nominatim has a strict maximum of one request per second.
     // This is a bit of a nuclear option, but we'll pause before making any requests to be sure that
@@ -179,17 +175,16 @@ const makeNominatimApiRequest = async (url) =>
     // the service being FOSS.
     await sleep(1250);
 
-    if (url instanceof URL)
-    {
+    if (url instanceof URL) {
         url = url.toString();
     }
 
     const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         // body: params,
         headers: {
-            "User-Agent": "curl/8.7.1"
-        }
+            "User-Agent": "curl/8.7.1",
+        },
     });
 
     return await response.json();
@@ -218,8 +213,7 @@ const jsonClone = (obj) => JSON.parse(JSON.stringify(obj));
  * @returns {NominatimPlaceData} The place data.
  * @author Anthony Webster
  */
-const parseNominatimLookupResult = (data) =>
-{
+const parseNominatimLookupResult = (data) => {
     return jsonClone({
         // OSM data
         osmType: parseOsmType(data.osm_type),
@@ -241,9 +235,9 @@ const parseNominatimLookupResult = (data) =>
         addressType: data.addresstype,
 
         // Extra information
-        extraTags: data.extratags
+        extraTags: data.extratags,
     });
-}
+};
 
 /**
  * Lookup many places at a time on Nominatim.
@@ -252,32 +246,26 @@ const parseNominatimLookupResult = (data) =>
  * @returns {Promise<NominatimPlaceData[]>} The result of looking up all the places on Nominatim.
  * @author Anthony Webster
  */
-const nominatimLookupMany = async (typeIdPairs) =>
-{
-    if (typeIdPairs.length === 0)
-    {
+const nominatimLookupMany = async (typeIdPairs) => {
+    if (typeIdPairs.length === 0) {
         return [];
     }
 
     // We can only query the API with up to 50 places at a time.
     const results = [];
 
-    for (let i = 0; i < typeIdPairs.length; i += NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY)
-    {
+    for (let i = 0; i < typeIdPairs.length; i += NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY) {
         const url = getNominatimApiUrl(NOMINATIM_API_LOOKUP_ENDPOINT);
         const waypoints = typeIdPairs.slice(i, i + NOMINATIM_LOOKUP_MAX_NUMBER_OF_IDS_PER_QUERY);
 
-        if (waypoints.length === 0)
-        {
+        if (waypoints.length === 0) {
             // Well this shouldn't have happened...
             // TODO: Will this ever happen?
             throw new Error("Bad chunk when looking up many places in Nominatim");
         }
 
         const params = [
-            ["osm_ids", waypoints
-                .map(p => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`))
-                .join(",")],
+            ["osm_ids", waypoints.map((p) => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`)).join(",")],
             // Need results in JSON format
             ["format", "jsonv2"],
             // include a full list of names for the result. These may include language variants,
@@ -286,12 +274,12 @@ const nominatimLookupMany = async (typeIdPairs) =>
             // Include extra address details
             ["addressdetails", "1"],
             // Include extra info about the place
-            ["extratags", "1"]
+            ["extratags", "1"],
         ];
 
-        params.forEach(p => url.searchParams.append(p[0], p[1]));
+        params.forEach((p) => url.searchParams.append(p[0], p[1]));
 
-        (await makeNominatimApiRequest(url)).forEach(x => results.push(parseNominatimLookupResult(x)));
+        (await makeNominatimApiRequest(url)).forEach((x) => results.push(parseNominatimLookupResult(x)));
     }
 
     return results;
@@ -305,8 +293,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
  * @returns {Promise<NominatimPlaceData>}
  * @author Anthony Webster
  */
-export const nominatimLookup = async (osmType, osmId) =>
-{
+export const nominatimLookup = async (osmType, osmId) => {
     return exactlyOneElement(await nominatimLookupMany([[osmType, osmId]]), "nominatim lookup");
 };
 
@@ -317,14 +304,13 @@ export const nominatimLookup = async (osmType, osmId) =>
  * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
  * @author Anthony Webster
  */
-export const nominatimSearch = async (query) =>
-{
+export const nominatimSearch = async (query) => {
     query = parseNonEmptyString(query, "Search query");
     const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
     url.searchParams.append("q", query);
     url.searchParams.append("format", "jsonv2");
     const data = await makeNominatimApiRequest(url.toString());
-    return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
+    return await nominatimLookupMany(data.map((r) => [r.osm_type, r.osm_id]));
 };
 
 /**
@@ -334,8 +320,7 @@ export const nominatimSearch = async (query) =>
  * @returns {!number} The distance, in miles, between each degree of longitude at the given latitude.
  * @author Anthony Webster
  */
-const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) =>
-{
+const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) => {
     const milesPerDegreeOfLongitudeAtEquator = 69.17;
     return Math.cos(degreesToRadians(latitudeDegrees)) * milesPerDegreeOfLongitudeAtEquator;
 };
@@ -350,8 +335,7 @@ const milesBetweenDegreeOfLongitudeAtLatitude = (latitudeDegrees) =>
  * the top left corner and the second being the bottom right.
  * @author Anthony Webster
  */
-const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
-{
+const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) => {
     // TODO: What happens if the search radius passes 90deg latitude?
 
     // We will increase the search radius by 1 to account for any floating point garbage and the fact
@@ -389,42 +373,31 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     // of possible points within a given radius, so the difference could be larger or smaller. This
     // error is reflected below when we change the search radius.
 
-    if (searchRadius > 200)
-    {
+    if (searchRadius > 200) {
         // > 200 mile radius could have significant error. Consider +/- 2 miles.
         searchRadius += 2;
-    }
-    else if (searchRadius > 100)
-    {
+    } else if (searchRadius > 100) {
         // Between 100 and 200 miles is more accurate, but we'll call it a mile of wiggle room.
         searchRadius += 1;
-    }
-    else if (searchRadius > 50)
-    {
+    } else if (searchRadius > 50) {
         searchRadius += 0.5;
-    }
-    else if (searchRadius > 25)
-    {
+    } else if (searchRadius > 25) {
         searchRadius += 0.25;
-    }
-    else if (searchRadius > 10)
-    {
+    } else if (searchRadius > 10) {
         searchRadius += 0.1;
-    }
-    else
-    {
+    } else {
         // If the search radius is smaller than 10 miles, the calculated distances will probably be
         // good enough. We'll add just a little bit to account for any other errors (such as floating
         // point error, different anchor point for a place, etc.)
-        searchRadius += 0.02;  // About 150 feet
+        searchRadius += 0.02; // About 150 feet
     }
 
     // const halfRadius = searchRadius / 2.0;  // miles
     searchRadius /= 2.0;
 
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
-    const milesPerDegreeOfLatitude = 69.0;  // mi/deg
-    const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude);  // mi/deg
+    const milesPerDegreeOfLatitude = 69.0; // mi/deg
+    const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude); // mi/deg
 
     // Compute how many degrees we need to move
     // (mi/deg) * (1/mi) = 1/deg
@@ -440,11 +413,11 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     // TODO: Wrap on overflow
     return {
         // Pair 1 will be the top left corner
-        x1: currentLatitude + (latitudeDegPerMile * searchRadius),
+        x1: currentLatitude + latitudeDegPerMile * searchRadius,
         y1: currentLongitude < 0 ? currentLongitude - longitudeDiff : currentLongitude + longitudeDiff,
         // Pair 2 will be the bottom right corner
-        x2: currentLatitude - (latitudeDegPerMile * searchRadius),
-        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff
+        x2: currentLatitude - latitudeDegPerMile * searchRadius,
+        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff,
     };
 };
 
@@ -459,8 +432,7 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
  * @returns {number} The parsed search radius.
  * @author Anthony Webster
  */
-const parseSearchRadius = (radius) =>
-{
+const parseSearchRadius = (radius) => {
     assertTypeIs(radius, "number", "search radius");
     assertIsNotNaN(radius, "search radius");
     assertIsNotInfinity(radius, "search radius");
@@ -469,13 +441,11 @@ const parseSearchRadius = (radius) =>
     // floating point garbage.
     radius = roundTo(radius, 4);
 
-    if (radius < MINIMUM_SEARCH_RADIUS)
-    {
+    if (radius < MINIMUM_SEARCH_RADIUS) {
         throw new Error(`Search radius must be at least ${MINIMUM_SEARCH_RADIUS}`);
     }
 
-    if (radius > MAXIMUM_SEARCH_RADIUS)
-    {
+    if (radius > MAXIMUM_SEARCH_RADIUS) {
         throw new Error(`Search radius cannot exceed ${radius}`);
     }
 
@@ -494,13 +464,11 @@ const parseSearchRadius = (radius) =>
  * @returns {number} The distance in miles between the given coordinates.
  * @author Anthony Webster
  */
-const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
-{
+const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) => {
     // Adapted from <https://stackoverflow.com/a/27943> and <https://en.wikipedia.org/wiki/Haversine_formula>
     const dLat = degreesToRadians(lat2 - lat1);
     const dLon = degreesToRadians(lon2 - lon1);
-    const a =
-        haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
+    const a = haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return EARTH_RADIUS_IN_MILES * c;
 };
@@ -515,8 +483,7 @@ const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
  * @returns {Promise<NominatimPlaceData[]>} An array of search results from Nominatim.
  * @author Anthony Webster
  */
-export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) =>
-{
+export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) => {
     // TODO: Check that latitude and longitude fall within an acceptable range.
 
     query = parseNonEmptyString(query, "Search query");
@@ -532,8 +499,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     // We'll do this search up to 10 times. Prevents us from "over-searching" but is also a reasonable
     // number of times to search. Why 10? Seemed like a good number, that's all.
     // However, we'll go a little extra if we still don't have any nearby results.
-    for (let i = 0; i < 2 || (placesToLookup.length === 0 && i < 4); i++)
-    {
+    for (let i = 0; i < 2 || (placesToLookup.length === 0 && i < 4); i++) {
         const url = getNominatimApiUrl(NOMINATIM_API_SEARCH_ENDPOINT);
 
         // Search query
@@ -563,35 +529,33 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         url.searchParams.append("accept-language", "en");
         url.searchParams.append("format", "jsonv2");
 
-        if (placeIdsToExclude.length > 0)
-        {
-            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map(i => encodeURIComponent(i)).join(","));
+        if (placeIdsToExclude.length > 0) {
+            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map((i) => encodeURIComponent(i)).join(","));
         }
 
         const data = await makeNominatimApiRequest(url);
 
         // If at any point we don't get any results back, then break.
-        if (data.length === 0)
-        {
+        if (data.length === 0) {
             break;
         }
 
         // Exclude current search results from next query and record the places we need to lookup.
-        data.forEach(d =>
-        {
+        data.forEach((d) => {
             placeIdsToExclude.push(d.place_id.toString());
 
             // Don't lookup duplicate places
             const osmType = parseOsmType(d.osm_type);
             const osmId = parseOsmId(d.osm_id);
-            if (!placesToLookup.some(r => r[0] === osmType && r[1] === osmId))
-            {
+            if (!placesToLookup.some((r) => r[0] === osmType && r[1] === osmId)) {
                 placesToLookup.push([osmType, osmId]);
             }
         });
     }
 
     return Enumerable.from(await nominatimLookupMany(placesToLookup))
-        .orderBy(place => distanceBetweenPointsMiles(currentLatitude, currentLongitude, place.latitude, place.longitude))
+        .orderBy((place) =>
+            distanceBetweenPointsMiles(currentLatitude, currentLongitude, place.latitude, place.longitude)
+        )
         .toArray();
 };

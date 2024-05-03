@@ -1,5 +1,5 @@
-import {Schema, model} from "mongoose";
-import {ObjectId} from "mongodb";
+import { Schema, model } from "mongoose";
+import { ObjectId } from "mongodb";
 
 const usersSchema = new Schema({
     _id: ObjectId,
@@ -15,7 +15,7 @@ const placesSchema = new Schema({
     description: String,
     comments: [
         {
-            author: {type: String, ref: "users"},
+            author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
             likes: Number,
@@ -32,7 +32,7 @@ const placesSchema = new Schema({
     },
     reviews: [
         {
-            author: {type: String, ref: "users"},
+            author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
             likes: Number,
@@ -45,7 +45,7 @@ const placesSchema = new Schema({
             ],
             comments: [
                 {
-                    author: {type: String, ref: "users"},
+                    author: { type: String, ref: "users" },
                     createdAt: Date,
                     likes: Number,
                     dislikes: Number,

@@ -1,5 +1,5 @@
-import {DateTime} from "luxon";
-import {ObjectId} from "mongodb";
+import { DateTime } from "luxon";
+import { ObjectId } from "mongodb";
 
 /**
  * Test if the given object is null or undefined.
@@ -8,8 +8,7 @@ import {ObjectId} from "mongodb";
  * @returns {boolean} True if the given object is null or undefined, false otherwise.
  * @author Anthony Webster
  */
-export const isNullOrUndefined = (x) =>
-{
+export const isNullOrUndefined = (x) => {
     return x === null || x === undefined;
 };
 
@@ -21,10 +20,8 @@ export const isNullOrUndefined = (x) =>
  * @returns {string} The trimmed value of `s` or `defaultVal` if `s` is empty or not a string.
  * @author Anthony Webster
  */
-const nonEmptyStringOrDefault = (s, defaultVal) =>
-{
-    if (isNullOrUndefined(s) || typeof s !== "string")
-    {
+const nonEmptyStringOrDefault = (s, defaultVal) => {
+    if (isNullOrUndefined(s) || typeof s !== "string") {
         return defaultVal;
     }
 
@@ -42,12 +39,10 @@ const nonEmptyStringOrDefault = (s, defaultVal) =>
  * @param paramName The name of the parameter
  * @author Anthony Webster
  */
-export const assertTypeIs = (obj, type, paramName = undefined) =>
-{
+export const assertTypeIs = (obj, type, paramName = undefined) => {
     throwIfNullOrUndefined(type);
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
-    switch (type)
-    {
+    switch (type) {
         // All things that `typeof` can return
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
         case "undefined":
@@ -65,16 +60,14 @@ export const assertTypeIs = (obj, type, paramName = undefined) =>
     }
 
     // Bizarre, but it works.
-    const typeEquals = (obj) =>
-    {
+    const typeEquals = (obj) => {
         return type === "array" ? Array.isArray(obj) : typeof obj === type;
-    }
+    };
 
-    if (!typeEquals(obj))
-    {
+    if (!typeEquals(obj)) {
         throw new Error(`Expected object of type ${type} for parameter ${paramName}, got ${typeof obj}`);
     }
-}
+};
 
 /**
  * Throws an exception if the given object is null or undefined.
@@ -83,17 +76,14 @@ export const assertTypeIs = (obj, type, paramName = undefined) =>
  * @param {string|undefined} paramName The name of the parameter.
  * @author Anthony Webster
  */
-export const throwIfNullOrUndefined = (x, paramName = undefined) =>
-{
+export const throwIfNullOrUndefined = (x, paramName = undefined) => {
     nonEmptyStringOrDefault(paramName, "Parameter");
 
-    if (x === null)
-    {
+    if (x === null) {
         throw new Error(`${paramName} is null`);
     }
 
-    if (x === undefined)
-    {
+    if (x === undefined) {
         throw new Error(`${paramName} is undefined`);
     }
 };
@@ -106,11 +96,9 @@ export const throwIfNullOrUndefined = (x, paramName = undefined) =>
  * @throws {Error} If the given string is null, undefined, or not a string.
  * @author Anthony Webster
  */
-export const throwIfNotString = (x, paramName = undefined) =>
-{
+export const throwIfNotString = (x, paramName = undefined) => {
     throwIfNullOrUndefined(x, paramName);
-    if (typeof x !== "string")
-    {
+    if (typeof x !== "string") {
         throw new Error(`Expected type string for ${paramName}, got ${typeof x}`);
     }
 };
@@ -125,16 +113,14 @@ export const throwIfNotString = (x, paramName = undefined) =>
  * the given string is empty.
  * @author Anthony Webster
  */
-export const parseNonEmptyString = (s, paramName = undefined) =>
-{
+export const parseNonEmptyString = (s, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "String");
     throwIfNullOrUndefined(s, paramName);
     throwIfNotString(s, paramName);
 
     s = s.trim();
 
-    if (s.length === 0)
-    {
+    if (s.length === 0) {
         throw new Error(`Expected non-empty string for ${paramName}`);
     }
 
@@ -153,15 +139,13 @@ export const parseNonEmptyString = (s, paramName = undefined) =>
  * - The date to parse is malformed.
  * @author Anthony Webster
  */
-export const parseDate = (str, format, paramName = undefined) =>
-{
+export const parseDate = (str, format, paramName = undefined) => {
     throwIfNullOrUndefined(format, "Format");
     throwIfNotString(format, "Format");
     throwIfNotString(str, paramName);
     str = parseNonEmptyString(str, paramName);
     const parsed = DateTime.fromFormat(str, format);
-    if (!parsed.isValid)
-    {
+    if (!parsed.isValid) {
         throw new Error(`Malformed date: ${parsed.invalidReason}; ${parsed.invalidExplanation}`);
     }
     return parsed;
@@ -182,16 +166,14 @@ export const parseDate = (str, format, paramName = undefined) =>
  *
  * @author Anthony Webster
  */
-export const parseObjectId = (id, paramName = undefined) =>
-{
+export const parseObjectId = (id, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "id");
     id = parseNonEmptyString(id, paramName);
-    if (!ObjectId.isValid(id))
-    {
+    if (!ObjectId.isValid(id)) {
         throw new Error(`${paramName} is not a valid object id`);
     }
     return id;
-}
+};
 
 /**
  * Tests if the given number is positive or negative infinity.
@@ -200,8 +182,7 @@ export const parseObjectId = (id, paramName = undefined) =>
  * @returns {boolean} True if the number is positive infinity or negative infinity; otherwise, false.
  * @author Anthony Webster.
  */
-export const isInfinity = (n) =>
-{
+export const isInfinity = (n) => {
     // From my previous work in lab 4
     return !isNullOrUndefined(n) && typeof n === "number" && (n === Infinity || n === -Infinity);
 };
@@ -214,14 +195,12 @@ export const isInfinity = (n) =>
  * @throws {Error} If the given number is NaN.
  * @author Anthony Webster
  */
-export const assertIsNotNaN = (n, paramName = undefined) =>
-{
+export const assertIsNotNaN = (n, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
-    if (Number.isNaN(n))
-    {
+    if (Number.isNaN(n)) {
         throw new Error(`${paramName} must not be NaN`);
     }
-}
+};
 
 /**
  * Throws an exception if the give number is positive infinity or negative infinity.
@@ -230,14 +209,12 @@ export const assertIsNotNaN = (n, paramName = undefined) =>
  * @param {string|undefined} paramName The name of the parameter.
  * @throws {Error} If the given number is positive infinity or negative infinity.
  */
-export const assertIsNotInfinity = (n, paramName = undefined) =>
-{
+export const assertIsNotInfinity = (n, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
-    if (isInfinity(n))
-    {
+    if (isInfinity(n)) {
         throw new Error(`${paramName} must not be +-Infinity`);
     }
-}
+};
 
 /**
  * Asserts that the given number is an integer as determined by {@linkcode Number.isSafeInteger}.
@@ -252,14 +229,12 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
  *
  * @author Anthony Webster
  */
-export const assertIsInteger = (n, paramName = undefined) =>
-{
+export const assertIsInteger = (n, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "Number");
     assertTypeIs(n, "number", paramName);
     assertIsNotInfinity(n, paramName);
     assertIsNotNaN(n, paramName);
-    if (!Number.isSafeInteger(n))
-    {
+    if (!Number.isSafeInteger(n)) {
         throw new Error(`${paramName} must be an integer`);
     }
 };
@@ -278,28 +253,24 @@ export const assertIsInteger = (n, paramName = undefined) =>
  *
  * @author Anthony Webster
  */
-export const roundTo = (n, places = 0) =>
-{
+export const roundTo = (n, places = 0) => {
     assertTypeIs(n, "number", "Places");
     assertIsInteger(places, "Places");
 
-    if (Number.isNaN(n))
-    {
+    if (Number.isNaN(n)) {
         throw new Error("Cannot round NaN");
     }
 
-    if (isInfinity(n))
-    {
+    if (isInfinity(n)) {
         throw new Error("Cannot round infinity");
     }
 
-    if (places < 0)
-    {
+    if (places < 0) {
         throw new Error("Places must be greater than or equal to zero");
     }
     // Adapted from <https://stackoverflow.com/a/11832950>
     places = Math.pow(10, places);
-    return Math.round((n + Number.EPSILON) * places) / places
+    return Math.round((n + Number.EPSILON) * places) / places;
 };
 
 /**
@@ -313,16 +284,14 @@ export const roundTo = (n, places = 0) =>
  * @returns {T} The element at index zero of the given array.
  * @author Anthony Webster
  */
-export const exactlyOneElement = (arr, paramName = "array") =>
-{
+export const exactlyOneElement = (arr, paramName = "array") => {
     paramName = nonEmptyStringOrDefault(paramName, "array");
     assertTypeIs(arr, "array", paramName);
-    if (arr.length !== 1)
-    {
+    if (arr.length !== 1) {
         throw new Error(`Expected exactly one element for ${paramName} but got ${arr.length}`);
     }
     return arr[0];
-}
+};
 
 /**
  * Converts degrees to radians.
@@ -331,11 +300,10 @@ export const exactlyOneElement = (arr, paramName = "array") =>
  * @returns {!number} The given degrees converted to radians.
  * @author Anthony Webster
  */
-export const degreesToRadians = (degrees) =>
-{
+export const degreesToRadians = (degrees) => {
     assertTypeIs(degrees, "number", "degrees");
     return degrees * (Math.PI / 180.0);
-}
+};
 
 /**
  * Computes the haversine of the given angle.
@@ -344,12 +312,11 @@ export const degreesToRadians = (degrees) =>
  * @returns {!number} The haversine of the given angle.
  * @author Anthony Webster
  */
-export const haversin = (theta) =>
-{
+export const haversin = (theta) => {
     assertTypeIs(theta, "number", "angle");
     const s = Math.sin(theta / 2.0);
     return s * s;
-}
+};
 
 /**
  * Test if the given object is a number and not NaN.
@@ -359,8 +326,7 @@ export const haversin = (theta) =>
  *                    otherwise, false.
  * @author Anthony Webster
  */
-export const isNumber = (x) =>
-{
+export const isNumber = (x) => {
     return !isNullOrUndefined(x) && typeof x === "number" && !Number.isNaN(x);
 };
 
@@ -376,61 +342,50 @@ export const isNumber = (x) =>
  *                 otherwise parsed to a number.
  * @author Anthony Webster
  */
-export const parseNumber = (str, trim = false) =>
-{
+export const parseNumber = (str, trim = false) => {
     // Normal languages (not JS) don't let you parse garbage like "   56 " or "45qwerty" into an int.
     // This function restores this NORMAL functionality that already should exist in JS.
 
-    if (str === undefined)
-    {
+    if (str === undefined) {
         throw new Error("Cannot convert undefined to a number");
     }
-    if (str === null)
-    {
+    if (str === null) {
         throw new Error("Cannot convert null to a number");
     }
-    if (Number.isNaN(str))
-    {
+    if (Number.isNaN(str)) {
         throw new Error("Cannot convert NaN to a number");
     }
-    if (isNumber(str))
-    {
+    if (isNumber(str)) {
         // If we got a number, then we're in luck. No need to actually parse anything.
         return str;
     }
-    if (typeof str !== "string")
-    {
+    if (typeof str !== "string") {
         throw new Error(`Cannot parse object of type ${typeof str} to number`);
     }
 
-    if (isNullOrUndefined(trim))
-    {
+    if (isNullOrUndefined(trim)) {
         trim = false;
     }
 
-    if (typeof trim !== "boolean")
-    {
+    if (typeof trim !== "boolean") {
         throw new Error("Value for trim must have type boolean");
     }
 
-    if (trim)
-    {
+    if (trim) {
         str = str.trim();
     }
 
     // Yeah, I know this is probably not the best, but it'll do.
-    const intRegex = /^([-+]?)([0-9]+)$/gui;
-    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/gui;
+    const intRegex = /^([-+]?)([0-9]+)$/giu;
+    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/giu;
 
-    if (str.match(intRegex) || str.match(floatRegex))
-    {
+    if (str.match(intRegex) || str.match(floatRegex)) {
         const parsed = parseFloat(str);
 
         // This should *never* be NaN, but we'll do a sanity check just in case. I am convinced that JS
         // function behavior changes based on the position of stars in the universe and quantum mechanics
         // or something ridiculous.
-        if (!Number.isNaN(parsed))
-        {
+        if (!Number.isNaN(parsed)) {
             return parsed;
         }
     }
@@ -447,11 +402,9 @@ export const parseNumber = (str, trim = false) =>
  * @returns {number} The parsed latitude
  * @author Anthony Webster
  */
-export const parseLatitude = (latitude) =>
-{
+export const parseLatitude = (latitude) => {
     assertTypeIs(latitude, "number", "latitude");
-    if (latitude < -90 || latitude > 90)
-    {
+    if (latitude < -90 || latitude > 90) {
         throw new Error("Latitude must be between -90 and 90");
     }
     return latitude;
@@ -466,11 +419,9 @@ export const parseLatitude = (latitude) =>
  * @returns {number} The normalized longitude.
  * @author Anthony Webster
  */
-export const normalizeLongitude = (longitude) =>
-{
+export const normalizeLongitude = (longitude) => {
     assertTypeIs(longitude, "number", "Longitude");
-    if (isInfinity(longitude) || Number.isNaN(longitude))
-    {
+    if (isInfinity(longitude) || Number.isNaN(longitude)) {
         throw new Error(`Invalid longitude ${longitude}`);
     }
 
@@ -478,8 +429,7 @@ export const normalizeLongitude = (longitude) =>
     longitude = Math.abs(longitude);
 
     // This isn't a great way to do this, but it'll work.
-    while (longitude > 180)
-    {
+    while (longitude > 180) {
         longitude -= 360;
     }
 
@@ -493,14 +443,12 @@ export const normalizeLongitude = (longitude) =>
  * @returns {Promise<any>}
  * @author Anthony Webster
  */
-export const sleep = (milliseconds) =>
-{
+export const sleep = (milliseconds) => {
     assertTypeIs(milliseconds, "number", "milliseconds");
-    if (milliseconds <= 0)
-    {
+    if (milliseconds <= 0) {
         return Promise.resolve();
     }
-    return new Promise(r => setTimeout(r, milliseconds))
+    return new Promise((r) => setTimeout(r, milliseconds));
 };
 
 /**
@@ -512,14 +460,10 @@ export const sleep = (milliseconds) =>
  * @returns {T|undefined} The result of calling the function or undefined if the function call threw an error.
  * @author Anthony Webster
  */
-export const tryCatchChain = (errors, func) =>
-{
-    try
-    {
+export const tryCatchChain = (errors, func) => {
+    try {
         return func();
-    }
-    catch (e)
-    {
+    } catch (e) {
         errors.push(e);
         return undefined;
     }
@@ -543,28 +487,23 @@ export const tryCatchChain = (errors, func) =>
  *
  * @author Anthony Webster
  */
-export const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true, paramName = undefined) =>
-{
+export const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true, paramName = undefined) => {
     paramName = nonEmptyStringOrDefault(paramName, "String");
     throwIfNotString(s, paramName);
     assertTypeIs(trim, "boolean", "trim");
     assertIsInteger(minLength, "Minimum length");
     assertIsInteger(maxLength, "Maximum length");
 
-    if (minLength > maxLength)
-    {
+    if (minLength > maxLength) {
         throw new Error("Minimum length cannot be greater than maximum length");
     }
-    if (trim)
-    {
+    if (trim) {
         s = s.trim();
     }
-    if (s.length < minLength)
-    {
+    if (s.length < minLength) {
         throw new Error(`${paramName} must be at least ${minLength} characters`);
     }
-    if (s.length > maxLength)
-    {
+    if (s.length > maxLength) {
         throw new Error(`${paramName} cannot be more than ${maxLength} characters`);
     }
     return s;
@@ -597,28 +536,29 @@ export const PASSWORD_MAXIMUM_LENGTH = 256;
  *
  * @author Samuel Miller, Anthony Webster
  */
-export const parsePassword = (password) =>
-{
+export const parsePassword = (password) => {
     throwIfNotString(password, "Password");
 
-    password = parseStringWithLengthBounds(password, PASSWORD_MINIMUM_LENGTH, PASSWORD_MAXIMUM_LENGTH, false, "Password");
+    password = parseStringWithLengthBounds(
+        password,
+        PASSWORD_MINIMUM_LENGTH,
+        PASSWORD_MAXIMUM_LENGTH,
+        false,
+        "Password"
+    );
 
-    if (/[a-z]/.test(password))
-    {
+    if (/[a-z]/.test(password)) {
         throw new Error("Password requires at least one lowercase character");
     }
-    if (/[A-Z]/.test(password))
-    {
+    if (/[A-Z]/.test(password)) {
         throw new Error("Password requires at least one uppercase character");
     }
-    if (/[0-9]/.test(password))
-    {
+    if (/[0-9]/.test(password)) {
         throw new Error("Password requires at least one number");
     }
-    if (/[^a-zA-Z0-9]/.test(password))
-    {
+    if (/[^a-zA-Z0-9]/.test(password)) {
         throw new Error("Password requires at least one special character");
     }
 
     return password;
-}
+};
