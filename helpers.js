@@ -240,6 +240,31 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
 }
 
 /**
+ * Asserts that the given number is an integer as determined by {@linkcode Number.isSafeInteger}.
+ *
+ * @param {number} n The number to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @throws {Error} If any of the following happen:
+ * - The number is null, undefined, or not a number;
+ * - The number is infinity;
+ * - The number is NaN;
+ * - The number is not integral.
+ *
+ * @author Anthony Webster
+ */
+export const assertIsInteger = (n, paramName = undefined) =>
+{
+    paramName = nonEmptyStringOrDefault(paramName, "Number");
+    assertTypeIs(n, "number", paramName);
+    assertIsNotInfinity(n, paramName);
+    assertIsNotNaN(n, paramName);
+    if (!Number.isSafeInteger(n))
+    {
+        throw new Error(`${paramName} must be an integer`);
+    }
+};
+
+/**
  * Rounds a number to the given number of places.
  * @param {number} n The number to round.
  * @param {number} places The number of decimal places to round the number to.
@@ -255,13 +280,8 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
  */
 export const roundTo = (n, places = 0) =>
 {
-    throwIfNullOrUndefined(n, "n");
-    throwIfNullOrUndefined(places, "Places");
-
-    if (typeof n !== "number")
-    {
-        throw new Error(`Expected a number, got ${typeof n}`);
-    }
+    assertTypeIs(n, "number", "Places");
+    assertIsInteger(places, "Places");
 
     if (Number.isNaN(n))
     {
@@ -273,24 +293,13 @@ export const roundTo = (n, places = 0) =>
         throw new Error("Cannot round infinity");
     }
 
-    if (typeof places !== "number")
-    {
-        throw new Error(`Expected a number for places, got ${typeof places}`);
-    }
-
-    if (!Number.isSafeInteger(places))
-    {
-        throw new Error("Places must be an integer");
-    }
-
     if (places < 0)
     {
         throw new Error("Places must be greater than or equal to zero");
     }
-
+    // Adapted from <https://stackoverflow.com/a/11832950>
     places = Math.pow(10, places);
-
-    return Math.floor(n * places) / places;
+    return Math.round((n + Number.EPSILON) * places) / places
 };
 
 /**
@@ -515,3 +524,101 @@ export const tryCatchChain = (errors, func) =>
         return undefined;
     }
 };
+
+/**
+ * Parses a string and checks that its length falls between the given bounds.
+ *
+ * @param {string} s The string to parse.
+ * @param {number} minLength The minimum length requirement for the string.
+ * @param {number} maxLength The maximum length requirement for the string.
+ * @param {boolean} trim Indicates if the string should be trimmed before testing its length.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @returns {string} The parsed string.
+ * @throws {Error} If any of the following happen:
+ * - The string to parse is null, undefined, or not a string;
+ * - The minimum length is not an integer or is negative;
+ * - The maximum length is not an integer or is negative;
+ * - The minimum length is greater than the maximum length;
+ * - `trim` is not a boolean.
+ *
+ * @author Anthony Webster
+ */
+export const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true, paramName = undefined) =>
+{
+    paramName = nonEmptyStringOrDefault(paramName, "String");
+    throwIfNotString(s, paramName);
+    assertTypeIs(trim, "boolean", "trim");
+    assertIsInteger(minLength, "Minimum length");
+    assertIsInteger(maxLength, "Maximum length");
+
+    if (minLength > maxLength)
+    {
+        throw new Error("Minimum length cannot be greater than maximum length");
+    }
+    if (trim)
+    {
+        s = s.trim();
+    }
+    if (s.length < minLength)
+    {
+        throw new Error(`${paramName} must be at least ${minLength} characters`);
+    }
+    if (s.length > maxLength)
+    {
+        throw new Error(`${paramName} cannot be more than ${maxLength} characters`);
+    }
+    return s;
+};
+
+/**
+ * The minimum length of a password.
+ * @type {number}
+ */
+export const PASSWORD_MINIMUM_LENGTH = 8;
+
+/**
+ * The maximum length of a password.
+ * @type {number}
+ */
+export const PASSWORD_MAXIMUM_LENGTH = 256;
+
+/**
+ * Parses a password.
+ *
+ * @param {string} password The password to parse.
+ * @returns {string} The parsed password.
+ * @throws {Error} If any of the following happen:
+ * - The given password is null, undefined, or not a string;
+ * - The length of the password does not fall between {@linkcode PASSWORD_MINIMUM_LENGTH} and {@linkcode PASSWORD_MAXIMUM_LENGTH};
+ * - The password does not contain a lowercase letter;
+ * - The password does not contain an uppercase letter;
+ * - The password does not contain an ASCII digit;
+ * - The password does not contain a special character (anything matching the regex `[^a-zA-Z0-9]`).
+ *
+ * @author Samuel Miller, Anthony Webster
+ */
+export const parsePassword = (password) =>
+{
+    throwIfNotString(password, "Password");
+
+    password = parseStringWithLengthBounds(password, PASSWORD_MINIMUM_LENGTH, PASSWORD_MAXIMUM_LENGTH, false, "Password");
+
+    if (/[a-z]/.test(password))
+    {
+        throw new Error("Password requires at least one lowercase character");
+    }
+    if (/[A-Z]/.test(password))
+    {
+        throw new Error("Password requires at least one uppercase character");
+    }
+    if (/[0-9]/.test(password))
+    {
+        throw new Error("Password requires at least one number");
+    }
+    if (/[^a-zA-Z0-9]/.test(password))
+    {
+        throw new Error("Password requires at least one special character");
+    }
+
+    return password;
+}
