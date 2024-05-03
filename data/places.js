@@ -8,13 +8,13 @@ import {
     roundTo,
     throwIfNullOrUndefined,
 } from "../helpers.js";
-import {connectToDatabase, closeDatabaseConnection} from "../config/mongoConnection.js";
+import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
 import { Place } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { DateTime } from "luxon";
-import {ObjectId} from "mongodb";
-import {configDotenv} from "dotenv";
-import {getMongoConfig} from "../config/settings.js";
+import { ObjectId } from "mongodb";
+import { configDotenv } from "dotenv";
+import { getMongoConfig } from "../config/settings.js";
 
 export const parsePlaceFields = (name, description, osmType, osmId) => {
     // If name and description are not strings or are empty strings, the method should throw.
@@ -116,3 +116,25 @@ export const updatePlace = async (
 
     return await get(productId);
 };
+
+
+(function ()
+{
+    console.log("load env");
+    configDotenv({path: "../.env"});
+    console.log(getMongoConfig());
+    console.log("connect");
+    // mongoose.connect("mongodb://localhost:27107/", {
+    //
+    //     // useUnifiedTopology: true
+    // }).then(console.log).catch(console.error);
+    connectToDatabase().then(r =>
+    {
+        console.log("create");
+        createPlace("place 1", "place 1 description", "W", "1234", "123 Main St", 0, 0).then(r =>
+        {
+            closeDatabaseConnection().then(console.log).catch(console.error);
+        }).catch(console.error);
+        console.log("done");
+    }).catch(console.error);
+})();
