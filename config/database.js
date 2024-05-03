@@ -59,6 +59,12 @@ const placesSchema = new Schema({
 			],
 		},
 	],
+	averageRatings: {
+		overallAvgRating: Number,
+		physicalAvgRating: Number,
+		sensoryAvgRating: Number,
+		neuroDivergentAvgRating: Number,
+	},
 });
 
 export const disabilityCategories = model("disabilityCategories", disabilityCategoriesSchema);
