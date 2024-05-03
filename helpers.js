@@ -1,13 +1,26 @@
-// You can add and export any helper functions you want here - if you aren't using any, then you can just leave this file as is
-
 import {DateTime} from "luxon";
 import {ObjectId} from "mongodb";
 
+/**
+ * Test if the given object is null or undefined.
+ *
+ * @param {any} x The object to test.
+ * @returns {boolean} True if the given object is null or undefined, false otherwise.
+ * @author Anthony Webster
+ */
 export const isNullOrUndefined = (x) =>
 {
     return x === null || x === undefined;
 };
 
+/**
+ * Ensures that {@linkcode s} is a non-empty string or returns the given default value.
+ *
+ * @param {any} s The string to test. Leading and trailing whitespace is ignored.
+ * @param {string} defaultVal The default value to be used if `s` is not a string or is an empty string.
+ * @returns {string} The trimmed value of `s` or `defaultVal` if `s` is empty or not a string.
+ * @author Anthony Webster
+ */
 const nonEmptyStringOrDefault = (s, defaultVal) =>
 {
     if (isNullOrUndefined(s) || typeof s !== "string")
@@ -27,6 +40,7 @@ const nonEmptyStringOrDefault = (s, defaultVal) =>
  * @param {('undefined'|'object'|'boolean'|'number'|'bigint'|'string'|'symbol'|'function'|'array')} type
  *        Expected type of the object
  * @param paramName The name of the parameter
+ * @author Anthony Webster
  */
 export const assertTypeIs = (obj, type, paramName = undefined) =>
 {
@@ -62,6 +76,13 @@ export const assertTypeIs = (obj, type, paramName = undefined) =>
     }
 }
 
+/**
+ * Throws an exception if the given object is null or undefined.
+ *
+ * @param {any} x The object to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @author Anthony Webster
+ */
 export const throwIfNullOrUndefined = (x, paramName = undefined) =>
 {
     nonEmptyStringOrDefault(paramName, "Parameter");
@@ -77,6 +98,14 @@ export const throwIfNullOrUndefined = (x, paramName = undefined) =>
     }
 };
 
+/**
+ * Throws an exception if the given string is null, undefined, or not a string.
+ *
+ * @param {any} x The string to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @throws {Error} If the given string is null, undefined, or not a string.
+ * @author Anthony Webster
+ */
 export const throwIfNotString = (x, paramName = undefined) =>
 {
     throwIfNullOrUndefined(x, paramName);
@@ -86,6 +115,16 @@ export const throwIfNotString = (x, paramName = undefined) =>
     }
 };
 
+/**
+ * Parses a non-empty string, removing leading and trailing whitespace.
+ *
+ * @param {any} s The string to parse.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @returns {string} The trimmed string to parse.
+ * @throws {Error} If the given string to parse is null, undefined, or not a string, or if the trimmed version of
+ * the given string is empty.
+ * @author Anthony Webster
+ */
 export const parseNonEmptyString = (s, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "String");
@@ -102,6 +141,18 @@ export const parseNonEmptyString = (s, paramName = undefined) =>
     return s;
 };
 
+/**
+ * Parses a date with the given format.
+ * @param {string} str The date to parse as a string.
+ * @param {string} format The expected date format.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @returns {DateTime} The parsed date.
+ * @throws {Error} If any of the following happen:
+ * - The date to parse is null, undefined, or not a string;
+ * - The format is null, undefined, or not a string;
+ * - The date to parse is malformed.
+ * @author Anthony Webster
+ */
 export const parseDate = (str, format, paramName = undefined) =>
 {
     throwIfNullOrUndefined(format, "Format");
@@ -116,6 +167,21 @@ export const parseDate = (str, format, paramName = undefined) =>
     return parsed;
 };
 
+/**
+ * Parses an object ID, ignoring leading and trailing whitespace.
+ *
+ * The object ID is not converted into an {@link ObjectId} object.
+ *
+ * @param {string} id The object ID to parse, as a string.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @returns {string} The parsed object ID.
+ * @throws {Error} If any of the following happen:
+ * - The object ID is null, undefined, or not a string;
+ * - The object ID is an empty string or contains only whitespace;
+ * - The object ID is not a valid object ID, as determined by {@link ObjectId#isValid}.
+ *
+ * @author Anthony Webster
+ */
 export const parseObjectId = (id, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "id");
@@ -127,12 +193,27 @@ export const parseObjectId = (id, paramName = undefined) =>
     return id;
 }
 
+/**
+ * Tests if the given number is positive or negative infinity.
+ *
+ * @param {number} n The number to test.
+ * @returns {boolean} True if the number is positive infinity or negative infinity; otherwise, false.
+ * @author Anthony Webster.
+ */
 export const isInfinity = (n) =>
 {
     // From my previous work in lab 4
     return !isNullOrUndefined(n) && typeof n === "number" && (n === Infinity || n === -Infinity);
 };
 
+/**
+ * Throws an exception if the given number is NaN.
+ *
+ * @param {number} n The number to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @throws {Error} If the given number is NaN.
+ * @author Anthony Webster
+ */
 export const assertIsNotNaN = (n, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
@@ -142,6 +223,13 @@ export const assertIsNotNaN = (n, paramName = undefined) =>
     }
 }
 
+/**
+ * Throws an exception if the give number is positive infinity or negative infinity.
+ *
+ * @param {number} n The number to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @throws {Error} If the given number is positive infinity or negative infinity.
+ */
 export const assertIsNotInfinity = (n, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
@@ -151,9 +239,22 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
     }
 }
 
+/**
+ * Rounds a number to the given number of places.
+ * @param {number} n The number to round.
+ * @param {number} places The number of decimal places to round the number to.
+ * @returns {number} The number rounded to the given number of places.
+ * @throws {Error} If any of the following happen:
+ * - The number to round is null, undefined, or not of type number;
+ * - The number of places to round to is null, undefined, or not of type number;
+ * - The number of places to round to is not an integer (as determined by {@linkcode Number.isSafeInteger});
+ * - The number to round is NaN or infinity;
+ * - The number of places to round to is negative.
+ *
+ * @author Anthony Webster
+ */
 export const roundTo = (n, places = 0) =>
 {
-    // From my previous work in lab 4
     throwIfNullOrUndefined(n, "n");
     throwIfNullOrUndefined(places, "Places");
 
