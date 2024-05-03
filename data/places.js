@@ -10,17 +10,20 @@ import {
 } from "../helpers.js";
 import { places } from "../config/database.js";
 import { ObjectId } from "mongodb";
+import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { DateTime } from "luxon";
 
 export const parsePlaceFields = (name, description, osmType, osmId) => {
-	const parsed = {};
 	// If name and description are not strings or are empty strings, the method should throw.
-	parsed.name = parseNonEmptyString(name, "Place name");
-	parsed.description = parseNonEmptyString(description, "Place} description");
-	return parsed;
+	return {
+		name: parseNonEmptyString(name, "Place name"),
+		description: parseNonEmptyString(description, "Place description"),
+		osmId: parseOsmId(osmId),
+		osmType: parseOsmType(osmType),
+	};
 };
 
-export const createPlace = async (name, description, osmType, osmId) => {
+export const createPlace = async (name, description, osmType, osmId, address) => {
 	const parsed = parsePlaceFields(name, description, osmType, osmId);
 	const collection = await places();
 	// If no product ID, insert.
@@ -32,6 +35,7 @@ export const createPlace = async (name, description, osmType, osmId) => {
 			_id: ObjectId(),
 			osmId: parsed.osmId,
 			osmType: parsed.osmType,
+			address: address.displayName, //lookup happened in routes - API calls are expensive
 		},
 		reviews: [],
 	});
@@ -41,15 +45,6 @@ export const createPlace = async (name, description, osmType, osmId) => {
 	}
 
 	return await get(inserted.insertedId.toString());
-};
-
-export const getAll = async () => {
-	const collection = await places();
-	const products = await collection.find().project({ _id: 1, name: 1 }).toArray();
-	for (const prod of products) {
-		prod._id = prod._id.toString();
-	}
-	return products;
 };
 
 export const get = async (productId) => {
@@ -63,18 +58,9 @@ export const get = async (productId) => {
 	return result;
 };
 
-export const remove = async (productId) => {
-	productId = parseObjectId(productId, "Product id");
-	const collection = await places();
-	const deleteResult = await collection.deleteOne({ _id: ObjectId.createFromHexString(productId) });
-	if (!deleteResult) {
-		throw new Error("Remove failed");
-	}
+//delete places?
 
-	return;
-};
-
-export const update = async (
+export const updatePlace = async (
 	productId,
 	name,
 	productDescription,
