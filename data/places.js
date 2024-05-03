@@ -8,10 +8,13 @@ import {
     roundTo,
     throwIfNullOrUndefined,
 } from "../helpers.js";
-import { places } from "../config/database.js";
-import { ObjectId } from "mongodb";
+import {connectToDatabase, closeDatabaseConnection} from "../config/mongoConnection.js";
+import { Place } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { DateTime } from "luxon";
+import {ObjectId} from "mongodb";
+import {configDotenv} from "dotenv";
+import {getMongoConfig} from "../config/settings.js";
 
 export const parsePlaceFields = (name, description, osmType, osmId) => {
     // If name and description are not strings or are empty strings, the method should throw.
@@ -23,11 +26,11 @@ export const parsePlaceFields = (name, description, osmType, osmId) => {
     };
 };
 
-export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) => {
+export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) =>
+{
     const parsed = parsePlaceFields(name, description, osmType, osmId);
-    const collection = await places();
-    // If no product ID, insert.
-    const inserted = await collection.insertOne({
+    const document = new Place({
+        _id: new ObjectId(),
         name: parsed.name,
         description: parsed.description,
         comments: [],
@@ -43,16 +46,12 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
         reviews: [],
     });
 
-    if (!inserted) {
-        throw new Error("Failed to create place");
-    }
-
-    return await get(inserted.insertedId.toString());
+    await document.save();
 };
 
 export const get = async (productId) => {
     productId = parseObjectId(productId, "Product id");
-    const collection = await places();
+    const collection = await Place();
     const result = await collection.findOne({ _id: ObjectId.createFromHexString(productId) });
     if (!result) {
         throw new Error(`Failed to find product with id ${productId}`);
@@ -91,7 +90,7 @@ export const updatePlace = async (
         discontinued
     );
 
-    const collection = await places();
+    const collection = await Place();
 
     const updateResult = await collection.updateOne(
         { _id: ObjectId.createFromHexString(productId) },

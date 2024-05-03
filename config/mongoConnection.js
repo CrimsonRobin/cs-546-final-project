@@ -1,4 +1,4 @@
-import {connect, connection} from "mongoose";
+import mongoose from "mongoose";
 import {getMongoConfig} from "./settings.js";
 
 /**
@@ -9,10 +9,10 @@ import {getMongoConfig} from "./settings.js";
 export const connectToDatabase = async () =>
 {
     const {database, serverUrl} = getMongoConfig();
-    return await connect(`${serverUrl}/${database}`)
+    return await mongoose.connect(`${serverUrl}/${database}`)
 };
 
 export const closeDatabaseConnection = async () =>
 {
-    await connection.close();
+    await mongoose.connection.close();
 }
