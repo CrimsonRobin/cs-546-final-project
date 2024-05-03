@@ -562,3 +562,19 @@ export const parsePassword = (password) => {
 
     return password;
 };
+
+/**
+ * Validates a checkbox.
+ * @param {string} checkbox The checkbox to validate.
+ * @returns {string} The checkbox.
+ * @throws {Error} if the checkbox is not undefined or set to "on"
+ *
+ * @author Samuel Miller
+ */
+export const validCheckbox = (checkbox, paramName = undefined) => {
+    if (checkbox === undefined || checkbox === "on") {
+        return checkbox;
+    } else {
+        throw new Error(`Invalid value for checkbox: ${paramName}`);
+    }
+};
