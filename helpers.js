@@ -493,3 +493,25 @@ export const sleep = (milliseconds) =>
     }
     return new Promise(r => setTimeout(r, milliseconds))
 };
+
+/**
+ * Calls the given function and returns its result or adds a thrown exception to the given array of errors.
+ *
+ * @template T
+ * @param {Error[]} errors The array of errors that any errors should be added to.
+ * @param {function():T} func The function to call.
+ * @returns {T|undefined} The result of calling the function or undefined if the function call threw an error.
+ * @author Anthony Webster
+ */
+export const tryCatchChain = (errors, func) =>
+{
+    try
+    {
+        return func();
+    }
+    catch (e)
+    {
+        errors.push(e);
+        return undefined;
+    }
+};
