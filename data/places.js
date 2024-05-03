@@ -8,13 +8,13 @@ import {
     roundTo,
     throwIfNullOrUndefined,
 } from "../helpers.js";
-import {connectToDatabase, closeDatabaseConnection} from "../config/mongoConnection.js";
+import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
 import { Place } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { DateTime } from "luxon";
-import {ObjectId} from "mongodb";
-import {configDotenv} from "dotenv";
-import {getMongoConfig} from "../config/settings.js";
+import { ObjectId } from "mongodb";
+import { configDotenv } from "dotenv";
+import { getMongoConfig } from "../config/settings.js";
 
 export const parsePlaceFields = (name, description, osmType, osmId) => {
     // If name and description are not strings or are empty strings, the method should throw.
