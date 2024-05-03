@@ -638,3 +638,13 @@ export const parsePassword = (password) =>
 
     return password;
 }
+
+export const validCheckbox = (checkbox, paramName = undefined) => 
+{
+    if (checkbox === undefined || checkbox === "on") {
+        return checkbox;
+    }
+    else {
+        throw new Error(`Invalid value for checkbox: ${paramName}`);
+    }
+}
