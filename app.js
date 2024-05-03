@@ -1,16 +1,9 @@
 // import express from "express";
 // import configRoutes from "./routes/index.js";
 
-// const app = express();
-//
-// app.use(express.json());
-//
-// configRoutes(app);
-//
-// const port = 3000;
-// app.listen(port, () => {
-//     console.log(`Server listening on port ${port}`);
-// });
+import express from "express";
+import express_handlebars from "express-handlebars";
+import configRoutes from "./routes/index.js";
 
 import exphbs from "express-handlebars";
 import session from "express-session";
@@ -19,6 +12,12 @@ const app = express();
 
 // Load environment as early as possible
 configDotenv({ path: "./.env" });
+app.use("/public", express.static("public"));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+app.engine("handlebars", express_handlebars.engine({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
 
 app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
