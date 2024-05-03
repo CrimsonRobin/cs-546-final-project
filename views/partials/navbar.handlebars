@@ -1,0 +1,16 @@
+<header>
+    <a href="/">
+        {{!TODO figure out how to make logo respect light and dark themes}}
+        <img src="/public/assets/logo-light.svg" alt="a11y logo">
+    </a>
+    <div>
+        {{#if user}}
+            <a href="/user?id={{user.id}}" >
+            <span class="material-symbols-outlined" aria-label="Account">account_circle</span>
+            </a>
+        {{else}}
+            <a href="/login" class="button-link">Log In</a>
+            <a href="/register" class="button-link">Register</a>
+        {{/if}}
+    </div>
+</header>
