@@ -240,6 +240,31 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
 }
 
 /**
+ * Asserts that the given number is an integer as determined by {@linkcode Number.isSafeInteger}.
+ *
+ * @param {number} n The number to test.
+ * @param {string|undefined} paramName The name of the parameter.
+ * @throws {Error} If any of the following happen:
+ * - The number is null, undefined, or not a number;
+ * - The number is infinity;
+ * - The number is NaN;
+ * - The number is not integral.
+ *
+ * @author Anthony Webster
+ */
+export const assertIsInteger = (n, paramName = undefined) =>
+{
+    paramName = nonEmptyStringOrDefault(paramName, "Number");
+    assertTypeIs(n, "number", paramName);
+    assertIsNotInfinity(n, paramName);
+    assertIsNotNaN(n, paramName);
+    if (!Number.isSafeInteger(n))
+    {
+        throw new Error(`${paramName} must be an integer`);
+    }
+};
+
+/**
  * Rounds a number to the given number of places.
  * @param {number} n The number to round.
  * @param {number} places The number of decimal places to round the number to.
@@ -255,13 +280,8 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
  */
 export const roundTo = (n, places = 0) =>
 {
-    throwIfNullOrUndefined(n, "n");
-    throwIfNullOrUndefined(places, "Places");
-
-    if (typeof n !== "number")
-    {
-        throw new Error(`Expected a number, got ${typeof n}`);
-    }
+    assertTypeIs(n, "number", "Places");
+    assertIsInteger(places, "Places");
 
     if (Number.isNaN(n))
     {
@@ -273,24 +293,13 @@ export const roundTo = (n, places = 0) =>
         throw new Error("Cannot round infinity");
     }
 
-    if (typeof places !== "number")
-    {
-        throw new Error(`Expected a number for places, got ${typeof places}`);
-    }
-
-    if (!Number.isSafeInteger(places))
-    {
-        throw new Error("Places must be an integer");
-    }
-
     if (places < 0)
     {
         throw new Error("Places must be greater than or equal to zero");
     }
-
+    // Adapted from <https://stackoverflow.com/a/11832950>
     places = Math.pow(10, places);
-
-    return Math.floor(n * places) / places;
+    return Math.round((n + Number.EPSILON) * places) / places
 };
 
 /**
@@ -513,31 +522,6 @@ export const tryCatchChain = (errors, func) =>
     {
         errors.push(e);
         return undefined;
-    }
-};
-
-/**
- * Asserts that the given number is an integer as determined by {@linkcode Number.isSafeInteger}.
- *
- * @param {number} n The number to test.
- * @param {string|undefined} paramName The name of the parameter.
- * @throws {Error} If any of the following happen:
- * - The number is null, undefined, or not a number;
- * - The number is infinity;
- * - The number is NaN;
- * - The number is not integral.
- *
- * @author Anthony Webster
- */
-export const assertIsInteger = (n, paramName = undefined) =>
-{
-    paramName = nonEmptyStringOrDefault(paramName, "Number");
-    assertTypeIs(n, "number", paramName);
-    assertIsNotInfinity(n, paramName);
-    assertIsNotNaN(n, paramName);
-    if (!Number.isSafeInteger(n))
-    {
-        throw new Error(`${paramName} must be an integer`);
     }
 };
 
