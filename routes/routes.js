@@ -15,21 +15,20 @@ const router = express.Router();
 
 //will change some of these routes, depends on the helpers
 
-router.route('/').get(async (req, res) => {
-    return res.json({error: 'YOU SHOULD NOT BE HERE!'});
-  });
-  
-router
-    .route('/register')
+router.route('/')
     .get(async (req, res) => {
-      return res.render("register");
+        return res.render("home");
+    });
+  
+router.route('/register')
+    .get(async (req, res) => {
+        return res.render("register");
     })
     .post(async (req, res) => {
 
     });
   
-router
-    .route('/login')
+router.route('/login')
     .get(async (req, res) => {
         return res.render("login");
     })
@@ -37,21 +36,19 @@ router
 
     });
 
-router
-    .route('/user').get(async (req, res) => {
+router.route('/user')
+    .get(async (req, res) => {
         return res.render("user");
     });
 
-router
-    .route('/logout').get(async (req, res) => {
+router.route('/logout')
+    .get(async (req, res) => {
         return res.render("logout");
     });
 
-router
-    .route('/about').get(async (req, res) => {
+router.route('/about')
+    .get(async (req, res) => {
         return res.render("about");
     });
-
-
 
 export default router;
