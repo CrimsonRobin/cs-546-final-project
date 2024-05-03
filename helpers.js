@@ -192,3 +192,203 @@ export const roundTo = (n, places = 0) =>
     return Math.floor(n * places) / places;
 };
 
+/**
+ * Extracts the only element from the given array.
+ *
+ * If the array is empty, has more than one element, or is not an array, this method throws an exception.
+ *
+ * @template T
+ * @param {T[]} arr The array to extract the element from.
+ * @param {string} paramName The name of the parameter (used in exception messages).
+ * @returns {T} The element at index zero of the given array.
+ * @author Anthony Webster
+ */
+export const exactlyOneElement = (arr, paramName = "array") =>
+{
+    paramName = nonEmptyStringOrDefault(paramName, "array");
+    assertTypeIs(arr, "array", paramName);
+    if (arr.length !== 1)
+    {
+        throw new Error(`Expected exactly one element for ${paramName} but got ${arr.length}`);
+    }
+    return arr[0];
+}
+
+/**
+ * Converts degrees to radians.
+ *
+ * @param {!number} degrees The degrees to convert to radians.
+ * @returns {!number} The given degrees converted to radians.
+ * @author Anthony Webster
+ */
+export const degreesToRadians = (degrees) =>
+{
+    assertTypeIs(degrees, "number", "degrees");
+    return degrees * (Math.PI / 180.0);
+}
+
+/**
+ * Computes the haversine of the given angle.
+ *
+ * @param {!number} theta The angle in radians.
+ * @returns {!number} The haversine of the given angle.
+ * @author Anthony Webster
+ */
+export const haversin = (theta) =>
+{
+    assertTypeIs(theta, "number", "angle");
+    const s = Math.sin(theta / 2.0);
+    return s * s;
+}
+
+/**
+ * Test if the given object is a number and not NaN.
+ *
+ * @param x {any} The object to test.
+ * @returns {boolean} True if `x` is not null, not undefined, not NaN, and its type is `number`;
+ *                    otherwise, false.
+ * @author Anthony Webster
+ */
+export const isNumber = (x) =>
+{
+    return !isNullOrUndefined(x) && typeof x === "number" && !Number.isNaN(x);
+};
+
+/**
+ * Parse an object to a number (either integral or floating-point).
+ *
+ * @param {*} str The object to parse. If it's already of type `Number` and is not NaN, then no parsing is
+ *                done and `str` is returned as-is.
+ * @param {boolean} [trim = false] Indicates if leading and trailing whitespace should be trimmed before
+ *                                 parsing.
+ * @returns {number} The parsed value, as a number.
+ * @throws {Error} If `str` is not a number, not a string, undefined, null, NaN, or if it cannot be
+ *                 otherwise parsed to a number.
+ * @author Anthony Webster
+ */
+export const parseNumber = (str, trim = false) =>
+{
+    // Normal languages (not JS) don't let you parse garbage like "   56 " or "45qwerty" into an int.
+    // This function restores this NORMAL functionality that already should exist in JS.
+
+    if (str === undefined)
+    {
+        throw new Error("Cannot convert undefined to a number");
+    }
+    if (str === null)
+    {
+        throw new Error("Cannot convert null to a number");
+    }
+    if (Number.isNaN(str))
+    {
+        throw new Error("Cannot convert NaN to a number");
+    }
+    if (isNumber(str))
+    {
+        // If we got a number, then we're in luck. No need to actually parse anything.
+        return str;
+    }
+    if (typeof str !== "string")
+    {
+        throw new Error(`Cannot parse object of type ${typeof str} to number`);
+    }
+
+    if (isNullOrUndefined(trim))
+    {
+        trim = false;
+    }
+
+    if (typeof trim !== "boolean")
+    {
+        throw new Error("Value for trim must have type boolean");
+    }
+
+    if (trim)
+    {
+        str = str.trim();
+    }
+
+    // Yeah, I know this is probably not the best, but it'll do.
+    const intRegex = /^([-+]?)([0-9]+)$/gui;
+    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/gui;
+
+    if (str.match(intRegex) || str.match(floatRegex))
+    {
+        const parsed = parseFloat(str);
+
+        // This should *never* be NaN, but we'll do a sanity check just in case. I am convinced that JS
+        // function behavior changes based on the position of stars in the universe and quantum mechanics
+        // or something ridiculous.
+        if (!Number.isNaN(parsed))
+        {
+            return parsed;
+        }
+    }
+
+    throw new Error("Cannot convert non-numeric value to a number");
+};
+
+/**
+ * Parse a latitude value, asserting that it is in the correct range of latitude values.
+ *
+ * A positive latitude indicates north, negative indicates south.
+ *
+ * @param {number} latitude The latitude to parse
+ * @returns {number} The parsed latitude
+ * @author Anthony Webster
+ */
+export const parseLatitude = (latitude) =>
+{
+    assertTypeIs(latitude, "number", "latitude");
+    if (latitude < -90 || latitude > 90)
+    {
+        throw new Error("Latitude must be between -90 and 90");
+    }
+    return latitude;
+};
+
+/**
+ * Normalize a longitude value, wrapping around if it is greater than 180 or less than -180.
+ *
+ * A positive longitude indicates east, negative indicates west.
+ *
+ * @param {number} longitude The longitude to normalize.
+ * @returns {number} The normalized longitude.
+ * @author Anthony Webster
+ */
+export const normalizeLongitude = (longitude) =>
+{
+    assertTypeIs(longitude, "number", "Longitude");
+    if (isInfinity(longitude) || Number.isNaN(longitude))
+    {
+        throw new Error(`Invalid longitude ${longitude}`);
+    }
+
+    const sign = longitude < 0 ? -1 : 1;
+    longitude = Math.abs(longitude);
+
+    // This isn't a great way to do this, but it'll work.
+    while (longitude > 180)
+    {
+        longitude -= 360;
+    }
+
+    return longitude * sign;
+};
+
+/**
+ * Sleep for the given number of milliseconds.
+ *
+ * @param milliseconds The number of milliseconds to sleep for.
+ * @returns {Promise<any>}
+ * @author Anthony Webster
+ */
+export const sleep = (milliseconds) =>
+{
+    assertTypeIs(milliseconds, "number", "milliseconds");
+    if (milliseconds <= 0)
+    {
+        return Promise.resolve();
+    }
+    return new Promise(r => setTimeout(r, milliseconds))
+};
