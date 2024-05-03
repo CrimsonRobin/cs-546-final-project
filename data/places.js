@@ -23,7 +23,7 @@ export const parsePlaceFields = (name, description, osmType, osmId) => {
 	};
 };
 
-export const createPlace = async (name, description, osmType, osmId, address) => {
+export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) => {
 	const parsed = parsePlaceFields(name, description, osmType, osmId);
 	const collection = await places();
 	// If no product ID, insert.
@@ -32,10 +32,13 @@ export const createPlace = async (name, description, osmType, osmId, address) =>
 		description: parsed.description,
 		comments: [],
 		location: {
-			_id: ObjectId(),
+			_id: new ObjectId(),
 			osmId: parsed.osmId,
 			osmType: parsed.osmType,
-			address: address.displayName, //lookup happened in routes - API calls are expensive
+			address: address.displayName,
+			longitude: longitude,
+			latitude: latitude,
+			//lookup happened in routes - API calls are expensive
 		},
 		reviews: [],
 	});

@@ -36,6 +36,8 @@ const placesSchema = new Schema({
 		osmId: String,
 		osmType: String,
 		address: String,
+		longitude: Number,
+		latitude: Number,
 	},
 	reviews: [
 		{
@@ -59,12 +61,6 @@ const placesSchema = new Schema({
 			],
 		},
 	],
-	averageRatings: {
-		overallAvgRating: Number,
-		physicalAvgRating: Number,
-		sensoryAvgRating: Number,
-		neuroDivergentAvgRating: Number,
-	},
 });
 
 export const disabilityCategories = model("disabilityCategories", disabilityCategoriesSchema);
