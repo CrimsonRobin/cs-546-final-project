@@ -23,7 +23,7 @@ const placesSchema = new Schema({
         },
     ],
     location: {
-        _id: ObjectId,
+        _id: Schema.Types.ObjectId,
         osmId: String,
         osmType: String,
         address: String,

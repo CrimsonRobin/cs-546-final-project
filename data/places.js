@@ -178,10 +178,18 @@ const stateAbbreviationToFullName = (abbreviation) =>
     return stateAbbreviationToFullNameMap[abbreviation];
 };
 
-const normalizeSearchQuery = async (query) => {
+/**
+ *
+ * @param query
+ * @returns {(string|*)[]}
+ */
+const normalizeSearchQuery = (query) => {
+    // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
+    // State abbreviations could be written as "N.Y." instead of "NY"
     const qs = query
         .toLowerCase()
-        .replaceAll(/\s+/, " ")
+        .replaceAll(/[^a-zA-Z0-9]+/g, " ")
+        .replaceAll(/\s+/g, " ")
         .split(/\s+/)
         .filter(s => s.length > 0)
         .flatMap(p =>
@@ -201,26 +209,41 @@ const normalizeSearchQuery = async (query) => {
     return removeDuplicates(qs);
 };
 
-const computeSearchMatchScore = async (normalizedQuery, placeData) =>
+/**
+ *
+ * @param normalizedQuery
+ * @param placeData
+ * @returns {number}
+ */
+const computeSearchMatchScore = (normalizedQuery, placeData) =>
 {
+    // TODO: Remove non-alphanumeric
     // Display names have expanded state names
-    const addressParts = removeDuplicates(placeData.address
-        .toLowerCase()
-        .replaceAll(/\s+/, " ")
-        .split(/\s+/)
-        .filter(s => s.length > 0));
+    let totalMatches = 0;
 
-    return normalizedQuery.reduce((acc, e) => addressParts.indexOf(e) >= 0 ? acc + 1 : acc) / normalizedQuery.length;
+    for (let against of [placeData.location.address, placeData.name, placeData.description])
+    {
+        against = normalizeSearchQuery(placeData.location.address);
+        totalMatches += normalizedQuery.reduce((acc, e) => against.some(p => p.indexOf(e) >= 0) ? 1 : 0, 0);
+    }
+
+    return totalMatches;
 };
 
+/**
+ *
+ * @param query
+ * @returns {Promise<(FlattenMaps<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}, HydratedDocument<FlatRecord<{comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}>, {}>>>> & Required<{_id: ObjectId}>)[]>}
+ */
 export const search = async (query) =>
 {
-    query = parseNonEmptyString(query, "search query").toLowerCase();
-    const places = await Place.find({}).exec();
+    query = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
+    const places = await Place.find({}, ["_id", "location"], null).exec();
 
     return Enumerable.from(places)
         .select(p => [computeSearchMatchScore(query, p), p])
-        .orderBy(p => p[0])
-        .select(p => p[1])
+        .where(p => p[0] > 0)
+        .orderByDescending(p => p[0])
+        .select(p => p[1]._id.toString())
         .toArray();
 };
