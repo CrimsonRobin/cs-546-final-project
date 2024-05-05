@@ -70,7 +70,7 @@ export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
     const result = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
     if (!result) {
-        throw new Error(`Failed to find product with id ${placeId}`);
+        throw new Error(`Failed to find place with id ${placeId}`);
     }
     result._id = result._id.toString();
     return result;
@@ -129,9 +129,18 @@ export const getAllReviews = async () => {};
 
 //delete review
 
-//comment functions
+//comment functions:
 
-//create comment
+//create place comment
+export const addPlaceComment = async(placeId, author, content) => {
+    author = parseNonEmptyString(author, "Name of author");
+    content = parseNonEmptyString(content, "Content of comment");
+    placeId = parseObjectId(placeId, "Place Id");
+    
+    const place = await getPlace(placeId);
+};
+
+//create review comment
 
 //get all comments from place/review
 

@@ -47,6 +47,7 @@ const placesSchema = new Schema({
             comments: [
                 {
                     author: { type: String, ref: "users" },
+                    content: String,
                     createdAt: Date,
                     likes: Number,
                     dislikes: Number,
