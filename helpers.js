@@ -578,3 +578,48 @@ export const validCheckbox = (checkbox, paramName = undefined) => {
         throw new Error(`Invalid value for checkbox: ${paramName}`);
     }
 };
+
+export const parseCategories = (categories) => {
+    //check if null or undef
+    if (categories === null || categories === undefined) {
+        throw new Error(`Categories must be defined.`);
+    }
+    //check if array
+    if (!isArray(categories)) {
+        throw new Error(`Categories must be an array.`);
+    }
+    //check if array is empty
+    if (!categories.length) {
+        throw new Error(`Categories are must have at least 1 entry.`);
+    }
+    //all entries are strings and all entries in array are valid categories
+    let validCategories = ["physical", "sensory", "neurodivergent"];
+    for (category of categories) {
+        if (typeof category !== "object") {
+            throw new Error(`All categories must be objects.`);
+        } else if (typeof category.categoryName !== "string") {
+            throw new Error(`All category names must be strings.`);
+        } else if (typeof category.rating !== "number") {
+            throw new Error(`All ratings must be numbers.`);
+        } else if (category.rating < 1 || category.rating > 5) {
+            throw new Error(`Invalid input for rating: must be 1-5`);
+        } else {
+            let validCategory = false;
+            for (valid of validCategories) {
+                if (category.categoryName.toLowerCase() === valid) {
+                    validCategory = true;
+                }
+            }
+            if (!validCategory) {
+                throw new Error(`Category names must be one of the following: physical, sensory, or neurodivergent.`);
+            }
+            category.rating = roundTo(category.rating, 1);
+        }
+    }
+    //check for duplicates
+    let noDups = new Set(categories);
+    if (noDups.size !== categories.length) {
+        throw new Error(`Category names cannot be duplicates.`);
+    }
+    return categories;
+};

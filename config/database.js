@@ -39,7 +39,7 @@ const placesSchema = new Schema({
             dislikes: Number,
             categories: [
                 {
-                    category: String,
+                    categoryName: String,
                     rating: Number,
                 },
             ],

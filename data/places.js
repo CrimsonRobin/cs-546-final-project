@@ -2,6 +2,7 @@ import {
     assertTypeIs,
     isInfinity,
     isNullOrUndefined,
+    parseCategories,
     parseDate,
     parseNonEmptyString,
     parseObjectId,
@@ -16,6 +17,7 @@ import { ObjectId } from "mongodb";
 import { configDotenv } from "dotenv";
 import { getMongoConfig } from "../config/settings.js";
 
+//place functions
 export const parsePlaceFields = (name, description, osmType, osmId) => {
     // If name and description are not strings or are empty strings, the method should throw.
     return {
@@ -26,8 +28,7 @@ export const parsePlaceFields = (name, description, osmType, osmId) => {
     };
 };
 
-export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) =>
-{
+export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) => {
     const parsed = parsePlaceFields(name, description, osmType, osmId);
     const document = new Place({
         _id: new ObjectId(),
@@ -49,12 +50,12 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     await document.save();
 };
 
-export const get = async (productId) => {
-    productId = parseObjectId(productId, "Product id");
+export const getPlace = async (placeId) => {
+    placeId = parseObjectId(placeId, "Product id");
     const collection = await Place();
-    const result = await collection.findOne({ _id: ObjectId.createFromHexString(productId) });
+    const result = await collection.findOne({ _id: ObjectId.createFromHexString(placeId) });
     if (!result) {
-        throw new Error(`Failed to find product with id ${productId}`);
+        throw new Error(`Failed to find product with id ${placeId}`);
     }
     result._id = result._id.toString();
     return result;
@@ -62,79 +63,30 @@ export const get = async (productId) => {
 
 //delete places?
 
-export const updatePlace = async (
-    productId,
-    name,
-    productDescription,
-    modelNumber,
-    price,
-    manufacturer,
-    manufacturerWebsite,
-    keywords,
-    categories,
-    dateReleased,
-    discontinued
-) => {
-    productId = parseObjectId(productId, "Product id");
+//review functions:
 
-    const parsed = parseProductFields(
-        name,
-        productDescription,
-        modelNumber,
-        price,
-        manufacturer,
-        manufacturerWebsite,
-        keywords,
-        categories,
-        dateReleased,
-        discontinued
-    );
-
-    const collection = await Place();
-
-    const updateResult = await collection.updateOne(
-        { _id: ObjectId.createFromHexString(productId) },
-        {
-            $set: {
-                name: parsed.name,
-                productDescription: parsed.productDescription,
-                modelNumber: parsed.modelNumber,
-                price: parsed.price,
-                manufacturer: parsed.manufacturer,
-                manufacturerWebsite: parsed.manufacturerWebsite,
-                keywords: parsed.keywords,
-                categories: parsed.categories,
-                dateReleased: parsed.dateReleased,
-                discontinued: parsed.discontinued,
-            },
-        }
-    );
-
-    if (!updateResult) {
-        throw new Error(`Failed to update product with id ${productId}`);
-    }
-
-    return await get(productId);
+//create
+export const addReview = async (author, content, categories) => {
+    author = parseNonEmptyString(author, "Name of author");
+    content = parseNonEmptyString(content, "Content of review");
+    categories = parseCategories(categories);
 };
+//get specific review
 
+//get all from specific place
 
-(function ()
-{
-    console.log("load env");
-    configDotenv({path: "../.env"});
-    console.log(getMongoConfig());
-    console.log("connect");
-    // mongoose.connect("mongodb://localhost:27107/", {
-    //
-    //     // useUnifiedTopology: true
-    // }).then(console.log).catch(console.error);
-    connectToDatabase().then(r =>
-    {
-        console.log("create");
-        createPlace("place 1", "place 1 description", "W", "1234", "123 Main St", 0, 0).then(r =>
-        {
-            closeDatabaseConnection().then(console.log).catch(console.error);
-        }).catch(console.error);
-        console.log("done");
-    }).catch(console.error);
-})();
+//update review
+
+//delete review
+
+//comment functions
+
+//create comment
+
+//get all comments from place/review
+
+//get specific comment
+
+//update comment
+
+//delete comment
