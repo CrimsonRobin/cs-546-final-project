@@ -623,3 +623,21 @@ export const parseCategories = (categories) => {
     }
     return categories;
 };
+/**
+ * Removes duplicate elements from the array.
+ *
+ * @template T
+ * @param {T[]} array The array.
+ * @returns {T[]} The array with duplicates removed.
+ * @author Anthony Webster
+ */
+export const removeDuplicates = (array) => {
+    assertTypeIs(array, "array", "array");
+    const seen = [];
+    for (const e of array) {
+        if (!seen.some((s) => s === e)) {
+            seen.push(e);
+        }
+    }
+    return seen;
+};

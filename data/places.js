@@ -12,10 +12,8 @@ import {
 import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
 import { Place } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
-import { DateTime } from "luxon";
 import { ObjectId } from "mongodb";
-import { configDotenv } from "dotenv";
-import { getMongoConfig } from "../config/settings.js";
+import Enumerable from "linq";
 
 //place functions
 export const parsePlaceFields = (name, description, osmType, osmId) => {
@@ -90,3 +88,110 @@ export const addReview = async (author, content, categories) => {
 //update comment
 
 //delete comment
+const stateAbbreviationToFullNameMap = {
+    al: "alabama",
+    ak: "alaska",
+    az: "arizona",
+    ar: "arkansas",
+    ca: "california",
+    co: "colorado",
+    ct: "connecticut",
+    de: "delaware",
+    dc: "district of columbia",
+    fl: "florida",
+    ga: "georgia",
+    hi: "hawaii",
+    id: "idaho",
+    il: "illinois",
+    in: "indiana",
+    ia: "iowa",
+    ks: "kansas",
+    ky: "kentucky",
+    la: "louisiana",
+    me: "maine",
+    md: "maryland",
+    ma: "massachusetts",
+    mi: "michigan",
+    mn: "minnesota",
+    ms: "mississippi",
+    mo: "missouri",
+    mt: "montana",
+    ne: "nebraska",
+    nv: "nevada",
+    nh: "new hampshire",
+    nj: "new jersey",
+    nm: "new mexico",
+    ny: "new york",
+    nc: "north carolina",
+    nd: "north dakota",
+    oh: "ohio",
+    ok: "oklahoma",
+    or: "oregon",
+    pa: "pennsylvania",
+    ri: "rhode island",
+    sc: "south carolina",
+    sd: "south dakota",
+    tn: "tennessee",
+    tx: "texas",
+    ut: "utah",
+    vt: "vermont",
+    va: "virginia",
+    wa: "washington",
+    wv: "west virginia",
+    wi: "wisconsin",
+    wy: "wyoming",
+};
+
+const stateAbbreviationToFullName = (abbreviation) => {
+    abbreviation = parseNonEmptyString(abbreviation, "state abbreviation");
+    if (abbreviation.length !== 2) {
+        throw new Error("State abbreviation must be exactly 2 characters");
+    }
+    if (!(abbreviation in stateAbbreviationToFullNameMap)) {
+        throw new Error(`Invalid state abbreviation ${abbreviation}`);
+    }
+    return stateAbbreviationToFullNameMap[abbreviation];
+};
+
+const normalizeSearchQuery = async (query) => {
+    const qs = query
+        .toLowerCase()
+        .replaceAll(/\s+/, " ")
+        .split(/\s+/)
+        .filter((s) => s.length > 0)
+        .flatMap((p) => {
+            // The abbreviation converter will throw an exception if not given an abbreviation.
+            // We'll have both the abbreviation and the full name for good measure.
+            try {
+                return [p, stateAbbreviationToFullName(p).split(" ")];
+            } catch (e) {
+                return [p];
+            }
+        });
+
+    return removeDuplicates(qs);
+};
+
+const computeSearchMatchScore = async (normalizedQuery, placeData) => {
+    // Display names have expanded state names
+    const addressParts = removeDuplicates(
+        placeData.address
+            .toLowerCase()
+            .replaceAll(/\s+/, " ")
+            .split(/\s+/)
+            .filter((s) => s.length > 0)
+    );
+
+    return normalizedQuery.reduce((acc, e) => (addressParts.indexOf(e) >= 0 ? acc + 1 : acc)) / normalizedQuery.length;
+};
+
+export const search = async (query) => {
+    query = parseNonEmptyString(query, "search query").toLowerCase();
+    const places = await Place.find({}).exec();
+
+    return Enumerable.from(places)
+        .select((p) => [computeSearchMatchScore(query, p), p])
+        .orderBy((p) => p[0])
+        .select((p) => p[1])
+        .toArray();
+};
