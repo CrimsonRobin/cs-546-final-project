@@ -49,9 +49,8 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
 };
 
 export const getPlace = async (placeId) => {
-    placeId = parseObjectId(placeId, "Product id");
-    const collection = await Place();
-    const result = await collection.findOne({ _id: ObjectId.createFromHexString(placeId) });
+    placeId = parseObjectId(placeId, "Place id");
+    const result = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
     if (!result) {
         throw new Error(`Failed to find product with id ${placeId}`);
     }
@@ -64,14 +63,54 @@ export const getPlace = async (placeId) => {
 //review functions:
 
 //create
-export const addReview = async (author, content, categories) => {
+export const addReview = async (placeId, author, content, categories) => {
+    placeId = parseObjectId(placeId, "Place id");
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of review");
     categories = parseCategories(categories);
+    const placeReviewed = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
+    if (!placeReviewed) {
+        throw new Error(`Could not find place with that id.`);
+    }
+    const review = await collection
+        .updateOne(
+            { _id: placeId },
+            {
+                $push: {
+                    reviews: {
+                        _id: new ObjectId(),
+                        author: author,
+                        content: content,
+                        createdAt: new Date(),
+                        likes: 0,
+                        dislikes: 0,
+                        categories: categories,
+                        comments: [],
+                    },
+                },
+            }
+        )
+        .exec();
+    if (!review) {
+        throw new Error(`Could not insert review in place with id ${placeId}`);
+    }
+    //TODO: recompute average rating of place
+
+    await document.save();
 };
 //get specific review
-
+export const getReview = async (reviewId) => {
+    reviewId = parseObjectId(reviewId, "Review id");
+    const result = await Place.findOne({ _id: ObjectId.createFromHexString(reviewId) }).exec();
+    if (!result) {
+        throw new Error(`Failed to find product with id ${reviewId}`);
+    }
+    result._id = result._id.toString();
+    return result;
+};
 //get all from specific place
+
+//get all from specific user
 
 //update review
 
@@ -88,6 +127,8 @@ export const addReview = async (author, content, categories) => {
 //update comment
 
 //delete comment
+
+//search
 const stateAbbreviationToFullNameMap = {
     al: "alabama",
     ak: "alaska",

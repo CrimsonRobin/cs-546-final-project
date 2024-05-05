@@ -32,6 +32,7 @@ const placesSchema = new Schema({
     },
     reviews: [
         {
+            _id: ObjectId,
             author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
