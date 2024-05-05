@@ -10,13 +10,38 @@ import {
     throwIfNullOrUndefined,
 } from "../helpers.js";
 import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
+import {
+    normalizeLongitude,
+    parseLatitude,
+    parseNonEmptyString,
+    parseObjectId,
+    removeDuplicates,
+} from "../helpers.js";
 import { Place } from "../config/database.js";
-import { parseOsmId, parseOsmType } from "./geolocation.js";
+import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
 import { ObjectId } from "mongodb";
 import Enumerable from "linq";
 
-//place functions
-export const parsePlaceFields = (name, description, osmType, osmId) => {
+/**
+ * The disability category for physical disabilities.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_PHYSICAL = "physical";
+
+/**
+ * The disability category for neurodivergency.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
+
+/**
+ * The disability category for sensory disabilities.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_SENSORY = "sensory";
+
+export const parsePlaceFields = (name, description, osmType, osmId) =>
+{
     // If name and description are not strings or are empty strings, the method should throw.
     return {
         name: parseNonEmptyString(name, "Place name"),
@@ -130,82 +155,100 @@ export const getReview = async (reviewId) => {
 
 //search
 const stateAbbreviationToFullNameMap = {
-    al: "alabama",
-    ak: "alaska",
-    az: "arizona",
-    ar: "arkansas",
-    ca: "california",
-    co: "colorado",
-    ct: "connecticut",
-    de: "delaware",
-    dc: "district of columbia",
-    fl: "florida",
-    ga: "georgia",
-    hi: "hawaii",
-    id: "idaho",
-    il: "illinois",
-    in: "indiana",
-    ia: "iowa",
-    ks: "kansas",
-    ky: "kentucky",
-    la: "louisiana",
-    me: "maine",
-    md: "maryland",
-    ma: "massachusetts",
-    mi: "michigan",
-    mn: "minnesota",
-    ms: "mississippi",
-    mo: "missouri",
-    mt: "montana",
-    ne: "nebraska",
-    nv: "nevada",
-    nh: "new hampshire",
-    nj: "new jersey",
-    nm: "new mexico",
-    ny: "new york",
-    nc: "north carolina",
-    nd: "north dakota",
-    oh: "ohio",
-    ok: "oklahoma",
-    or: "oregon",
-    pa: "pennsylvania",
-    ri: "rhode island",
-    sc: "south carolina",
-    sd: "south dakota",
-    tn: "tennessee",
-    tx: "texas",
-    ut: "utah",
-    vt: "vermont",
-    va: "virginia",
-    wa: "washington",
-    wv: "west virginia",
-    wi: "wisconsin",
-    wy: "wyoming",
+    "al": "alabama",
+    "ak": "alaska",
+    "az": "arizona",
+    "ar": "arkansas",
+    "ca": "california",
+    "co": "colorado",
+    "ct": "connecticut",
+    "de": "delaware",
+    "dc": "district of columbia",
+    "fl": "florida",
+    "ga": "georgia",
+    "hi": "hawaii",
+    "id": "idaho",
+    "il": "illinois",
+    "in": "indiana",
+    "ia": "iowa",
+    "ks": "kansas",
+    "ky": "kentucky",
+    "la": "louisiana",
+    "me": "maine",
+    "md": "maryland",
+    "ma": "massachusetts",
+    "mi": "michigan",
+    "mn": "minnesota",
+    "ms": "mississippi",
+    "mo": "missouri",
+    "mt": "montana",
+    "ne": "nebraska",
+    "nv": "nevada",
+    "nh": "new hampshire",
+    "nj": "new jersey",
+    "nm": "new mexico",
+    "ny": "new york",
+    "nc": "north carolina",
+    "nd": "north dakota",
+    "oh": "ohio",
+    "ok": "oklahoma",
+    "or": "oregon",
+    "pa": "pennsylvania",
+    "ri": "rhode island",
+    "sc": "south carolina",
+    "sd": "south dakota",
+    "tn": "tennessee",
+    "tx": "texas",
+    "ut": "utah",
+    "vt": "vermont",
+    "va": "virginia",
+    "wa": "washington",
+    "wv": "west virginia",
+    "wi": "wisconsin",
+    "wy": "wyoming",
 };
 
-const stateAbbreviationToFullName = (abbreviation) => {
+const stateAbbreviationToFullName = (abbreviation) =>
+{
     abbreviation = parseNonEmptyString(abbreviation, "state abbreviation");
-    if (abbreviation.length !== 2) {
+    if (abbreviation.length !== 2)
+    {
         throw new Error("State abbreviation must be exactly 2 characters");
     }
-    if (!(abbreviation in stateAbbreviationToFullNameMap)) {
+    if (!(abbreviation in stateAbbreviationToFullNameMap))
+    {
         throw new Error(`Invalid state abbreviation ${abbreviation}`);
     }
     return stateAbbreviationToFullNameMap[abbreviation];
 };
 
-const normalizeSearchQuery = async (query) => {
+/**
+ * Normalizes a search query.
+ *
+ * @param {string} query The search query to normalize.
+ * @returns {string[]} The normalized search query (akin to a list of "tags").
+ * @author Anthony Webster
+ */
+const normalizeSearchQuery = (query) =>
+{
+    // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
+    // State abbreviations could be written as "N.Y." instead of "NY"
     const qs = query
         .toLowerCase()
-        .replaceAll(/\s+/, " ")
+        .replaceAll(/[^a-zA-Z0-9]+/g, " ")
+        .replaceAll(/\s+/g, " ")
         .split(/\s+/)
-        .filter((s) => s.length > 0)
-        .flatMap((p) => {
+        .filter(s => s.length > 0)
+        .flatMap(p =>
+        {
             // The abbreviation converter will throw an exception if not given an abbreviation.
             // We'll have both the abbreviation and the full name for good measure.
-            try {
+            try
+            {
                 return [p, stateAbbreviationToFullName(p).split(" ")];
-            } catch (e) {
+            }
+            catch (e)
+            {
                 return [p];
             }
         });
@@ -213,26 +256,72 @@ const normalizeSearchQuery = async (query) => {
     return removeDuplicates(qs);
 };
 
-const computeSearchMatchScore = async (normalizedQuery, placeData) => {
+const computeSearchMatchScore = async (normalizedQuery, placeData) =>
+{
     // Display names have expanded state names
-    const addressParts = removeDuplicates(
-        placeData.address
-            .toLowerCase()
-            .replaceAll(/\s+/, " ")
-            .split(/\s+/)
-            .filter((s) => s.length > 0)
-    );
+    let totalMatches = 0;
 
-    return normalizedQuery.reduce((acc, e) => (addressParts.indexOf(e) >= 0 ? acc + 1 : acc)) / normalizedQuery.length;
+    for (let against of [placeData.location.address, placeData.name, placeData.description])
+    {
+        against = normalizeSearchQuery(placeData.location.address);
+        totalMatches += normalizedQuery.reduce((acc, e) => against.some(p => p.indexOf(e) >= 0) ? 1 : 0, 0);
+    }
+
+    return totalMatches;
 };
 
-export const search = async (query) => {
-    query = parseNonEmptyString(query, "search query").toLowerCase();
-    const places = await Place.find({}).exec();
+/**
+ * Performs a generic search over all places in the database.
+ *
+ * @param {string} query The search query.
+ * @returns {Promise<(FlattenMaps<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}, HydratedDocument<FlatRecord<{comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}>, {}>>>> & Required<{_id: ObjectId}>)[]>}
+ * A list of database place objects that match.
+ *
+ * @author Anthony Webster
+ */
+export const search = async (query) =>
+{
+    const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
+    const places = await Place.find({}, ["_id", "location"], null).exec();
 
     return Enumerable.from(places)
-        .select((p) => [computeSearchMatchScore(query, p), p])
-        .orderBy((p) => p[0])
-        .select((p) => p[1])
+        .select(p => [computeSearchMatchScore(normalizedQuery, p), p])
+        .where(p => p[0] > 0)
+        .orderByDescending(p => p[0])
+        .select(p => p[1])
         .toArray();
+};
+
+/**
+ * Performs a generic search over all places in the database.
+ *
+ * @param {string} query The search query.
+ * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the places that match the search query.
+ * @author Anthony Webster
+ */
+export const genericSearch = async (query) =>
+{
+    return (await search(query)).map(r => r.location._id.toString());
+};
+
+/**
+ * Searches within a radius of the given latitude and longitude.
+ *
+ * @param {String} query The search query.
+ * @param {number} latitude The latitude of the center of the search radius.
+ * @param {number} longitude The longitude of the center of the search radius.
+ * @param {number} radius The search radius, in miles.
+ * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the search results.
+ * @author Anthony Webster
+ */
+export const searchNear = async (query, latitude, longitude, radius) =>
+{
+    latitude = parseLatitude(latitude);
+    longitude = normalizeLongitude(longitude);
+    radius = parseSearchRadius(radius);
+
+    const searchResults = await search(query);
+    return searchResults
+        .filter(r => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius)
+        .map(r => r._id.toString());
 };
