@@ -1,22 +1,11 @@
-import {
-    assertTypeIs,
-    isInfinity,
-    isNullOrUndefined,
-    parseDate,
-    parseNonEmptyString,
-    parseObjectId,
-    roundTo,
-    throwIfNullOrUndefined,
-} from "../helpers.js";
-import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
+import { parseNonEmptyString, parseObjectId, removeDuplicates, } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
-import { DateTime } from "luxon";
 import { ObjectId } from "mongodb";
-import { configDotenv } from "dotenv";
-import { getMongoConfig } from "../config/settings.js";
+import Enumerable from "linq";
 
-export const parsePlaceFields = (name, description, osmType, osmId) => {
+export const parsePlaceFields = (name, description, osmType, osmId) =>
+{
     // If name and description are not strings or are empty strings, the method should throw.
     return {
         name: parseNonEmptyString(name, "Place name"),
@@ -49,11 +38,13 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     await document.save();
 };
 
-export const get = async (productId) => {
+export const get = async (productId) =>
+{
     productId = parseObjectId(productId, "Product id");
     const collection = await Place();
     const result = await collection.findOne({ _id: ObjectId.createFromHexString(productId) });
-    if (!result) {
+    if (!result)
+    {
         throw new Error(`Failed to find product with id ${productId}`);
     }
     result._id = result._id.toString();
@@ -74,7 +65,8 @@ export const updatePlace = async (
     categories,
     dateReleased,
     discontinued
-) => {
+) =>
+{
     productId = parseObjectId(productId, "Product id");
 
     const parsed = parseProductFields(
@@ -110,31 +102,125 @@ export const updatePlace = async (
         }
     );
 
-    if (!updateResult) {
+    if (!updateResult)
+    {
         throw new Error(`Failed to update product with id ${productId}`);
     }
 
     return await get(productId);
 };
 
+const stateAbbreviationToFullNameMap = {
+    "al": "alabama",
+    "ak": "alaska",
+    "az": "arizona",
+    "ar": "arkansas",
+    "ca": "california",
+    "co": "colorado",
+    "ct": "connecticut",
+    "de": "delaware",
+    "dc": "district of columbia",
+    "fl": "florida",
+    "ga": "georgia",
+    "hi": "hawaii",
+    "id": "idaho",
+    "il": "illinois",
+    "in": "indiana",
+    "ia": "iowa",
+    "ks": "kansas",
+    "ky": "kentucky",
+    "la": "louisiana",
+    "me": "maine",
+    "md": "maryland",
+    "ma": "massachusetts",
+    "mi": "michigan",
+    "mn": "minnesota",
+    "ms": "mississippi",
+    "mo": "missouri",
+    "mt": "montana",
+    "ne": "nebraska",
+    "nv": "nevada",
+    "nh": "new hampshire",
+    "nj": "new jersey",
+    "nm": "new mexico",
+    "ny": "new york",
+    "nc": "north carolina",
+    "nd": "north dakota",
+    "oh": "ohio",
+    "ok": "oklahoma",
+    "or": "oregon",
+    "pa": "pennsylvania",
+    "ri": "rhode island",
+    "sc": "south carolina",
+    "sd": "south dakota",
+    "tn": "tennessee",
+    "tx": "texas",
+    "ut": "utah",
+    "vt": "vermont",
+    "va": "virginia",
+    "wa": "washington",
+    "wv": "west virginia",
+    "wi": "wisconsin",
+    "wy": "wyoming",
+};
 
-(function ()
+const stateAbbreviationToFullName = (abbreviation) =>
 {
-    console.log("load env");
-    configDotenv({path: "../.env"});
-    console.log(getMongoConfig());
-    console.log("connect");
-    // mongoose.connect("mongodb://localhost:27107/", {
-    //
-    //     // useUnifiedTopology: true
-    // }).then(console.log).catch(console.error);
-    connectToDatabase().then(r =>
+    abbreviation = parseNonEmptyString(abbreviation, "state abbreviation");
+    if (abbreviation.length !== 2)
     {
-        console.log("create");
-        createPlace("place 1", "place 1 description", "W", "1234", "123 Main St", 0, 0).then(r =>
+        throw new Error("State abbreviation must be exactly 2 characters");
+    }
+    if (!(abbreviation in stateAbbreviationToFullNameMap))
+    {
+        throw new Error(`Invalid state abbreviation ${abbreviation}`);
+    }
+    return stateAbbreviationToFullNameMap[abbreviation];
+};
+
+const normalizeSearchQuery = async (query) => {
+    const qs = query
+        .toLowerCase()
+        .replaceAll(/\s+/, " ")
+        .split(/\s+/)
+        .filter(s => s.length > 0)
+        .flatMap(p =>
         {
-            closeDatabaseConnection().then(console.log).catch(console.error);
-        }).catch(console.error);
-        console.log("done");
-    }).catch(console.error);
-})();
+            // The abbreviation converter will throw an exception if not given an abbreviation.
+            // We'll have both the abbreviation and the full name for good measure.
+            try
+            {
+                return [p, stateAbbreviationToFullName(p).split(" ")];
+            }
+            catch (e)
+            {
+                return [p];
+            }
+        });
+
+    return removeDuplicates(qs);
+};
+
+const computeSearchMatchScore = async (normalizedQuery, placeData) =>
+{
+    // Display names have expanded state names
+    const addressParts = removeDuplicates(placeData.address
+        .toLowerCase()
+        .replaceAll(/\s+/, " ")
+        .split(/\s+/)
+        .filter(s => s.length > 0));
+
+    return normalizedQuery.reduce((acc, e) => addressParts.indexOf(e) >= 0 ? acc + 1 : acc) / normalizedQuery.length;
+};
+
+export const search = async (query) =>
+{
+    query = parseNonEmptyString(query, "search query").toLowerCase();
+    const places = await Place.find({}).exec();
+
+    return Enumerable.from(places)
+        .select(p => [computeSearchMatchScore(query, p), p])
+        .orderBy(p => p[0])
+        .select(p => p[1])
+        .toArray();
+};
