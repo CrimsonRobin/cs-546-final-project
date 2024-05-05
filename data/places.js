@@ -1,6 +1,12 @@
-import { parseNonEmptyString, parseObjectId, removeDuplicates, } from "../helpers.js";
+import {
+    normalizeLongitude,
+    parseLatitude,
+    parseNonEmptyString,
+    parseObjectId,
+    removeDuplicates,
+} from "../helpers.js";
 import { Place } from "../config/database.js";
-import { parseOsmId, parseOsmType } from "./geolocation.js";
+import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
 import { ObjectId } from "mongodb";
 import Enumerable from "linq";
 
@@ -179,11 +185,14 @@ const stateAbbreviationToFullName = (abbreviation) =>
 };
 
 /**
+ * Normalizes a search query.
  *
- * @param query
- * @returns {(string|*)[]}
+ * @param {string} query The search query to normalize.
+ * @returns {string[]} The normalized search query (akin to a list of "tags").
+ * @author Anthony Webster
  */
-const normalizeSearchQuery = (query) => {
+const normalizeSearchQuery = (query) =>
+{
     // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
     // State abbreviations could be written as "N.Y." instead of "NY"
     const qs = query
@@ -210,10 +219,11 @@ const normalizeSearchQuery = (query) => {
 };
 
 /**
+ * Tests how well a given query matches the given place data.
  *
- * @param normalizedQuery
- * @param placeData
- * @returns {number}
+ * @param {string[]} normalizedQuery The normalized search query (see {@linkcode normalizeSearchQuery}).
+ * @param {Object} placeData The place data.
+ * @returns {number} The match score. If no matches are found at all, then returns zero.
  */
 const computeSearchMatchScore = (normalizedQuery, placeData) =>
 {
@@ -231,19 +241,57 @@ const computeSearchMatchScore = (normalizedQuery, placeData) =>
 };
 
 /**
+ * Performs a generic search over all places in the database.
  *
- * @param query
+ * @param {string} query The search query.
  * @returns {Promise<(FlattenMaps<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}, HydratedDocument<FlatRecord<{comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, content: StringConstructor, likes: NumberConstructor}], reviews: [{createdAt: DateConstructor, comments: [{createdAt: DateConstructor, author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, likes: NumberConstructor}], author: {ref: string, type: StringConstructor}, dislikes: NumberConstructor, categories: [{rating: NumberConstructor, category: StringConstructor}], content: StringConstructor, likes: NumberConstructor}], name: StringConstructor, description: StringConstructor, location: {address: StringConstructor, osmId: StringConstructor, latitude: NumberConstructor, osmType: StringConstructor, _id: ObjectId, longitude: NumberConstructor}, _id: ObjectId}>, {}>>>> & Required<{_id: ObjectId}>)[]>}
+ * A list of database place objects that match.
+ *
+ * @author Anthony Webster
  */
 export const search = async (query) =>
 {
-    query = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
+    const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
     const places = await Place.find({}, ["_id", "location"], null).exec();
 
     return Enumerable.from(places)
-        .select(p => [computeSearchMatchScore(query, p), p])
+        .select(p => [computeSearchMatchScore(normalizedQuery, p), p])
         .where(p => p[0] > 0)
         .orderByDescending(p => p[0])
-        .select(p => p[1]._id.toString())
+        .select(p => p[1])
         .toArray();
+};
+
+/**
+ * Performs a generic search over all places in the database.
+ *
+ * @param {string} query The search query.
+ * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the places that match the search query.
+ * @author Anthony Webster
+ */
+export const genericSearch = async (query) =>
+{
+    return (await search(query)).map(r => r.location._id.toString());
+};
+
+/**
+ * Searches within a radius of the given latitude and longitude.
+ *
+ * @param {String} query The search query.
+ * @param {number} latitude The latitude of the center of the search radius.
+ * @param {number} longitude The longitude of the center of the search radius.
+ * @param {number} radius The search radius, in miles.
+ * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the search results.
+ * @author Anthony Webster
+ */
+export const searchNear = async (query, latitude, longitude, radius) =>
+{
+    latitude = parseLatitude(latitude);
+    longitude = normalizeLongitude(longitude);
+    radius = parseSearchRadius(radius);
+
+    const searchResults = await search(query);
+    return searchResults
+        .filter(r => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius)
+        .map(r => r._id.toString());
 };
