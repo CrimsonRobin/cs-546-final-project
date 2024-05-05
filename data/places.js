@@ -86,10 +86,7 @@ export const addReview = async (placeId, author, content, categories) => {
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of review");
     categories = parseCategories(categories);
-    const placeReviewed = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
-    if (!placeReviewed) {
-        throw new Error(`Could not find place with that id.`);
-    }
+    const placeReviewed = await getPlace(placeId);
     const review = await Place.updateOne(
         { _id: placeId },
         {
@@ -125,7 +122,7 @@ export const getReview = async (reviewId) => {
     return result;
 };
 //get all from specific place
-
+export const getAllReviews = async () => {};
 //get all from specific user
 
 //update review
@@ -245,7 +242,7 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) => {
 
     for (let against of [placeData.location.address, placeData.name, placeData.description]) {
         against = normalizeSearchQuery(against);
-        totalMatches += normalizedQuery.reduce((acc, e) => against.some(p => p.indexOf(e) >= 0) ? 1 : 0, 0);
+        totalMatches += normalizedQuery.reduce((acc, e) => (against.some((p) => p.indexOf(e) >= 0) ? 1 : 0), 0);
     }
 
     return totalMatches;
