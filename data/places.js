@@ -1,4 +1,16 @@
 import {
+    assertTypeIs,
+    isInfinity,
+    isNullOrUndefined,
+    parseCategories,
+    parseDate,
+    parseNonEmptyString,
+    parseObjectId,
+    roundTo,
+    throwIfNullOrUndefined,
+} from "../helpers.js";
+import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
+import {
     normalizeLongitude,
     parseLatitude,
     parseNonEmptyString,
@@ -21,8 +33,7 @@ export const parsePlaceFields = (name, description, osmType, osmId) =>
     };
 };
 
-export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) =>
-{
+export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) => {
     const parsed = parsePlaceFields(name, description, osmType, osmId);
     const document = new Place({
         _id: new ObjectId(),
@@ -44,14 +55,12 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     await document.save();
 };
 
-export const get = async (productId) =>
-{
-    productId = parseObjectId(productId, "Product id");
+export const getPlace = async (placeId) => {
+    placeId = parseObjectId(placeId, "Product id");
     const collection = await Place();
-    const result = await collection.findOne({ _id: ObjectId.createFromHexString(productId) });
-    if (!result)
-    {
-        throw new Error(`Failed to find product with id ${productId}`);
+    const result = await collection.findOne({ _id: ObjectId.createFromHexString(placeId) });
+    if (!result) {
+        throw new Error(`Failed to find product with id ${placeId}`);
     }
     result._id = result._id.toString();
     return result;
@@ -59,63 +68,33 @@ export const get = async (productId) =>
 
 //delete places?
 
-export const updatePlace = async (
-    productId,
-    name,
-    productDescription,
-    modelNumber,
-    price,
-    manufacturer,
-    manufacturerWebsite,
-    keywords,
-    categories,
-    dateReleased,
-    discontinued
-) =>
-{
-    productId = parseObjectId(productId, "Product id");
+//review functions:
 
-    const parsed = parseProductFields(
-        name,
-        productDescription,
-        modelNumber,
-        price,
-        manufacturer,
-        manufacturerWebsite,
-        keywords,
-        categories,
-        dateReleased,
-        discontinued
-    );
-
-    const collection = await Place();
-
-    const updateResult = await collection.updateOne(
-        { _id: ObjectId.createFromHexString(productId) },
-        {
-            $set: {
-                name: parsed.name,
-                productDescription: parsed.productDescription,
-                modelNumber: parsed.modelNumber,
-                price: parsed.price,
-                manufacturer: parsed.manufacturer,
-                manufacturerWebsite: parsed.manufacturerWebsite,
-                keywords: parsed.keywords,
-                categories: parsed.categories,
-                dateReleased: parsed.dateReleased,
-                discontinued: parsed.discontinued,
-            },
-        }
-    );
-
-    if (!updateResult)
-    {
-        throw new Error(`Failed to update product with id ${productId}`);
-    }
-
-    return await get(productId);
+//create
+export const addReview = async (author, content, categories) => {
+    author = parseNonEmptyString(author, "Name of author");
+    content = parseNonEmptyString(content, "Content of review");
+    categories = parseCategories(categories);
 };
+//get specific review
 
+//get all from specific place
+
+//update review
+
+//delete review
+
+//comment functions
+
+//create comment
+
+//get all comments from place/review
+
+//get specific comment
+
+//update comment
+
+//delete comment
 const stateAbbreviationToFullNameMap = {
     "al": "alabama",
     "ak": "alaska",
@@ -218,16 +197,8 @@ const normalizeSearchQuery = (query) =>
     return removeDuplicates(qs);
 };
 
-/**
- * Tests how well a given query matches the given place data.
- *
- * @param {string[]} normalizedQuery The normalized search query (see {@linkcode normalizeSearchQuery}).
- * @param {Object} placeData The place data.
- * @returns {number} The match score. If no matches are found at all, then returns zero.
- */
-const computeSearchMatchScore = (normalizedQuery, placeData) =>
+const computeSearchMatchScore = async (normalizedQuery, placeData) =>
 {
-    // TODO: Remove non-alphanumeric
     // Display names have expanded state names
     let totalMatches = 0;
 
