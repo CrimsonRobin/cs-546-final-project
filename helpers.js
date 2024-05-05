@@ -726,3 +726,31 @@ export const removeDuplicates = (array) =>
 {
     const cs = parseCategories(["neurodivergent"]);
 })();
+
+/**
+ * Parse a list of categories.
+ *
+ * @param {({qualification: string})[]} qualifications The list of categories to parse.
+ * @returns {({qualification: string})[]} The parsed comments.
+ * @author Chris Kang
+ */
+export const parseQualifications = (qualifications) =>
+    {
+        throwIfNullOrUndefined(qualifications, "qualifications");
+        assertTypeIs(qualifications, "array", "qualifications");
+        if (qualifications.length < 1)
+        {
+            throw new Error(`qualifications are must have at least 1 entry.`);
+        }
+    
+        //all entries are strings and all entries in array are valid categories
+        let validQualifications = [DISABILITY_CATEGORY_PHYSICAL, DISABILITY_CATEGORY_NEURODIVERGENT, DISABILITY_CATEGORY_SENSORY];
+        for (const qualification of qualifications)
+        {
+            parseNonEmptyString(qualification, "qualification");
+            if (!(qualification in validQualifications)){
+                throw new Error(`Invalid qualification "${qualification}"`);
+            }
+        }
+        return qualifications;
+    };

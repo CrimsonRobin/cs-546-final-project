@@ -6,6 +6,7 @@ import {
   parseDate,
   parseNonEmptyString,
   parseObjectId,
+  parseQualifications,
   roundTo,
   throwIfNullOrUndefined,
   nonEmptyStringOrDefault,
@@ -18,25 +19,26 @@ import { User } from "../config/database.js";
 import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { ObjectId } from "mongodb";
 import Enumerable from "linq";
+import { DateTime } from "luxon";
 
 // Create User
-export const parseUserFields = (username, createdAt, hashedPassword, qualifications) => {
+export const parseUserFields = (username, hashedPassword, qualifications) => {
   // If name and description are not strings or are empty strings, the method should throw.
   return {
     username: parseNonEmptyString(username, "Place name"),
     hashedPassword: parseNonEmptyString(hashedPassword, "Password"),
-    qualifications: (qualifications),
+    qualifications: parseQualifications(qualifications),
   };
 };
 
-export const createUser = async (username, createdAt, hashedPassword, qualifications) => {
-  const parsed = parseUserFields(username, createdAt, hashedPassword, qualifications);
+export const createUser = async (username, hashedPassword, qualifications) => {
+  const parsed = parseUserFields(username, hashedPassword, qualifications);
   const document = new User({
     _id: ObjectId,
-    username: String,
-    hashedPassword: String,
-    createdAt: Date,
-    qualifications: [String],
+    username: username,
+    hashedPassword: hashedPassword,
+    createdAt: DateTime.now().toBSON(),
+    qualifications: qualifications,
   });
 
   await document.save();
