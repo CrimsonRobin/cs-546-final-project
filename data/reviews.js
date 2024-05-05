@@ -1,6 +1,6 @@
 // This data file should export all functions using the ES6 standard as shown in the lecture code
 
-import { posts as getPosts } from "../config/mongoCollections.js";
+import { posts as getPosts } from "../config/database.js";
 import { ObjectId } from "mongodb";
 import {
     assertIsNotInfinity,
