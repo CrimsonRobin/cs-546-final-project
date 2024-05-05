@@ -22,6 +22,24 @@ import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius
 import { ObjectId } from "mongodb";
 import Enumerable from "linq";
 
+/**
+ * The disability category for physical disabilities.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_PHYSICAL = "physical";
+
+/**
+ * The disability category for neurodivergency.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
+
+/**
+ * The disability category for sensory disabilities.
+ * @type {string}
+ */
+export const DISABILITY_CATEGORY_SENSORY = "sensory";
+
 export const parsePlaceFields = (name, description, osmType, osmId) =>
 {
     // If name and description are not strings or are empty strings, the method should throw.
