@@ -10,13 +10,7 @@ import {
     throwIfNullOrUndefined,
 } from "../helpers.js";
 import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
-import {
-    normalizeLongitude,
-    parseLatitude,
-    parseNonEmptyString,
-    parseObjectId,
-    removeDuplicates,
-} from "../helpers.js";
+import { normalizeLongitude, parseLatitude, parseNonEmptyString, parseObjectId, removeDuplicates } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
 import { ObjectId } from "mongodb";
@@ -40,8 +34,7 @@ export const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
  */
 export const DISABILITY_CATEGORY_SENSORY = "sensory";
 
-export const parsePlaceFields = (name, description, osmType, osmId) =>
-{
+export const parsePlaceFields = (name, description, osmType, osmId) => {
     // If name and description are not strings or are empty strings, the method should throw.
     return {
         name: parseNonEmptyString(name, "Place name"),
@@ -97,25 +90,23 @@ export const addReview = async (placeId, author, content, categories) => {
     if (!placeReviewed) {
         throw new Error(`Could not find place with that id.`);
     }
-    const review = await collection
-        .updateOne(
-            { _id: placeId },
-            {
-                $push: {
-                    reviews: {
-                        _id: new ObjectId(),
-                        author: author,
-                        content: content,
-                        createdAt: new Date(),
-                        likes: 0,
-                        dislikes: 0,
-                        categories: categories,
-                        comments: [],
-                    },
+    const review = await Place.updateOne(
+        { _id: placeId },
+        {
+            $push: {
+                reviews: {
+                    _id: new ObjectId(),
+                    author: author,
+                    content: content,
+                    createdAt: new Date(),
+                    likes: 0,
+                    dislikes: 0,
+                    categories: categories,
+                    comments: [],
                 },
-            }
-        )
-        .exec();
+            },
+        }
+    ).exec();
     if (!review) {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
@@ -155,68 +146,65 @@ export const getReview = async (reviewId) => {
 
 //search
 const stateAbbreviationToFullNameMap = {
-    "al": "alabama",
-    "ak": "alaska",
-    "az": "arizona",
-    "ar": "arkansas",
-    "ca": "california",
-    "co": "colorado",
-    "ct": "connecticut",
-    "de": "delaware",
-    "dc": "district of columbia",
-    "fl": "florida",
-    "ga": "georgia",
-    "hi": "hawaii",
-    "id": "idaho",
-    "il": "illinois",
-    "in": "indiana",
-    "ia": "iowa",
-    "ks": "kansas",
-    "ky": "kentucky",
-    "la": "louisiana",
-    "me": "maine",
-    "md": "maryland",
-    "ma": "massachusetts",
-    "mi": "michigan",
-    "mn": "minnesota",
-    "ms": "mississippi",
-    "mo": "missouri",
-    "mt": "montana",
-    "ne": "nebraska",
-    "nv": "nevada",
-    "nh": "new hampshire",
-    "nj": "new jersey",
-    "nm": "new mexico",
-    "ny": "new york",
-    "nc": "north carolina",
-    "nd": "north dakota",
-    "oh": "ohio",
-    "ok": "oklahoma",
-    "or": "oregon",
-    "pa": "pennsylvania",
-    "ri": "rhode island",
-    "sc": "south carolina",
-    "sd": "south dakota",
-    "tn": "tennessee",
-    "tx": "texas",
-    "ut": "utah",
-    "vt": "vermont",
-    "va": "virginia",
-    "wa": "washington",
-    "wv": "west virginia",
-    "wi": "wisconsin",
-    "wy": "wyoming",
+    al: "alabama",
+    ak: "alaska",
+    az: "arizona",
+    ar: "arkansas",
+    ca: "california",
+    co: "colorado",
+    ct: "connecticut",
+    de: "delaware",
+    dc: "district of columbia",
+    fl: "florida",
+    ga: "georgia",
+    hi: "hawaii",
+    id: "idaho",
+    il: "illinois",
+    in: "indiana",
+    ia: "iowa",
+    ks: "kansas",
+    ky: "kentucky",
+    la: "louisiana",
+    me: "maine",
+    md: "maryland",
+    ma: "massachusetts",
+    mi: "michigan",
+    mn: "minnesota",
+    ms: "mississippi",
+    mo: "missouri",
+    mt: "montana",
+    ne: "nebraska",
+    nv: "nevada",
+    nh: "new hampshire",
+    nj: "new jersey",
+    nm: "new mexico",
+    ny: "new york",
+    nc: "north carolina",
+    nd: "north dakota",
+    oh: "ohio",
+    ok: "oklahoma",
+    or: "oregon",
+    pa: "pennsylvania",
+    ri: "rhode island",
+    sc: "south carolina",
+    sd: "south dakota",
+    tn: "tennessee",
+    tx: "texas",
+    ut: "utah",
+    vt: "vermont",
+    va: "virginia",
+    wa: "washington",
+    wv: "west virginia",
+    wi: "wisconsin",
+    wy: "wyoming",
 };
 
-const stateAbbreviationToFullName = (abbreviation) =>
-{
+const stateAbbreviationToFullName = (abbreviation) => {
     abbreviation = parseNonEmptyString(abbreviation, "state abbreviation");
-    if (abbreviation.length !== 2)
-    {
+    if (abbreviation.length !== 2) {
         throw new Error("State abbreviation must be exactly 2 characters");
     }
-    if (!(abbreviation in stateAbbreviationToFullNameMap))
-    {
+    if (!(abbreviation in stateAbbreviationToFullNameMap)) {
         throw new Error(`Invalid state abbreviation ${abbreviation}`);
     }
     return stateAbbreviationToFullNameMap[abbreviation];
@@ -229,8 +217,7 @@ const stateAbbreviationToFullName = (abbreviation) =>
  * @returns {string[]} The normalized search query (akin to a list of "tags").
  * @author Anthony Webster
  */
-const normalizeSearchQuery = (query) =>
-{
+const normalizeSearchQuery = (query) => {
     // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
     // State abbreviations could be written as "N.Y." instead of "NY"
     const qs = query
@@ -238,17 +225,13 @@ const normalizeSearchQuery = (query) =>
         .replaceAll(/[^a-zA-Z0-9]+/g, " ")
         .replaceAll(/\s+/g, " ")
         .split(/\s+/)
-        .filter(s => s.length > 0)
-        .flatMap(p =>
-        {
+        .filter((s) => s.length > 0)
+        .flatMap((p) => {
             // The abbreviation converter will throw an exception if not given an abbreviation.
             // We'll have both the abbreviation and the full name for good measure.
-            try
-            {
+            try {
                 return [p, stateAbbreviationToFullName(p).split(" ")];
-            }
-            catch (e)
-            {
+            } catch (e) {
                 return [p];
             }
         });
@@ -256,13 +239,11 @@ const normalizeSearchQuery = (query) =>
     return removeDuplicates(qs);
 };
 
-const computeSearchMatchScore = async (normalizedQuery, placeData) =>
-{
+const computeSearchMatchScore = async (normalizedQuery, placeData) => {
     // Display names have expanded state names
     let totalMatches = 0;
 
-    for (let against of [placeData.location.address, placeData.name, placeData.description])
-    {
+    for (let against of [placeData.location.address, placeData.name, placeData.description]) {
         against = normalizeSearchQuery(against);
         totalMatches += normalizedQuery.reduce((acc, e) => against.some(p => p.indexOf(e) >= 0) ? 1 : 0, 0);
     }
@@ -279,16 +260,15 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) =>
  *
  * @author Anthony Webster
  */
-export const search = async (query) =>
-{
+export const search = async (query) => {
     const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
     const places = await Place.find({}, ["_id", "location"], null).exec();
 
     return Enumerable.from(places)
-        .select(p => [computeSearchMatchScore(normalizedQuery, p), p])
-        .where(p => p[0] > 0)
-        .orderByDescending(p => p[0])
-        .select(p => p[1])
+        .select((p) => [computeSearchMatchScore(normalizedQuery, p), p])
+        .where((p) => p[0] > 0)
+        .orderByDescending((p) => p[0])
+        .select((p) => p[1])
         .toArray();
 };
 
@@ -299,9 +279,8 @@ export const search = async (query) =>
  * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the places that match the search query.
  * @author Anthony Webster
  */
-export const genericSearch = async (query) =>
-{
-    return (await search(query)).map(r => r.location._id.toString());
+export const genericSearch = async (query) => {
+    return (await search(query)).map((r) => r.location._id.toString());
 };
 
 /**
@@ -314,14 +293,15 @@ export const genericSearch = async (query) =>
  * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the search results.
  * @author Anthony Webster
  */
-export const searchNear = async (query, latitude, longitude, radius) =>
-{
+export const searchNear = async (query, latitude, longitude, radius) => {
     latitude = parseLatitude(latitude);
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
 
     const searchResults = await search(query);
     return searchResults
-        .filter(r => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius)
-        .map(r => r._id.toString());
+        .filter(
+            (r) => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius
+        )
+        .map((r) => r._id.toString());
 };
