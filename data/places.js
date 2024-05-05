@@ -263,7 +263,7 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) =>
 
     for (let against of [placeData.location.address, placeData.name, placeData.description])
     {
-        against = normalizeSearchQuery(placeData.location.address);
+        against = normalizeSearchQuery(against);
         totalMatches += normalizedQuery.reduce((acc, e) => against.some(p => p.indexOf(e) >= 0) ? 1 : 0, 0);
     }
 
