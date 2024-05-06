@@ -12,11 +12,12 @@ const usersSchema = new Schema({
 });
 
 const placesSchema = new Schema({
-    _id: ObjectId,
+    _id: Schema.Types.ObjectId,
     name: String,
     description: String,
     comments: [
         {
+            _id: Schema.Types.ObjectId,
             author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
@@ -48,6 +49,7 @@ const placesSchema = new Schema({
             ],
             comments: [
                 {
+                    _id: Schema.Types.ObjectId,
                     author: { type: String, ref: "users" },
                     content: String,
                     createdAt: Date,
