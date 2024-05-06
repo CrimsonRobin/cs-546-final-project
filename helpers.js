@@ -1,5 +1,10 @@
-import {DateTime} from "luxon";
-import {ObjectId} from "mongodb";
+import { DateTime } from "luxon";
+import { ObjectId } from "mongodb";
+import {
+    DISABILITY_CATEGORY_NEURODIVERGENT,
+    DISABILITY_CATEGORY_PHYSICAL,
+    DISABILITY_CATEGORY_SENSORY
+} from "./data/places.js";
 
 /**
  * Test if the given object is null or undefined.
@@ -68,13 +73,13 @@ export const assertTypeIs = (obj, type, paramName = undefined) =>
     const typeEquals = (obj) =>
     {
         return type === "array" ? Array.isArray(obj) : typeof obj === type;
-    }
+    };
 
     if (!typeEquals(obj))
     {
         throw new Error(`Expected object of type ${type} for parameter ${paramName}, got ${typeof obj}`);
     }
-}
+};
 
 /**
  * Throws an exception if the given object is null or undefined.
@@ -191,7 +196,7 @@ export const parseObjectId = (id, paramName = undefined) =>
         throw new Error(`${paramName} is not a valid object id`);
     }
     return id;
-}
+};
 
 /**
  * Tests if the given number is positive or negative infinity.
@@ -221,7 +226,7 @@ export const assertIsNotNaN = (n, paramName = undefined) =>
     {
         throw new Error(`${paramName} must not be NaN`);
     }
-}
+};
 
 /**
  * Throws an exception if the give number is positive infinity or negative infinity.
@@ -237,7 +242,7 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
     {
         throw new Error(`${paramName} must not be +-Infinity`);
     }
-}
+};
 
 /**
  * Asserts that the given number is an integer as determined by {@linkcode Number.isSafeInteger}.
@@ -299,7 +304,7 @@ export const roundTo = (n, places = 0) =>
     }
     // Adapted from <https://stackoverflow.com/a/11832950>
     places = Math.pow(10, places);
-    return Math.round((n + Number.EPSILON) * places) / places
+    return Math.round((n + Number.EPSILON) * places) / places;
 };
 
 /**
@@ -322,7 +327,7 @@ export const exactlyOneElement = (arr, paramName = "array") =>
         throw new Error(`Expected exactly one element for ${paramName} but got ${arr.length}`);
     }
     return arr[0];
-}
+};
 
 /**
  * Converts degrees to radians.
@@ -335,7 +340,7 @@ export const degreesToRadians = (degrees) =>
 {
     assertTypeIs(degrees, "number", "degrees");
     return degrees * (Math.PI / 180.0);
-}
+};
 
 /**
  * Computes the haversine of the given angle.
@@ -349,7 +354,7 @@ export const haversin = (theta) =>
     assertTypeIs(theta, "number", "angle");
     const s = Math.sin(theta / 2.0);
     return s * s;
-}
+};
 
 /**
  * Test if the given object is a number and not NaN.
@@ -419,8 +424,8 @@ export const parseNumber = (str, trim = false) =>
     }
 
     // Yeah, I know this is probably not the best, but it'll do.
-    const intRegex = /^([-+]?)([0-9]+)$/gui;
-    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/gui;
+    const intRegex = /^([-+]?)([0-9]+)$/giu;
+    const floatRegex = /^([-+]?)([0-9]+)\.([0-9]+)((e([-+]?)([0-9]+))?)$/giu;
 
     if (str.match(intRegex) || str.match(floatRegex))
     {
@@ -500,7 +505,7 @@ export const sleep = (milliseconds) =>
     {
         return Promise.resolve();
     }
-    return new Promise(r => setTimeout(r, milliseconds))
+    return new Promise((r) => setTimeout(r, milliseconds));
 };
 
 /**
@@ -601,7 +606,13 @@ export const parsePassword = (password) =>
 {
     throwIfNotString(password, "Password");
 
-    password = parseStringWithLengthBounds(password, PASSWORD_MINIMUM_LENGTH, PASSWORD_MAXIMUM_LENGTH, false, "Password");
+    password = parseStringWithLengthBounds(
+        password,
+        PASSWORD_MINIMUM_LENGTH,
+        PASSWORD_MAXIMUM_LENGTH,
+        false,
+        "Password"
+    );
 
     if (/[a-z]/.test(password))
     {
@@ -621,22 +632,125 @@ export const parsePassword = (password) =>
     }
 
     return password;
-}
+};
 
 /**
  * Validates a checkbox.
  * @param {string} checkbox The checkbox to validate.
  * @returns {string} The checkbox.
  * @throws {Error} if the checkbox is not undefined or set to "on"
- * 
+ *
  * @author Samuel Miller
-*/
-export const validCheckbox = (checkbox, paramName = undefined) => 
+ */
+export const validCheckbox = (checkbox, paramName = undefined) =>
 {
-    if (checkbox === undefined || checkbox === "on") {
+    if (checkbox === undefined || checkbox === "on")
+    {
         return checkbox;
     }
-    else {
+    else
+    {
         throw new Error(`Invalid value for checkbox: ${paramName}`);
     }
-}
+};
+
+export const containsDuplicates = (array) =>
+{
+    assertTypeIs(array, "array", "array");
+    return new Set(array).size !== array.length;
+};
+
+/**
+ * Parse a list of categories.
+ *
+ * @param {({categoryName: string, rating: number})[]} categories The list of categories to parse.
+ * @returns {({categoryName: string, rating: number})[]} The parsed comments.
+ * @author Amanda Merino, Anthony Webster
+ */
+export const parseCategories = (categories) =>
+{
+    throwIfNullOrUndefined(categories, "categories");
+    assertTypeIs(categories, "array", "categories");
+    if (categories.length < 1)
+    {
+        throw new Error(`Categories are must have at least 1 entry.`);
+    }
+
+    //all entries are strings and all entries in array are valid categories
+    let validCategories = [DISABILITY_CATEGORY_PHYSICAL, DISABILITY_CATEGORY_NEURODIVERGENT, DISABILITY_CATEGORY_SENSORY];
+    for (const category of categories)
+    {
+        assertTypeIs(category, "object", "category");
+        category.categoryName = parseNonEmptyString(category.categoryName, "category name").toLowerCase();
+        assertTypeIs(category.rating, "number", "category rating");
+        if (category.rating < 1 || category.rating > 5)
+        {
+            throw new Error(`Invalid input for rating: must be 1-5`);
+        }
+        if (!validCategories.some(c => c === category.categoryName))
+        {
+            throw new Error(`Category names must be one of the following: ${validCategories.join(", ")}.`);
+        }
+        category.rating = roundTo(category.rating, 1);
+    }
+    if (containsDuplicates(categories))
+    {
+        throw new Error(`Category names cannot be duplicates.`);
+    }
+    return categories;
+};
+
+/**
+ * Removes duplicate elements from the array.
+ *
+ * @template T
+ * @param {T[]} array The array.
+ * @returns {T[]} The array with duplicates removed.
+ * @author Anthony Webster
+ */
+export const removeDuplicates = (array) =>
+{
+    assertTypeIs(array, "array", "array");
+    const seen = [];
+    for (const e of array)
+    {
+        if (!seen.some((s) => s === e))
+        {
+            seen.push(e);
+        }
+    }
+    return seen;
+};
+
+(function ()
+{
+    const cs = parseCategories(["neurodivergent"]);
+})();
+
+/**
+ * Parse a list of categories.
+ *
+ * @param {({qualification: string})[]} qualifications The list of categories to parse.
+ * @returns {({qualification: string})[]} The parsed comments.
+ * @author Chris Kang
+ */
+export const parseQualifications = (qualifications) =>
+    {
+        throwIfNullOrUndefined(qualifications, "qualifications");
+        assertTypeIs(qualifications, "array", "qualifications");
+        if (qualifications.length < 1)
+        {
+            throw new Error(`qualifications are must have at least 1 entry.`);
+        }
+    
+        //all entries are strings and all entries in array are valid categories
+        let validQualifications = [DISABILITY_CATEGORY_PHYSICAL, DISABILITY_CATEGORY_NEURODIVERGENT, DISABILITY_CATEGORY_SENSORY];
+        for (const qualification of qualifications)
+        {
+            parseNonEmptyString(qualification, "qualification");
+            if (!(qualification in validQualifications)){
+                throw new Error(`Invalid qualification "${qualification}"`);
+            }
+        }
+        return qualifications;
+    };

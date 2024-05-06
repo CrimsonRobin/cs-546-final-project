@@ -1,5 +1,7 @@
-// You will need to change the DB name to match the required DB name in the assignment specs!
-export const mongoConfig = {
-    serverUrl: '',
-    database: ''
+export const getMongoConfig = () =>
+{
+    return {
+        serverUrl: `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}`,
+        database: `${process.env.DATABASE_NAME}`
+    };
 };
