@@ -10,10 +10,9 @@
 */
 
 import express from "express";
-import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox} from "../helpers.js";
-import places from "../data/places.js";
-import reviews from "../data/reviews.js";
-import {createUser, getUser, } from "../data/user.js";
+import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId} from "../helpers.js";
+import {getPlace, getReview} from "../data/places.js";
+import {createUser, getUser, loginUser} from "../data/user.js";
 
 const router = express.Router();
   
@@ -39,10 +38,20 @@ router.route('/register')
             return res.status(400).render("register", {title: "Register", errors: errors});
         }
 
-        const user = await createUser(req.body.firstName, req.body.lastName, req.body.username, req.body.password, 
-            req.body.physical, req.body.sensory, req.body.neurodivergent);
+        try {
+            const userMade = await createUser(req.body.firstName, req.body.lastName, req.body.username, req.body.password, 
+                req.body.physical, req.body.sensory, req.body.neurodivergent);
 
-        
+            if(userMade) {
+                return res.redirect("/login"); 
+            }
+            else {
+                //DB could be down
+                return res.status(500).send("Internal Server Error");
+            }
+        } catch (error) {
+            return res.status(400).render("register", {title: "Register", errors: error.message});
+        }
     });
   
 router.route('/login')
@@ -59,7 +68,16 @@ router.route('/login')
             return res.status(400).render("login", {title: "Log In", errors: errors});
         }
 
-        //TODO: DB functions
+        try {
+            const user = await loginUser(req.username, req.password);
+
+            req.session.user = {firstName: user.firstname, lastName: user.lastname, username: user.username, 
+                createdAt: user.createdAt, qualifications: user.qualifications};
+
+            return res.redirect("/");
+        } catch (error) {
+            return res.status(400).render("login", {errors: error.message});
+        }
     });
 
 router.route('/logout')
@@ -87,22 +105,43 @@ router.route('/api/changePassword')
 
     });
 
-router.route('/user')
+router.route('/user/:id')
     .get(async (req, res) => {
         //TODO: Get User Object and pass it (including title)
-        return res.render("userProfile", {title: "User Profile"});
+        try {
+            req.params.id = parseObjectId(req.params.id, "User Id");
+            const user = await getUser(req.params.id);
+
+            return res.render("userProfile", {title: "User Profile", user: user});
+        } catch (error) {
+            return res.status(404).render("error", {title: "User Not Found"});
+        }
     });
 
-router.route('/place')
+router.route('/place/:id')
     .get(async (req, res) => {
         //TODO: Get Place Object and pass it (including title)
-        return res.render("place", {title: "Place"});
+        try {
+            req.params.id = parseObjectId(req.params.id, "Place Id");
+            const place = await getPlace(req.params.id);
+
+            return res.render("place", {title: "Place", place: place});
+        } catch (error) {
+            return res.status(404).render("error", {title: "Place Not Found", error: error.message});
+        }
     });
 
-router.route('/review')
+router.route('/review/:id')
     .get(async (req, res) => {
         //TODO: Get Review Object and pass it (including title)
-        return res.render("review", {title: "Review"});
+        try {
+            req.params.id = parseObjectId(req.params.id, "Review Id");
+            const review = getReview(req.params.id);
+
+            return res.render("review", {title: "Review", review: review});
+        } catch (error) {
+            return res.status(404).render("error", {title: "Review Not Found", error: error.message});
+        }
     });
 
 router.route('/about')
