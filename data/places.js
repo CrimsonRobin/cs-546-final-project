@@ -254,13 +254,13 @@ export const getComment = async (reviewId, commentId) => {
 //Increase Review Likes
 export const increaseReviewLikes = async (name, reviewId) => {
     reviewId = parseObjectId(reviewId);
-    let review = getReview(reviewId);
+    let review = await getReview(reviewId);
     review.likes.append(name);
 };
 //Decrease Review Likes
 export const decreaseReviewLikes = async (name, reviewId) => {
     reviewId = parseObjectId(reviewId);
-    let review = getReview(reviewId);
+    let review = await getReview(reviewId);
     const index = review.likes.indexOf(name);
     if (index === -1) {
         throw new error("User has already removed their like");
@@ -272,14 +272,14 @@ export const decreaseReviewLikes = async (name, reviewId) => {
 export const increaseCommentLikes = async (name, reviewId, commentId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
-    let comment = getComment(reviewId, commentId);
+    let comment = await getComment(reviewId, commentId);
     comment.likes.append(name);
 };
 //Decrease Comment Likes
 export const decreaseCommentLikes = async (name, reviewId, commentId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
-    let comment = getComment(reviewId, commentId);
+    let comment = await getComment(reviewId, commentId);
     const index = comment.likes.indexOf(name);
     if (index === -1) {
         throw new error("User has already removed their like");
@@ -290,13 +290,13 @@ export const decreaseCommentLikes = async (name, reviewId, commentId) => {
 //Increase Review Dislikes
 export const increaseReviewDislikes = async (name, reviewId) => {
     reviewId = parseObjectId(reviewId);
-    let review = getReview(reviewId);
+    let review = await getReview(reviewId);
     review.dislikes.append(name);
 };
 //Decrease Review Dislikes
 export const decreaseReviewDislikes = async (name, reviewId) => {
     reviewId = parseObjectId(reviewId);
-    let review = getReview(reviewId);
+    let review = await getReview(reviewId);
     const index = review.dislikes.indexOf(name);
     if (index === -1) {
         throw new error("User has already removed their like");
@@ -308,14 +308,14 @@ export const decreaseReviewDislikes = async (name, reviewId) => {
 export const increaseCommentDisikes = async (name, reviewId, commentId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
-    let comment = getComment(reviewId, commentId);
+    let comment = await getComment(reviewId, commentId);
     comment.dislikes.append(name);
 };
 //Decrease Comment Dislikes
 export const decreaseCommentDislikes = async (name, reviewId, commentId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
-    let comment = getComment(reviewId, commentId);
+    let comment = await getComment(reviewId, commentId);
     const index = comment.dislikes.indexOf(name);
     if (index === -1) {
         throw new error("User has already removed their like");
