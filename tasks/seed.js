@@ -1130,24 +1130,24 @@ const places = {
                 content: "Very very accessible, no elevators, all ramps and small gaps, no intervention needed. Ride on, ride off.",
                 createdAt: bsonDate("2004-11-04T04:21:11.114-08:00"),
                 likes: [
-                    users.samuel._id.toString(),
+                    users.douglas._id.toString(),
                     users.rose._id.toString(),
-                    users.sean._id.toString(),
-                    users.timothy._id.toString(),
-                    users.mildred._id.toString(),
-                    users.steven._id.toString(),
                     users.christian._id.toString(),
-                    users.janet._id.toString()
+                    users.logan._id.toString(),
+                    users.joan._id.toString(),
+                    users.timothy._id.toString(),
+                    users.linda._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.aaron._id.toString(),
+                    users.sean._id.toString()
                 ],
                 dislikes: [
-                    users.samuel._id.toString(),
-                    users.rose._id.toString(),
-                    users.sean._id.toString(),
-                    users.timothy._id.toString(),
-                    users.mildred._id.toString(),
+                    users.kyle._id.toString(),
+                    users.roger._id.toString(),
+                    users.william._id.toString(),
+                    users.paul._id.toString(),
                     users.steven._id.toString(),
-                    users.christian._id.toString(),
-                    users.janet._id.toString()
+                    users.rachel._id.toString()
                 ],
                 categories: [
                     { categoryName: NEURODIVERGENT, rating: 1.7 },
@@ -1161,22 +1161,18 @@ const places = {
                 content: "Great place, haven't had any physical accessibility issues.",
                 createdAt: bsonDate("2015-03-16T20:00:51.299-08:00"),
                 likes: [
-                    users.roger._id.toString(),
-                    users.timothy._id.toString(),
-                    users.william._id.toString(),
-                    users.katherine._id.toString(),
                     users.kyle._id.toString(),
-                    users.logan._id.toString(),
-                    users.lawrence._id.toString()
+                    users.samuel._id.toString(),
+                    users.paul._id.toString(),
+                    users.christian._id.toString(),
+                    users.aaron._id.toString()
                 ],
                 dislikes: [
-                    users.roger._id.toString(),
-                    users.timothy._id.toString(),
-                    users.william._id.toString(),
+                    users.sean._id.toString(),
+                    users.rose._id.toString(),
+                    users.gregory._id.toString(),
                     users.katherine._id.toString(),
-                    users.kyle._id.toString(),
-                    users.logan._id.toString(),
-                    users.lawrence._id.toString()
+                    users.joan._id.toString()
                 ],
                 categories: [
                     { categoryName: PHYSICAL, rating: 3.0 },
@@ -1281,17 +1277,12 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "Well this place is massive. But overall pretty accessible as far as I know. Noisy at times. How the airline treats your stuff is another story though.",
                 createdAt: bsonDate("2018-09-27T03:11:08.219-04:00"),
-                likes: [
-                    users.rachel._id.toString(),
-                    users.aaron._id.toString(),
-                    users.linda._id.toString(),
-                    users.sean._id.toString()
-                ],
+                likes: [],
                 dislikes: [
-                    users.rachel._id.toString(),
-                    users.aaron._id.toString(),
-                    users.linda._id.toString(),
-                    users.sean._id.toString()
+                    users.roger._id.toString(),
+                    users.william._id.toString(),
+                    users.logan._id.toString(),
+                    users.christian._id.toString()
                 ],
                 categories: [{ categoryName: NEURODIVERGENT, rating: 1.0 }],
                 comments: [
@@ -1333,11 +1324,21 @@ const places = {
                 createdAt: bsonDate("2019-10-12T06:12:31.767-05:00"),
                 likes: [
                     users.janet._id.toString(),
-                    users.sean._id.toString()
+                    users.william._id.toString(),
+                    users.samuel._id.toString(),
+                    users.steven._id.toString(),
+                    users.joan._id.toString(),
+                    users.paul._id.toString(),
+                    users.douglas._id.toString(),
+                    users.katherine._id.toString()
                 ],
                 dislikes: [
-                    users.janet._id.toString(),
-                    users.sean._id.toString()
+                    users.linda._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.mildred._id.toString(),
+                    users.gregory._id.toString(),
+                    users.rose._id.toString(),
+                    users.logan._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 1.7 },
@@ -1428,21 +1429,15 @@ const places = {
                 author: users.christian._id.toString(),
                 content: "Went to school here. They're pretty accommodating, just speak to your professor and the accessibility and accommodations department.",
                 createdAt: bsonDate("2010-10-07T01:17:46.410-05:00"),
-                likes: [
-                    users.roger._id.toString(),
-                    users.aaron._id.toString(),
-                    users.gregory._id.toString(),
-                    users.sean._id.toString(),
-                    users.rose._id.toString(),
-                    users.rachel._id.toString()
-                ],
+                likes: [users.kyle._id.toString()],
                 dislikes: [
-                    users.roger._id.toString(),
-                    users.aaron._id.toString(),
                     users.gregory._id.toString(),
-                    users.sean._id.toString(),
-                    users.rose._id.toString(),
-                    users.rachel._id.toString()
+                    users.katherine._id.toString(),
+                    users.logan._id.toString(),
+                    users.timothy._id.toString(),
+                    users.william._id.toString(),
+                    users.rachel._id.toString(),
+                    users.roger._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 1.1 },
@@ -1514,17 +1509,16 @@ const places = {
                 author: users.janet._id.toString(),
                 content: "Went to school here. There are steps around many places, but not bad.",
                 createdAt: bsonDate("2022-04-12T09:15:58.810-04:00"),
-                likes: [
-                    users.joan._id.toString(),
-                    users.sean._id.toString(),
-                    users.paul._id.toString(),
-                    users.timothy._id.toString()
-                ],
+                likes: [],
                 dislikes: [
-                    users.joan._id.toString(),
-                    users.sean._id.toString(),
-                    users.paul._id.toString(),
-                    users.timothy._id.toString()
+                    users.linda._id.toString(),
+                    users.kyle._id.toString(),
+                    users.roger._id.toString(),
+                    users.aaron._id.toString(),
+                    users.timothy._id.toString(),
+                    users.logan._id.toString(),
+                    users.janet._id.toString(),
+                    users.katherine._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 4.4 },
@@ -1537,8 +1531,11 @@ const places = {
                 author: users.william._id.toString(),
                 content: "I went to school here. Beautiful campus. Everyone is respectful and working with the department of accommodations is nice.",
                 createdAt: bsonDate("2022-07-02T16:21:41.279-07:00"),
-                likes: [users.douglas._id.toString()],
-                dislikes: [users.douglas._id.toString()],
+                likes: [
+                    users.roger._id.toString(),
+                    users.katherine._id.toString()
+                ],
+                dislikes: [],
                 categories: [
                     { categoryName: NEURODIVERGENT, rating: 1.0 },
                     { categoryName: PHYSICAL, rating: 4.8 },
@@ -1720,22 +1717,23 @@ const places = {
                 content: "Really accessible except for times around the holidays when it gets crowded and noisy. Some aisles are narrow in general. Everything is on one level and there are auto doors everywhere.",
                 createdAt: bsonDate("2018-01-08T11:37:47.397-05:00"),
                 likes: [
-                    users.aaron._id.toString(),
-                    users.gregory._id.toString(),
-                    users.sean._id.toString(),
+                    users.mildred._id.toString(),
+                    users.lawrence._id.toString(),
                     users.joan._id.toString(),
-                    users.paul._id.toString(),
                     users.christian._id.toString(),
-                    users.janet._id.toString()
+                    users.janet._id.toString(),
+                    users.douglas._id.toString(),
+                    users.roger._id.toString(),
+                    users.katherine._id.toString(),
+                    users.william._id.toString(),
+                    users.aaron._id.toString()
                 ],
                 dislikes: [
-                    users.aaron._id.toString(),
+                    users.kyle._id.toString(),
                     users.gregory._id.toString(),
-                    users.sean._id.toString(),
-                    users.joan._id.toString(),
-                    users.paul._id.toString(),
-                    users.christian._id.toString(),
-                    users.janet._id.toString()
+                    users.logan._id.toString(),
+                    users.steven._id.toString(),
+                    users.paul._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 2.9 },
@@ -1798,12 +1796,26 @@ const places = {
                 content: "Love this place. Great employees, very accessible.",
                 createdAt: bsonDate("2022-05-18T22:16:15.331-04:00"),
                 likes: [
-                    users.janet._id.toString(),
-                    users.rose._id.toString()
+                    users.rachel._id.toString(),
+                    users.aaron._id.toString(),
+                    users.sean._id.toString(),
+                    users.logan._id.toString(),
+                    users.katherine._id.toString(),
+                    users.william._id.toString(),
+                    users.kyle._id.toString(),
+                    users.steven._id.toString(),
+                    users.mildred._id.toString(),
+                    users.gregory._id.toString()
                 ],
                 dislikes: [
-                    users.janet._id.toString(),
-                    users.rose._id.toString()
+                    users.paul._id.toString(),
+                    users.timothy._id.toString(),
+                    users.christian._id.toString(),
+                    users.samuel._id.toString(),
+                    users.roger._id.toString(),
+                    users.douglas._id.toString(),
+                    users.linda._id.toString(),
+                    users.joan._id.toString()
                 ],
                 categories: [
                     { categoryName: NEURODIVERGENT, rating: 1.6 },
@@ -1816,8 +1828,16 @@ const places = {
                 author: users.william._id.toString(),
                 content: "I really hate this place. Never had a good experience here. Everything sucks about it. Only good thing is it's physically accessible.",
                 createdAt: bsonDate("2021-03-06T08:22:25.057-07:00"),
-                likes: [users.kyle._id.toString()],
-                dislikes: [users.kyle._id.toString()],
+                likes: [
+                    users.william._id.toString(),
+                    users.steven._id.toString(),
+                    users.roger._id.toString(),
+                    users.mildred._id.toString(),
+                    users.kyle._id.toString(),
+                    users.aaron._id.toString(),
+                    users.timothy._id.toString()
+                ],
+                dislikes: [users.christian._id.toString()],
                 categories: [
                     { categoryName: NEURODIVERGENT, rating: 1.0 },
                     { categoryName: PHYSICAL, rating: 4.2 }
@@ -1886,16 +1906,21 @@ const places = {
                 content: "Nice store. Very narrow. Crowded during holidays.",
                 createdAt: bsonDate("2007-01-11T09:55:53.097-08:00"),
                 likes: [
-                    users.rachel._id.toString(),
+                    users.roger._id.toString(),
                     users.gregory._id.toString(),
+                    users.mildred._id.toString(),
                     users.sean._id.toString(),
-                    users.steven._id.toString()
+                    users.logan._id.toString(),
+                    users.rachel._id.toString()
                 ],
                 dislikes: [
-                    users.rachel._id.toString(),
-                    users.gregory._id.toString(),
-                    users.sean._id.toString(),
-                    users.steven._id.toString()
+                    users.paul._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.samuel._id.toString(),
+                    users.rose._id.toString(),
+                    users.steven._id.toString(),
+                    users.katherine._id.toString(),
+                    users.william._id.toString()
                 ],
                 categories: [{ categoryName: PHYSICAL, rating: 1.0 }],
                 comments: [{
@@ -2072,8 +2097,26 @@ const places = {
                 author: users.lawrence._id.toString(),
                 content: "Terribly inaccessible surrounding area but the store isn't bad. Very overstimulating outside.",
                 createdAt: bsonDate("2004-04-21T10:58:12.182-04:00"),
-                likes: [users.rachel._id.toString()],
-                dislikes: [users.rachel._id.toString()],
+                likes: [
+                    users.rachel._id.toString(),
+                    users.kyle._id.toString(),
+                    users.aaron._id.toString(),
+                    users.joan._id.toString(),
+                    users.roger._id.toString(),
+                    users.steven._id.toString(),
+                    users.janet._id.toString(),
+                    users.rose._id.toString()
+                ],
+                dislikes: [
+                    users.samuel._id.toString(),
+                    users.douglas._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.timothy._id.toString(),
+                    users.sean._id.toString(),
+                    users.gregory._id.toString(),
+                    users.logan._id.toString(),
+                    users.mildred._id.toString()
+                ],
                 categories: [{ categoryName: NEURODIVERGENT, rating: 2.8 }],
                 comments: [
                     {
@@ -2168,16 +2211,15 @@ const places = {
                 content: "Partially physically accessible. There are two in/out ramps, but the actual amphitheater \"seats\" aren't accessible. You're either on the top row or the bottom row.",
                 createdAt: bsonDate("2016-07-17T02:25:18.314-07:00"),
                 likes: [
-                    users.janet._id.toString(),
-                    users.sean._id.toString(),
-                    users.paul._id.toString(),
-                    users.samuel._id.toString()
+                    users.christian._id.toString(),
+                    users.aaron._id.toString()
                 ],
                 dislikes: [
-                    users.janet._id.toString(),
-                    users.sean._id.toString(),
-                    users.paul._id.toString(),
-                    users.samuel._id.toString()
+                    users.gregory._id.toString(),
+                    users.kyle._id.toString(),
+                    users.rose._id.toString(),
+                    users.logan._id.toString(),
+                    users.linda._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 2.3 },
@@ -2369,15 +2411,10 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "Partially accessible. Some of the inner parts of the park aren't accessible, but the perimeter is completely accessible. Very busy in the sprint and summer, especially on weekends.",
                 createdAt: bsonDate("2006-03-18T16:42:41.072-08:00"),
-                likes: [
-                    users.joan._id.toString(),
-                    users.roger._id.toString(),
-                    users.aaron._id.toString()
-                ],
+                likes: [],
                 dislikes: [
-                    users.joan._id.toString(),
-                    users.roger._id.toString(),
-                    users.aaron._id.toString()
+                    users.rose._id.toString(),
+                    users.katherine._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 2.8 },
@@ -2391,19 +2428,14 @@ const places = {
                 author: users.timothy._id.toString(),
                 content: "Terrible place if you want to really relax. Lots of people here.",
                 createdAt: bsonDate("2017-05-19T11:19:26.203-05:00"),
-                likes: [
-                    users.sean._id.toString(),
-                    users.douglas._id.toString(),
-                    users.rose._id.toString(),
-                    users.logan._id.toString(),
-                    users.rachel._id.toString()
-                ],
+                likes: [users.samuel._id.toString()],
                 dislikes: [
-                    users.sean._id.toString(),
-                    users.douglas._id.toString(),
-                    users.rose._id.toString(),
-                    users.logan._id.toString(),
-                    users.rachel._id.toString()
+                    users.rachel._id.toString(),
+                    users.steven._id.toString(),
+                    users.joan._id.toString(),
+                    users.kyle._id.toString(),
+                    users.katherine._id.toString(),
+                    users.william._id.toString()
                 ],
                 categories: [
                     { categoryName: SENSORY, rating: 3.9 },
@@ -2430,8 +2462,23 @@ const places = {
                 author: users.gregory._id.toString(),
                 content: "Can't comment on physical disability, but this place is always packed. Very overstimulating sometimes.",
                 createdAt: bsonDate("2008-06-13T06:33:11.629-03:00"),
-                likes: [users.christian._id.toString()],
-                dislikes: [users.christian._id.toString()],
+                likes: [
+                    users.rachel._id.toString(),
+                    users.kyle._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.mildred._id.toString(),
+                    users.rose._id.toString(),
+                    users.samuel._id.toString(),
+                    users.joan._id.toString()
+                ],
+                dislikes: [
+                    users.logan._id.toString(),
+                    users.douglas._id.toString(),
+                    users.william._id.toString(),
+                    users.gregory._id.toString(),
+                    users.katherine._id.toString(),
+                    users.timothy._id.toString()
+                ],
                 categories: [
                     { categoryName: NEURODIVERGENT, rating: 1.9 },
                     { categoryName: PHYSICAL, rating: 1.5 },
@@ -2444,13 +2491,13 @@ const places = {
                 author: users.william._id.toString(),
                 content: "Greg said this best, I mean I love this place but there are a lot of people here.",
                 createdAt: bsonDate("2022-07-10T21:41:59.623-03:00"),
-                likes: [
-                    users.roger._id.toString(),
-                    users.paul._id.toString()
-                ],
+                likes: [],
                 dislikes: [
-                    users.roger._id.toString(),
-                    users.paul._id.toString()
+                    users.christian._id.toString(),
+                    users.aaron._id.toString(),
+                    users.steven._id.toString(),
+                    users.linda._id.toString(),
+                    users.rachel._id.toString()
                 ],
                 categories: [{ categoryName: NEURODIVERGENT, rating: 1.7 }],
                 comments: [
@@ -2542,26 +2589,20 @@ const places = {
                 content: "Much bigger than pier C. Everything's pretty flat. Have to go around for one part though since it's elevated by about 2 feet",
                 createdAt: bsonDate("2019-02-06T13:47:18.312-07:00"),
                 likes: [
-                    users.samuel._id.toString(),
-                    users.linda._id.toString(),
-                    users.sean._id.toString(),
-                    users.douglas._id.toString(),
+                    users.aaron._id.toString(),
                     users.timothy._id.toString(),
-                    users.paul._id.toString(),
-                    users.lawrence._id.toString(),
-                    users.logan._id.toString(),
-                    users.janet._id.toString()
+                    users.rachel._id.toString(),
+                    users.katherine._id.toString(),
+                    users.janet._id.toString(),
+                    users.william._id.toString(),
+                    users.rose._id.toString(),
+                    users.roger._id.toString(),
+                    users.douglas._id.toString(),
+                    users.mildred._id.toString()
                 ],
                 dislikes: [
-                    users.samuel._id.toString(),
-                    users.linda._id.toString(),
-                    users.sean._id.toString(),
-                    users.douglas._id.toString(),
-                    users.timothy._id.toString(),
-                    users.paul._id.toString(),
-                    users.lawrence._id.toString(),
-                    users.logan._id.toString(),
-                    users.janet._id.toString()
+                    users.steven._id.toString(),
+                    users.linda._id.toString()
                 ],
                 categories: [{ categoryName: NEURODIVERGENT, rating: 4.2 }],
                 comments: []
@@ -2572,18 +2613,21 @@ const places = {
                 content: "Love this place. Much bigger than Pier C. Popular site for weddings, proposals, and date nights. Can be overstimulating during major days of the year, like the first few warm days of the season.",
                 createdAt: bsonDate("2011-12-22T12:40:23.516-06:00"),
                 likes: [
-                    users.roger._id.toString(),
-                    users.linda._id.toString(),
-                    users.douglas._id.toString(),
+                    users.timothy._id.toString(),
+                    users.lawrence._id.toString(),
+                    users.sean._id.toString(),
                     users.katherine._id.toString(),
-                    users.mildred._id.toString(),
-                    users.steven._id.toString()
+                    users.christian._id.toString(),
+                    users.aaron._id.toString(),
+                    users.gregory._id.toString(),
+                    users.linda._id.toString()
                 ],
                 dislikes: [
+                    users.rachel._id.toString(),
+                    users.joan._id.toString(),
+                    users.paul._id.toString(),
                     users.roger._id.toString(),
-                    users.linda._id.toString(),
-                    users.douglas._id.toString(),
-                    users.katherine._id.toString(),
+                    users.kyle._id.toString(),
                     users.mildred._id.toString(),
                     users.steven._id.toString()
                 ],
@@ -2599,26 +2643,19 @@ const places = {
                 content: "Really don't like this place. Always way too much going on. Never can relax or anything. Always feel like I should leave as soon as I should get there - if possible! There are just that many people here!",
                 createdAt: bsonDate("2004-02-27T05:51:39.901-05:00"),
                 likes: [
+                    users.joan._id.toString(),
+                    users.samuel._id.toString(),
+                    users.katherine._id.toString(),
                     users.linda._id.toString(),
                     users.rose._id.toString(),
-                    users.douglas._id.toString(),
-                    users.william._id.toString(),
-                    users.kyle._id.toString(),
-                    users.logan._id.toString(),
-                    users.lawrence._id.toString(),
-                    users.steven._id.toString(),
-                    users.christian._id.toString()
+                    users.steven._id.toString()
                 ],
                 dislikes: [
-                    users.linda._id.toString(),
-                    users.rose._id.toString(),
-                    users.douglas._id.toString(),
-                    users.william._id.toString(),
-                    users.kyle._id.toString(),
-                    users.logan._id.toString(),
-                    users.lawrence._id.toString(),
-                    users.steven._id.toString(),
-                    users.christian._id.toString()
+                    users.janet._id.toString(),
+                    users.christian._id.toString(),
+                    users.aaron._id.toString(),
+                    users.rachel._id.toString(),
+                    users.kyle._id.toString()
                 ],
                 categories: [
                     { categoryName: PHYSICAL, rating: 3.8 },
