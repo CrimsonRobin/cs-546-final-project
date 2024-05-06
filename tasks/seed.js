@@ -37,6 +37,8 @@ const users = {
     mildred: {
         _id: new ObjectId(),
         username: "mildred6603",
+        firstname: "Mildred",
+        lastname: "Mildred",
         hashedPassword: bcrypt.hashSync("sunimHJSWW3045_!&>", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("1993-05-10T00:10:00.000-06:00"),
         qualifications: [NEURODIVERGENT],
@@ -44,6 +46,8 @@ const users = {
     roger: {
         _id: new ObjectId(),
         username: "roger1945",
+        firstname: "Roger",
+        lastname: "Clefairy",
         hashedPassword: bcrypt.hashSync("cxkbvMTCQB5043/?.;", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("1993-09-03T00:20:00.000-01:00"),
         qualifications: [SENSORY, PHYSICAL],
@@ -51,6 +55,8 @@ const users = {
     samuel: {
         _id: new ObjectId(),
         username: "samuel5215",
+        firstname: "Samuel",
+        lastname: "Ward",
         hashedPassword: bcrypt.hashSync("tnewrJORBS2464!@=&", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("1997-07-04T02:00:00.000-05:00"),
         qualifications: [NEURODIVERGENT, SENSORY],
@@ -58,6 +64,8 @@ const users = {
     william: {
         _id: new ObjectId(),
         username: "william6342",
+        firstname: "William",
+        lastname: "Kim",
         hashedPassword: bcrypt.hashSync("uvebvFXLKH6301^%>)", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("1998-10-09T02:20:00.000-06:00"),
         qualifications: [],
@@ -65,6 +73,8 @@ const users = {
     paul: {
         _id: new ObjectId(),
         username: "paul3497",
+        firstname: "Paul",
+        lastname: "Johnson",
         hashedPassword: bcrypt.hashSync("kggohPSLLM4825^:@^", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2000-02-24T02:50:00.000-03:00"),
         qualifications: [NEURODIVERGENT],
@@ -72,6 +82,8 @@ const users = {
     rachel: {
         _id: new ObjectId(),
         username: "rachel5472",
+        firstname: "Rachel",
+        lastname: "Dixon",
         hashedPassword: bcrypt.hashSync("vbtqtOBYVY5708&,#:", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2001-09-04T04:00:00.000-05:00"),
         qualifications: [NEURODIVERGENT, SENSORY],
@@ -79,6 +91,8 @@ const users = {
     timothy: {
         _id: new ObjectId(),
         username: "timothy7857",
+        firstname: "Timothy",
+        lastname: "Reyes",
         hashedPassword: bcrypt.hashSync("", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2003-02-24T04:40:00.000-07:00"),
         qualifications: [SENSORY],
@@ -86,6 +100,8 @@ const users = {
     linda: {
         _id: new ObjectId(),
         username: "linda2054",
+        firstname: "Linda",
+        lastname: "Woods",
         hashedPassword: bcrypt.hashSync("ukyxtHTKRE8226=@+;", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2004-02-25T05:20:00.000-02:00"),
         qualifications: [],
@@ -93,6 +109,8 @@ const users = {
     katherine: {
         _id: new ObjectId(),
         username: "katherine2316",
+        firstname: "Katherine",
+        lastname: "Williams",
         hashedPassword: bcrypt.hashSync("hbrvlDVUQY5810.,%)", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2006-07-25T05:30:00.000-02:00"),
         qualifications: [PHYSICAL],
@@ -100,6 +118,8 @@ const users = {
     rose: {
         _id: new ObjectId(),
         username: "rose7148",
+        firstname: "Rose",
+        lastname: "Nelson",
         hashedPassword: bcrypt.hashSync("kdbapFXEKB5556/?):", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2006-08-07T09:50:00.000-07:00"),
         qualifications: [],
@@ -107,6 +127,8 @@ const users = {
     douglas: {
         _id: new ObjectId(),
         username: "douglas3405",
+        firstname: "Douglas",
+        lastname: "Allen",
         hashedPassword: bcrypt.hashSync("rqisiWUTIX7626(%#<", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2007-09-26T10:00:00.000-03:00"),
         qualifications: [],
@@ -114,6 +136,8 @@ const users = {
     gregory: {
         _id: new ObjectId(),
         username: "gregory9034",
+        firstname: "Gregory",
+        lastname: "Morgan",
         hashedPassword: bcrypt.hashSync("mjwoaMMFLL6705>&(>", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2009-01-22T10:10:00.000-09:00"),
         qualifications: [NEURODIVERGENT, PHYSICAL],
@@ -121,6 +145,8 @@ const users = {
     sean: {
         _id: new ObjectId(),
         username: "sean3142",
+        firstname: "Sean",
+        lastname: "Ruiz",
         hashedPassword: bcrypt.hashSync("uttclPITGS8207,;,*", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2009-05-01T10:20:00.000-03:00"),
         qualifications: [PHYSICAL, SENSORY, NEURODIVERGENT],
@@ -128,6 +154,8 @@ const users = {
     aaron: {
         _id: new ObjectId(),
         username: "aaron8618",
+        firstname: "Aaron",
+        lastname: "Robertson",
         hashedPassword: bcrypt.hashSync("sovmcXRRUA5440:;!)", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2009-05-25T10:30:00.000-08:00"),
         qualifications: [],
@@ -135,6 +163,8 @@ const users = {
     joan: {
         _id: new ObjectId(),
         username: "joan4822",
+        firstname: "Joan",
+        lastname: "Harrison",
         hashedPassword: bcrypt.hashSync("ykburRHQHI7586^&%-", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2010-02-24T12:10:00.000-04:00"),
         qualifications: [],
@@ -142,6 +172,8 @@ const users = {
     kyle: {
         _id: new ObjectId(),
         username: "kyle8306",
+        firstname: "Kyle",
+        lastname: "Kennedy",
         hashedPassword: bcrypt.hashSync("nvtafUNXSJ7553!^$*", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2010-09-10T12:20:00.000-08:00\n"),
         qualifications: [],
@@ -149,6 +181,8 @@ const users = {
     janet: {
         _id: new ObjectId(),
         username: "janet4090",
+        firstname: "Janet",
+        lastname: "Adams",
         hashedPassword: bcrypt.hashSync("kfyfjENNCG3522/#?;", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2011-05-30T12:30:00.000-04:00"),
         qualifications: [],
@@ -156,6 +190,8 @@ const users = {
     logan: {
         _id: new ObjectId(),
         username: "logan8982",
+        firstname: "Logan",
+        lastname: "Murphy",
         hashedPassword: bcrypt.hashSync("cqfooTIBHT8120(*?#", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2012-02-03T12:50:00.000-08:00"),
         qualifications: [],
@@ -163,6 +199,8 @@ const users = {
     christian: {
         _id: new ObjectId(),
         username: "christian5469",
+        firstname: "Christian",
+        lastname: "Washington",
         hashedPassword: bcrypt.hashSync("gvummJGJPU7571;-$_", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2013-10-16T13:00:00.000-05:00"),
         qualifications: [],
@@ -170,6 +208,8 @@ const users = {
     steven: {
         _id: new ObjectId(),
         username: "steven2611",
+        firstname: "Steven",
+        lastname: "Ross",
         hashedPassword: bcrypt.hashSync("pgwvyBWHTN2502%+*(", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2014-01-10T15:30:00.000-02:00"),
         qualifications: [SENSORY, NEURODIVERGENT],
@@ -177,6 +217,8 @@ const users = {
     lawrence: {
         _id: new ObjectId(),
         username: "lawrence2611",
+        firstname: "Lawrence",
+        lastname: "Coleman",
         hashedPassword: bcrypt.hashSync("egtmfITIQF1621*<*>", BCRYPT_SALT_ROUNDS),
         createdAt: bsonDate("2014-01-10T15:30:00.000-02:00"),
         qualifications: [NEURODIVERGENT, SENSORY, PHYSICAL],
