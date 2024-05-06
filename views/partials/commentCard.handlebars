@@ -1,0 +1,20 @@
+{{#with comment}}
+    <div class="card comment">
+        <h2>{{name}}</h2>
+        <p>{{date}}</p>
+        <p>{{content}}</p>
+        {{> likeDislike user=../user type=comment _id=_id }}
+        {{#if ../reply}}
+            {{#if ../user}}
+                <button><span class="material-symbols-outlined">plus</span>Reply</button>
+            {{/if}}
+        {{/if}}
+        {{#if replies}}
+            <div class="replies">
+                {{#each replies}}
+                    {{> commentCard comment=this reply=false user=../user}}
+                {{/each}}
+            </div>
+        {{/if}}
+    </div>
+{{/with}}
