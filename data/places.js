@@ -4,7 +4,7 @@ import {
     parseObjectId,
     normalizeLongitude,
     parseLatitude,
-    removeDuplicates
+    removeDuplicates,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -109,8 +109,8 @@ export const addReview = async (placeId, author, content, categories) => {
 //get specific review
 export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review id");
-    const searchedReview = await prods.findOne(
-        { reviews: { $elemMatch: { _id: new ObjectId(reviewId) } } },
+    const searchedReview = await Place.findOne(
+        { "reviews._id": new ObjectId(reviewId) },
         { projection: { "reviews.$": 1, _id: 0 } }
     );
     if (searchedReview === null) {
