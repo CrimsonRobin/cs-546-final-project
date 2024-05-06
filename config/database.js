@@ -18,8 +18,8 @@ const placesSchema = new Schema({
             author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
-            likes: Number,
-            dislikes: Number,
+            likes: [{ type: String, ref: "users" }],
+            dislikes: [{ type: String, ref: "users" }],
         },
     ],
     location: {
@@ -36,8 +36,8 @@ const placesSchema = new Schema({
             author: { type: String, ref: "users" },
             content: String,
             createdAt: Date,
-            likes: Number,
-            dislikes: Number,
+            likes: [{ type: String, ref: "users" }],
+            dislikes: [{ type: String, ref: "users" }],
             categories: [
                 {
                     categoryName: String,
@@ -49,8 +49,8 @@ const placesSchema = new Schema({
                     author: { type: String, ref: "users" },
                     content: String,
                     createdAt: Date,
-                    likes: Number,
-                    dislikes: Number,
+                    likes: [{ type: String, ref: "users" }],
+                    dislikes: [{ type: String, ref: "users" }],
                 },
             ],
         },
