@@ -25,7 +25,7 @@ import { DateTime } from "luxon";
 export const parseUserFields = (username, hashedPassword, qualifications) => {
     // If name and description are not strings or are empty strings, the method should throw.
     return {
-        username: parseNonEmptyString(username, "Place name"),
+        username: parseNonEmptyString(username, "Username"),
         hashedPassword: parseNonEmptyString(hashedPassword, "Password"),
         qualifications: parseQualifications(qualifications),
     };
@@ -42,6 +42,7 @@ export const createUser = async (username, hashedPassword, qualifications) => {
     });
 
     await document.save();
+    return document;
 };
 
 // Get User
@@ -58,7 +59,13 @@ export const getUser = async (userId) => {
     return result;
 };
 // Get All Users
-export const getUsers = () => {};
+export const getUsers = async () => {
+    const userCollection = await User();
+    let userList = await userCollection.find({}).toArray();
+    return userList;
+};
+// Update User
+export const updateUser = async () => {};
 // Get Average Rating
 export const getAvgRating = () => {};
 // Get amount of reviews
