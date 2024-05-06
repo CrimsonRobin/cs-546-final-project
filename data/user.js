@@ -113,7 +113,7 @@ export const loginUser = async (username, password) => {
  * Gets all reviews for the given user.
  *
  * @param {string} userId The ID of the user.
- * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
+ * @returns {Promise<{_id: string, reviews: any[]}[]>} The reviews that the user has posted across all places.
  * @author Anthony Webster
  */
 export const getUserReviews = async (userId) =>
