@@ -2,7 +2,17 @@
 
 <main>
     <h1>Error!</h1>
-    <p>We're sorry, but an error occurred.</p>
-    <p class=error>{{error}}</p>
+    {{#if error}}
+        <p>We're sorry, but an error occurred.</p>
+        <p class=error>{{error}}</p>
+    {{/if}}
+    {{#if errors}}
+        <p>We're sorry, but some errors occurred.</p>
+        <ul class="error error-list">
+            {{#each errors}}
+                <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    {{/if}}
     <p><a href="javascript:history.back()">Back</a></p>
 </main>
