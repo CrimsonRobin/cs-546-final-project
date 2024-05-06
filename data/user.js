@@ -51,13 +51,23 @@ export const getUsers = async () => {
     return userList;
 };
 // Update User
-export const updateUser = async () => {};
+export const updateUser = async (userId) => {};
 // Get Average Rating
-export const getAvgRating = () => {};
+export const getAvgRating = (userId) => {
+    let allReviews = getUserReviews(userId).reviews;
+    let sum = allReviews.reduce((total, currVal) => total + Number(currVal.rating), 0);
+    let avg = sum / allReviews.length;
+    return avg;
+};
 // Get amount of reviews
-export const getReview = () => {};
+export const getNumReview = (userId) => {
+    let allReviews = getUserReviews(userId).reviews;
+    return allReviews.length;
+};
 // Get expertise
-export const getExpertise = () => {};
+export const getExpertise = (userId) => {
+    return getUser(userId).qualifications;
+};
 
 /**
  * Gets all reviews for the given user.
