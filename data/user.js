@@ -1,7 +1,9 @@
 import {
     parseNonEmptyString,
     parseObjectId,
-    parseQualifications
+    parsePassword,
+    parseQualifications,
+    removeDuplicates,
 } from "../helpers.js";
 import { Place, User } from "../config/database.js";
 import { ObjectId } from "mongodb";
@@ -29,11 +31,11 @@ export const createUser = async (firstname, lastname, username, password, qualif
         username: username,
         hashedPassword: await bcrypt.hash(password, 12),
         createdAt: DateTime.now().toBSON(),
-        qualifications: qualifications,
+        qualifications: removeDuplicates(qualifications),
     });
 
     await document.save();
-    return document;
+    return true;
 };
 
 // Get User
@@ -72,6 +74,33 @@ export const getNumReview = (userId) => {
 // Get expertise
 export const getExpertise = (userId) => {
     return getUser(userId).qualifications;
+};
+
+export const loginUser = async (username, password) => {
+
+    username = parseStringWithLengthBounds(username, 3, 25);
+    password = parsePassword(password);
+  
+    const userCollection = await User();
+    const existingUser = await userCollection.findOne({ username: username });
+  
+    if (!existingUser) {
+      throw "Either the username or password is invalid";
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+  
+    if (!isPasswordValid) {
+      throw "Either the username or password is invalid";
+    }
+  
+    return {
+        firstname: existingUser.firstname,
+        lastname: existingUser.lastname,
+        username: existingUser.username,
+        createdAt: existingUser.createdAt,
+        qualifications: existingUser.qualifications,
+    };
 };
 
 /**
