@@ -7,6 +7,12 @@ import { Place, User } from "../config/database.js";
 import { ObjectId } from "mongodb";
 import { DateTime } from "luxon";
 
+/**
+ * The number of salt rounds to use when hashing user passwords.
+ * @type {number}
+ */
+export const BCRYPT_SALT_ROUNDS = 12;
+
 // Create User
 export const parseUserFields = (username, hashedPassword, qualifications) => {
     // If name and description are not strings or are empty strings, the method should throw.
