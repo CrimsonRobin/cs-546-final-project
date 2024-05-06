@@ -1,16 +1,11 @@
 import {
-    assertTypeIs,
-    isInfinity,
-    isNullOrUndefined,
     parseCategories,
-    parseDate,
     parseNonEmptyString,
     parseObjectId,
-    roundTo,
-    throwIfNullOrUndefined,
+    normalizeLongitude,
+    parseLatitude,
+    removeDuplicates
 } from "../helpers.js";
-import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
-import { normalizeLongitude, parseLatitude, parseNonEmptyString, parseObjectId, removeDuplicates } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
 import { ObjectId } from "mongodb";
@@ -128,27 +123,6 @@ export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
     const placeReviewed = await getPlace(placeId);
     return placeReviewed.reviews;
-};
-/**
- * Gets all reviews for the given user.
- *
- * @param {string} userId The ID of the user.
- * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
- * @author Anthony Webster
- */
-export const getUserReviews = async (userId) => {
-    const parsedId = ObjectId.createFromHexString(parseObjectId(userId, "user id"));
-    const reviews = await Place.aggregate([
-        { $match: { "reviews.author": parsedId } },
-        { $project: { _id: true, reviews: true } },
-        { $unwind: "$reviews" },
-    ]).exec();
-
-    for (const review of reviews) {
-        review._id = review._id.toString();
-    }
-
-    return reviews;
 };
 
 //update review
