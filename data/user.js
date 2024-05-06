@@ -140,15 +140,17 @@ export const getUserReviews = async (userId) =>
 /**
  * Computes the average ratings by category for a user across all reviews that the given user has posted.
  * @param {string} userId The ID of the user to compute averages for.
- * @returns {Promise<{DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
- * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}>} An object
- * containing the average ratings by category. If a place does not have ratings for a given category, then
- * that category's average rating is `null`.
+ * @returns {Promise<{overall: number, byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}}>} An object
+ * containing the overall average rating and average ratings by category. If a place does not have ratings
+ * for a given category, then that category's average rating is `null`.
  * @author Anthony Webster
  */
-export const getUserAverageRatingsByCategory = async (userId) =>
+export const getUserAverageRatings = async (userId) =>
 {
     const userReviews = (await getUserReviews(userId)).flatMap(u => u.reviews).flatMap(r => r.categories);
+    let overallTotal = 0;
+    let overallCount = 0;
     const aggregates = {
         DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
@@ -163,6 +165,8 @@ export const getUserAverageRatingsByCategory = async (userId) =>
         }
         aggregates[categoryName].count++;
         aggregates[categoryName].total += rating;
+        overallTotal += rating;
+        overallCount++;
     }
 
     const averages = {};
@@ -170,5 +174,8 @@ export const getUserAverageRatingsByCategory = async (userId) =>
     {
         averages[categoryName] = count === 0 ? null : total / count;
     }
-    return averages;
+    return {
+        overall: overallTotal / overallCount,
+        byCategory: averages
+    };
 };
