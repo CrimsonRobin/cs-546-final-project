@@ -155,6 +155,11 @@ router.route('/place/:id/addReview')
         }
     });
 
+router.route('/place/:id/AddComment')
+    .post(async (req, res) => {
+        
+    });
+
 router.route('/review/:id')
     .get(async (req, res) => {
         //TODO: Get Review Object and pass it (including title)
