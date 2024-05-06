@@ -101,6 +101,7 @@ export const loginUser = async (username, password) => {
     }
   
     return {
+        _id: existingUser._id.toString(),
         firstname: existingUser.firstname,
         lastname: existingUser.lastname,
         username: existingUser.username,

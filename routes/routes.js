@@ -71,7 +71,7 @@ router.route('/login')
         try {
             const user = await loginUser(req.username, req.password);
 
-            req.session.user = {firstName: user.firstname, lastName: user.lastname, username: user.username, 
+            req.session.user = {_id: user._id, firstName: user.firstname, lastName: user.lastname, username: user.username, 
                 createdAt: user.createdAt, qualifications: user.qualifications};
 
             return res.redirect("/");
@@ -89,7 +89,7 @@ router.route('/logout')
 //TODO: For the rest of these functions, if req.session.user exists, pass it as the "user"
 router.route('/')
     .get(async (req, res) => {
-        return res.render("home", {title: "Home"});
+        return res.render("home", {title: "Home", user: req.session ? req.session.user : undefined});
     });
 
 router.route('/api/search')
@@ -99,7 +99,7 @@ router.route('/api/search')
 
 router.route('/api/changePassword')
     .get(async (req, res) => {
-
+        //AJAX Calls
     })
     .post(async (req, res) => {
 
@@ -112,9 +112,9 @@ router.route('/user/:id')
             req.params.id = parseObjectId(req.params.id, "User Id");
             const user = await getUser(req.params.id);
 
-            return res.render("userProfile", {title: "User Profile", user: user});
+            return res.render("userProfile", {title: "User Profile", userProfile: user, user: req.session ? req.session.user : undefined});
         } catch (error) {
-            return res.status(404).render("error", {title: "User Not Found"});
+            return res.status(404).render("error", {title: "User Not Found", user: req.session ? req.session.user : undefined});
         }
     });
 
@@ -125,9 +125,9 @@ router.route('/place/:id')
             req.params.id = parseObjectId(req.params.id, "Place Id");
             const place = await getPlace(req.params.id);
 
-            return res.render("place", {title: "Place", place: place});
+            return res.render("place", {title: "Place", place: place, user: req.session ? req.session.user : undefined});
         } catch (error) {
-            return res.status(404).render("error", {title: "Place Not Found", error: error.message});
+            return res.status(404).render("error", {title: "Place Not Found", error: error.message, user: req.session ? req.session.user : undefined});
         }
     });
 
@@ -138,15 +138,15 @@ router.route('/review/:id')
             req.params.id = parseObjectId(req.params.id, "Review Id");
             const review = getReview(req.params.id);
 
-            return res.render("review", {title: "Review", review: review});
+            return res.render("review", {title: "Review", review: review, user: req.session ? req.session.user : undefined});
         } catch (error) {
-            return res.status(404).render("error", {title: "Review Not Found", error: error.message});
+            return res.status(404).render("error", {title: "Review Not Found", error: error.message, user: req.session ? req.session.user : undefined});
         }
     });
 
 router.route('/about')
     .get(async (req, res) => {
-        return res.render("about", {title: "About"});
+        return res.render("about", {title: "About", user: req.session ? req.session.user : undefined});
     });
 
 export default router;
