@@ -4,7 +4,8 @@ import {
     parseObjectId,
     normalizeLongitude,
     parseLatitude,
-    removeDuplicates
+    removeDuplicates,
+    throwIfNullOrUndefined,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -109,9 +110,9 @@ export const addReview = async (placeId, author, content, categories) => {
 //get specific review
 export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review id");
-    const searchedReview = await prods.findOne(
-        { reviews: { $elemMatch: { _id: new ObjectId(reviewId) } } },
-        { projection: { "reviews.$": 1, _id: 0 } }
+    const searchedReview = await Place.findOne(
+        { "reviews._id": new ObjectId(reviewId) },
+        { projection: { "reviews.$": true, _id: false } }
     );
     if (searchedReview === null) {
         throw new Error(`Review with that id could not be found!`);
@@ -126,8 +127,37 @@ export const getAllReviewsFromPlace = async (placeId) => {
 };
 
 //update review
-export const updateReview = async () => {};
+export const updateReview = async (reviewId, content, categories) => {
+    reviewId = parseObjectId(reviewId, "Review Id");
+    content = parseNonEmptyString(content, "Review content");
+    categories = parseCategories(categories);
+    const searchedReview = getReview(reviewId);
+    //if no changes were actually made, end early
+    if (content === searchedReview.content && categories === searchedReview.categories) {
+        return;
+    }
+    const updatedReview = await Place.updateOne(
+        { "reviews._id": new ObjectId(reviewId) },
+        { $set: { "reviews.content": content, "reviews.categories": categories } }
+    ).exec();
+    throwIfNullOrUndefined(updateReview);
+    //TODO: recompute average
+    return updatedReview;
+};
 //delete review
+export const deleteReview = async (reviewId) => {
+    reviewId = parseObjectId(reviewId, "Review Id");
+    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) });
+    const updateResult = await collection.updateOne(
+        { "reviews._id": reviewIdObject },
+        { $pull: { reviews: { _id: reviewIdObject } } }
+    );
+    if (!updateResult) {
+        throw new Error(`Failed to delete review with id ${reviewId}`);
+    }
+    //TODO recompute average
+    return placeReviewed;
+};
 
 //comment functions:
 
@@ -137,14 +167,77 @@ export const addPlaceComment = async (placeId, author, content) => {
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
 
-    const place = await getPlace(placeId);
+    await getPlace(placeId); //check if the place exists
+
+    const comment = await Place.updateOne(
+        { _id: placeId },
+        {
+            $push: {
+                comments: {
+                    author: author,
+                    content: content,
+                    createdAt: new Date(),
+                    likes: [],
+                    dislikes: [],
+                },
+            },
+        }
+    ).exec();
+
+    if (!comment) {
+        throw new Error(`Could not insert comment in place with id ${placeId}`);
+    }
+
+    return comment;
 };
 
 //create review comment
+export const addReviewComment = async (reviewId, author, content) => {
+    author = parseNonEmptyString(author, "Name of author");
+    content = parseNonEmptyString(content, "Content of comment");
+    reviewId = parseObjectId(reviewId, "Review Id");
+
+    await getReview(reviewId); //check if the place exists
+
+    const comment = await Place.updateOne(
+        { "reviews._id": reviewId },
+        {
+            $push: {
+                comments: {
+                    author: author,
+                    content: content,
+                    createdAt: new Date(),
+                    likes: [],
+                    dislikes: [],
+                },
+            },
+        }
+    ).exec();
+
+    if (!comment) {
+        throw new Error(`Could not insert comment in place with id ${reviewId}`);
+    }
+
+    return comment;
+};
 
 //get all comments from place/review
+export const getAllCommentsFromPlace = async (placeId) => {
+    placeId = parseObjectId(placeId);
+    const place = await getPlace(placeId);
+
+    return place.comments;
+};
+
+export const getAllCommentsFromReview = async (reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    const review = await getReview(reviewId);
+
+    return review.comments;
+};
 
 //get specific comment
+export const getComment = async () => {};
 
 //update comment
 

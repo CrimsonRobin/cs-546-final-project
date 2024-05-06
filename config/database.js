@@ -3,6 +3,8 @@ import { ObjectId } from "mongodb";
 
 const usersSchema = new Schema({
     _id: ObjectId,
+    firstname: String,
+    lastname: String,
     username: String,
     hashedPassword: String,
     createdAt: Date,
