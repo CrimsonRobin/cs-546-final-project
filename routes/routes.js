@@ -10,9 +10,10 @@
 */
 
 import express from "express";
-import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId} from "../helpers.js";
-import {getPlace, getReview} from "../data/places.js";
+import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, parseCategories, parseNonEmptyString} from "../helpers.js";
+import {getPlace, getReview, addReview, addPlaceComment, addReviewComment} from "../data/places.js";
 import {createUser, getUser, loginUser} from "../data/user.js";
+import e from "express";
 
 const router = express.Router();
   
@@ -97,13 +98,14 @@ router.route('/api/search')
         //TODO: Ajax Calls
     });
 
-router.route('/api/changePassword')
+/* router.route('/api/changePassword')
     .get(async (req, res) => {
         //AJAX Calls
     })
     .post(async (req, res) => {
 
     });
+*/
 
 router.route('/user/:id')
     .get(async (req, res) => {
@@ -128,6 +130,28 @@ router.route('/place/:id')
             return res.render("place", {title: "Place", place: place, user: req.session ? req.session.user : undefined});
         } catch (error) {
             return res.status(404).render("error", {title: "Place Not Found", error: error.message, user: req.session ? req.session.user : undefined});
+        }
+    });
+
+router.route('/place/:id/addReview')
+    .post(async (req, res) => {
+        let errors = [];
+
+        req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
+        req.body.author = tryCatchChain(errors, parseNonEmptyString(req.body.author, "Name of author"));
+        req.body.content = tryCatchChain(errors, parseNonEmptyString(req.body.content, "Content of review"));
+        req.body.categories = tryCatchChain(errors, parseCategories(req.body.categories));
+
+        if(errors.length > 0) {
+            return res.status(400).render("error", {title: "Add Review Failed", errors: errors});
+        }
+
+        try {
+            const review = await addReview(req.params.id, req.body.author, req.body.content, req.body.categories);
+
+            return res.redirect(`/review/${review._id.toString()}`);
+        } catch (error) { //Internal Error
+            return res.render("error", {title: "Add Review Failed", error: error.message, user: req.session ? req.session.user : undefined})
         }
     });
 
