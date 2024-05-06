@@ -3,11 +3,15 @@ import {
     assertIsNotNaN,
     assertTypeIs,
     degreesToRadians,
-    exactlyOneElement, haversin, normalizeLongitude, parseLatitude,
-    parseNonEmptyString, parseNumber,
+    exactlyOneElement,
+    haversin,
+    normalizeLongitude,
+    parseLatitude,
+    parseNonEmptyString,
+    parseNumber,
     roundTo,
     sleep,
-    throwIfNotString
+    throwIfNotString,
 } from "../helpers.js";
 import Enumerable from "linq";
 
@@ -16,7 +20,7 @@ import Enumerable from "linq";
  * @type {string}
  @author Anthony Webster
  */
-const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/"
+const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/";
 
 /**
  * The endpoint for looking up details about a place on Nominatim.
@@ -146,7 +150,7 @@ export const parseOsmId = (osmId) =>
         throw new Error("OSM ID cannot be an empty string");
     }
     return osmId;
-}
+};
 
 /**
  * Gets the URL for the given Nominatim endpoint.
@@ -158,7 +162,7 @@ export const parseOsmId = (osmId) =>
 const getNominatimApiUrl = (endpoint) =>
 {
     return new URL(endpoint, NOMINATIM_API_BASE_URL);
-}
+};
 
 /**
  * Make a generic get request to the Nominatim API at the given URL.
@@ -185,11 +189,11 @@ const makeNominatimApiRequest = async (url) =>
     }
 
     const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         // body: params,
         headers: {
-            "User-Agent": "curl/8.7.1"
-        }
+            "User-Agent": "curl/8.7.1",
+        },
     });
 
     return await response.json();
@@ -241,9 +245,9 @@ const parseNominatimLookupResult = (data) =>
         addressType: data.addresstype,
 
         // Extra information
-        extraTags: data.extratags
+        extraTags: data.extratags,
     });
-}
+};
 
 /**
  * Lookup many places at a time on Nominatim.
@@ -275,9 +279,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
         }
 
         const params = [
-            ["osm_ids", waypoints
-                .map(p => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`))
-                .join(",")],
+            ["osm_ids", waypoints.map((p) => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`)).join(",")],
             // Need results in JSON format
             ["format", "jsonv2"],
             // include a full list of names for the result. These may include language variants,
@@ -286,12 +288,12 @@ const nominatimLookupMany = async (typeIdPairs) =>
             // Include extra address details
             ["addressdetails", "1"],
             // Include extra info about the place
-            ["extratags", "1"]
+            ["extratags", "1"],
         ];
 
-        params.forEach(p => url.searchParams.append(p[0], p[1]));
+        params.forEach((p) => url.searchParams.append(p[0], p[1]));
 
-        (await makeNominatimApiRequest(url)).forEach(x => results.push(parseNominatimLookupResult(x)));
+        (await makeNominatimApiRequest(url)).forEach((x) => results.push(parseNominatimLookupResult(x)));
     }
 
     return results;
@@ -324,7 +326,7 @@ export const nominatimSearch = async (query) =>
     url.searchParams.append("q", query);
     url.searchParams.append("format", "jsonv2");
     const data = await makeNominatimApiRequest(url.toString());
-    return await nominatimLookupMany(data.map(r => [r.osm_type, r.osm_id]));
+    return await nominatimLookupMany(data.map((r) => [r.osm_type, r.osm_id]));
 };
 
 /**
@@ -416,15 +418,15 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
         // If the search radius is smaller than 10 miles, the calculated distances will probably be
         // good enough. We'll add just a little bit to account for any other errors (such as floating
         // point error, different anchor point for a place, etc.)
-        searchRadius += 0.02;  // About 150 feet
+        searchRadius += 0.02; // About 150 feet
     }
 
     // const halfRadius = searchRadius / 2.0;  // miles
     searchRadius /= 2.0;
 
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
-    const milesPerDegreeOfLatitude = 69.0;  // mi/deg
-    const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude);  // mi/deg
+    const milesPerDegreeOfLatitude = 69.0; // mi/deg
+    const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude); // mi/deg
 
     // Compute how many degrees we need to move
     // (mi/deg) * (1/mi) = 1/deg
@@ -440,11 +442,11 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     // TODO: Wrap on overflow
     return {
         // Pair 1 will be the top left corner
-        x1: currentLatitude + (latitudeDegPerMile * searchRadius),
+        x1: currentLatitude + latitudeDegPerMile * searchRadius,
         y1: currentLongitude < 0 ? currentLongitude - longitudeDiff : currentLongitude + longitudeDiff,
         // Pair 2 will be the bottom right corner
-        x2: currentLatitude - (latitudeDegPerMile * searchRadius),
-        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff
+        x2: currentLatitude - latitudeDegPerMile * searchRadius,
+        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff,
     };
 };
 
@@ -459,7 +461,7 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
  * @returns {number} The parsed search radius.
  * @author Anthony Webster
  */
-const parseSearchRadius = (radius) =>
+export const parseSearchRadius = (radius) =>
 {
     assertTypeIs(radius, "number", "search radius");
     assertIsNotNaN(radius, "search radius");
@@ -494,13 +496,16 @@ const parseSearchRadius = (radius) =>
  * @returns {number} The distance in miles between the given coordinates.
  * @author Anthony Webster
  */
-const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
+export const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
 {
+    lat1 = parseLatitude(lat1);
+    lon1 = normalizeLongitude(lon1);
+    lat2 = parseLatitude(lat2);
+    lon2 = normalizeLongitude(lon2);
     // Adapted from <https://stackoverflow.com/a/27943> and <https://en.wikipedia.org/wiki/Haversine_formula>
     const dLat = degreesToRadians(lat2 - lat1);
     const dLon = degreesToRadians(lon2 - lon1);
-    const a =
-        haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
+    const a = haversin(dLat) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) * haversin(dLon);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return EARTH_RADIUS_IN_MILES * c;
 };
@@ -565,7 +570,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
         if (placeIdsToExclude.length > 0)
         {
-            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map(i => encodeURIComponent(i)).join(","));
+            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map((i) => encodeURIComponent(i)).join(","));
         }
 
         const data = await makeNominatimApiRequest(url);
@@ -577,14 +582,14 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
         }
 
         // Exclude current search results from next query and record the places we need to lookup.
-        data.forEach(d =>
+        data.forEach((d) =>
         {
             placeIdsToExclude.push(d.place_id.toString());
 
             // Don't lookup duplicate places
             const osmType = parseOsmType(d.osm_type);
             const osmId = parseOsmId(d.osm_id);
-            if (!placesToLookup.some(r => r[0] === osmType && r[1] === osmId))
+            if (!placesToLookup.some((r) => r[0] === osmType && r[1] === osmId))
             {
                 placesToLookup.push([osmType, osmId]);
             }
@@ -592,6 +597,8 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     }
 
     return Enumerable.from(await nominatimLookupMany(placesToLookup))
-        .orderBy(place => distanceBetweenPointsMiles(currentLatitude, currentLongitude, place.latitude, place.longitude))
+        .orderBy((place) =>
+            distanceBetweenPointsMiles(currentLatitude, currentLongitude, place.latitude, place.longitude)
+        )
         .toArray();
 };
