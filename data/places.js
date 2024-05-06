@@ -163,16 +163,18 @@ export const deleteReview = async (reviewId) => {
  * Computes the average ratings for each disability category for a place.
  *
  * @param {string} placeId The ID of the place to calculate the average for.
- * @returns {Promise<{DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
- * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}>} An object
- * containing the average ratings by category. If a place does not have ratings for a given category, then
- * that category's average rating is `null`.
+ * @returns {Promise<{overall: (number|null), byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}}>} An object
+ * containing the overall average rating and average ratings by category. If a place does not have ratings
+ * for a given category, then that category's average rating is `null`.
  * @author Anthony Webster
  */
-export const getAverageCategoryRatings = async (placeId) =>
+export const getAverageRatings = async (placeId) =>
 {
     // Let's take the easy way out and do this in JS instead.
     const place = await getPlace(placeId);
+    let overallTotal = 0;
+    let overallCount = 0;
     const ratings = {
         DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
@@ -188,6 +190,8 @@ export const getAverageCategoryRatings = async (placeId) =>
             }
             ratings[categoryName].count++;
             ratings[categoryName].total += rating;
+            overallTotal += rating;
+            overallCount++;
         }
     }
 
@@ -197,7 +201,10 @@ export const getAverageCategoryRatings = async (placeId) =>
         averaged[category] = count === 0 ? null : total / count;
     }
 
-    return averaged;
+    return {
+        overall: overallCount === 0 ? null : overallTotal / overallCount,
+        byCategory: averaged
+    };
 };
 
 //comment functions:
