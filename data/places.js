@@ -5,6 +5,7 @@ import {
     normalizeLongitude,
     parseLatitude,
     removeDuplicates,
+    throwIfNullOrUndefined,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -130,8 +131,33 @@ export const updateReview = async (reviewId, content, categories) => {
     reviewId = parseObjectId(reviewId, "Review Id");
     content = parseNonEmptyString(content, "Review content");
     categories = parseCategories(categories);
+    const searchedReview = getReview(reviewId);
+    //if no changes were actually made, end early
+    if (content === searchedReview.content && categories === searchedReview.categories) {
+        return;
+    }
+    const updatedReview = await Place.updateOne(
+        { "reviews._id": new ObjectId(reviewId) },
+        { $set: { "reviews.content": content, "reviews.categories": categories } }
+    ).exec();
+    throwIfNullOrUndefined(updateReview);
+    //TODO: recompute average
+    return updatedReview;
 };
 //delete review
+export const deleteReview = async (reviewId) => {
+    reviewId = parseObjectId(reviewId, "Review Id");
+    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) });
+    const updateResult = await collection.updateOne(
+        { "reviews._id": reviewIdObject },
+        { $pull: { reviews: { _id: reviewIdObject } } }
+    );
+    if (!updateResult) {
+        throw new Error(`Failed to delete review with id ${reviewId}`);
+    }
+    //TODO recompute average
+    return placeReviewed;
+};
 
 //comment functions:
 
@@ -196,24 +222,22 @@ export const addReviewComment = async (reviewId, author, content) => {
 };
 
 //get all comments from place/review
-export const getAllCommentsFromPlace = async(placeId) => {
+export const getAllCommentsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
     const place = await getPlace(placeId);
 
     return place.comments;
 };
 
-export const getAllCommentsFromReview = async(reviewId) => {
+export const getAllCommentsFromReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId);
     const review = await getReview(reviewId);
 
     return review.comments;
-}
+};
 
 //get specific comment
-export const getComment = async() => {
-
-};
+export const getComment = async () => {};
 
 //update comment
 
