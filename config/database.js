@@ -23,14 +23,14 @@ const placesSchema = new Schema({
             createdAt: Date,
             likes: [{ type: String, ref: "users" }],
             dislikes: [{ type: String, ref: "users" }],
-            replies: [{
-                _id: Schema.Types.ObjectId,
-                author: { type: String, ref: "users" },
-                content: String,
-                createdAt: Date,
-                likes: [{ type: String, ref: "users" }],
-                dislikes: [{ type: String, ref: "users" }],
-            }]
+            replies: [
+                {
+                    _id: Schema.Types.ObjectId,
+                    author: { type: String, ref: "users" },
+                    content: String,
+                    createdAt: Date,
+                },
+            ],
         },
     ],
     location: {
@@ -64,14 +64,14 @@ const placesSchema = new Schema({
                     createdAt: Date,
                     likes: [{ type: String, ref: "users" }],
                     dislikes: [{ type: String, ref: "users" }],
-                    replies: [{
-                        _id: Schema.Types.ObjectId,
-                        author: { type: String, ref: "users" },
-                        content: String,
-                        createdAt: Date,
-                        likes: [{ type: String, ref: "users" }],
-                        dislikes: [{ type: String, ref: "users" }],
-                    }]
+                    replies: [
+                        {
+                            _id: Schema.Types.ObjectId,
+                            author: { type: String, ref: "users" },
+                            content: String,
+                            createdAt: Date,
+                        },
+                    ],
                 },
             ],
         },
