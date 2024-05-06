@@ -1,16 +1,20 @@
-<form id="signin-form" action="/login" method="post">
-  <label for="username">Username:
-    <input type="text" name="username" id="username" required/>
-  </label>
+<div class="login-register">
+    <img class="light" src="/public/assets/logo-light.svg" alt="a11y logo">
+    <img class="dark" src="/public/assets/logo-dark.svg" alt="a11y logo">
+    <form id="signin-form" action="/login" method="post">
+        <label for="username">Username:
+            <input type="text" name="username" id="username" required/>
+        </label>
 
-  <br />
-  <label for="password">Password:
-    <input type="password" name="password" id="password" required/>
-  </label>
+        <br/>
+        <label for="password">Password:
+            <input type="password" name="password" id="password" required/>
+        </label>
 
-  <br />
-  <button type="submit" name="submitButton" id="submitButton">Submit</button>
-</form>
-<br />
-<div id="error" class="error" hidden>Error</div>
-<a href="/register">Click here to register!</a>
+        <br/>
+        <button type="submit" name="submitButton" id="submitButton">Submit</button>
+    </form>
+    <br/>
+    <div id="error" class="error" hidden>Error</div>
+    <a href="/register">Click here to register!</a>
+</div>
