@@ -140,7 +140,7 @@ export const getUserReviews = async (userId) =>
 /**
  * Computes the average ratings by category for a user across all reviews that the given user has posted.
  * @param {string} userId The ID of the user to compute averages for.
- * @returns {Promise<{overall: number, byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * @returns {Promise<{overall: (number|null), byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
  * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}}>} An object
  * containing the overall average rating and average ratings by category. If a place does not have ratings
  * for a given category, then that category's average rating is `null`.
@@ -175,7 +175,7 @@ export const getUserAverageRatings = async (userId) =>
         averages[categoryName] = count === 0 ? null : total / count;
     }
     return {
-        overall: overallTotal / overallCount,
+        overall: overallCount === 0 ? null : overallTotal / overallCount,
         byCategory: averages
     };
 };
