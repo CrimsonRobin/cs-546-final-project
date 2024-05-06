@@ -114,11 +114,14 @@ export const addReview = async (placeId, author, content, categories) => {
 //get specific review
 export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review id");
-    const result = await Place.findOne({ _id: ObjectId.createFromHexString(reviewId) }).exec();
-    if (!result) {
-        throw new Error(`Failed to find product with id ${reviewId}`);
+    const searchedReview = await prods.findOne(
+        { reviews: { $elemMatch: { _id: new ObjectId(reviewId) } } },
+        { projection: { "reviews.$": 1, _id: 0 } }
+    );
+    if (searchedReview === null) {
+        throw new Error(`Review with that id could not be found!`);
     }
-    return result;
+    return searchedReview;
 };
 //get all from specific place
 export const getAllReviewsFromPlace = async (placeId) => {
@@ -149,7 +152,7 @@ export const getUserReviews = async (userId) => {
 };
 
 //update review
-
+export const updateReview = async () => {};
 //delete review
 
 //comment functions:
