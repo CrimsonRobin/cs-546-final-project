@@ -11,6 +11,9 @@
 
 import express from "express";
 import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox} from "../helpers.js";
+import places from "../data/places.js";
+import reviews from "../data/reviews.js";
+import {createUser, getUser, } from "../data/user.js";
 
 const router = express.Router();
   
@@ -22,21 +25,24 @@ router.route('/register')
         //need to validate first name, last name, username, password, confirm password
         let errors = [];
 
-        req.firstName = tryCatchChain(errors, () => parseStringWithLengthBounds(req.firstName, 1, 100, true, "First Name"));
-        req.lastName = tryCatchChain(errors, () => parseStringWithLengthBounds(req.lastName, 1, 100, true, "Last Name"));
-        req.username = tryCatchChain(errors, () => parseStringWithLengthBounds(req.username, 3, 25, true, "Username"));
-        req.password = tryCatchChain(errors, () => parsePassword(req.password));
-        req.confirmPassword = tryCatchChain(errors, () => parsePassword(req.confirmPassword));
+        req.body.firstName = tryCatchChain(errors, () => parseStringWithLengthBounds(req.body.firstName, 1, 100, true, "First Name"));
+        req.body.lastName = tryCatchChain(errors, () => parseStringWithLengthBounds(req.body.lastName, 1, 100, true, "Last Name"));
+        req.body.username = tryCatchChain(errors, () => parseStringWithLengthBounds(req.body.username, 3, 25, true, "Username"));
+        req.body.password = tryCatchChain(errors, () => parsePassword(req.body.password));
+        req.body.confirmPassword = tryCatchChain(errors, () => parsePassword(req.body.confirmPassword));
 
-        req.physical = tryCatchChain(errors, () => validCheckbox(req.physical, "Physical Checkbox"));
-        req.sensory = tryCatchChain(errors, () => validCheckbox(req.sensory, "Sensory Checkbox"));
-        req.neurodivergent = tryCatchChain(errors, () => validCheckbox(req.neurodivergent, "Neurodivergent Checkbox"));
+        req.body.physical = tryCatchChain(errors, () => validCheckbox(req.body.physical, "Physical Checkbox"));
+        req.body.sensory = tryCatchChain(errors, () => validCheckbox(req.body.sensory, "Sensory Checkbox"));
+        req.body.neurodivergent = tryCatchChain(errors, () => validCheckbox(req.body.neurodivergent, "Neurodivergent Checkbox"));
 
         if(errors.length > 0) {
             return res.status(400).render("register", {title: "Register", errors: errors});
         }
 
-       //TODO: DB functions
+        const user = await createUser(req.body.firstName, req.body.lastName, req.body.username, req.body.password, 
+            req.body.physical, req.body.sensory, req.body.neurodivergent);
+
+        
     });
   
 router.route('/login')
@@ -71,6 +77,14 @@ router.route('/')
 router.route('/api/search')
     .get(async (req, res) => {
         //TODO: Ajax Calls
+    });
+
+router.route('/api/changePassword')
+    .get(async (req, res) => {
+
+    })
+    .post(async (req, res) => {
+
     });
 
 router.route('/user')
