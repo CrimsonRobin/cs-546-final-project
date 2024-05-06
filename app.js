@@ -74,6 +74,12 @@ app.use("/logout", (req, res, next) => {
     }
 });
 
+/*app.use("/review/:id", (req, res, next ) =>{
+    if (req.method === "patch" || req.method === "delete"){
+        //if user is not the same as the author of the review, do not allow
+    }
+})*/
+
 configRoutes(app);
 
 connectToDatabase()
