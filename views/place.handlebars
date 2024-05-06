@@ -1,39 +1,42 @@
 {{> navbar }}
 
-{{#with place}}
-    <h1>{{name}}</h1>
-    <p>{{description}}</p>
-    <h2>Average Rating:</h2>
-    <p>{{ratings.averageRating}}</p>
-    <section>
-        <h3>Physical accessibility:</h3>
-        <p>{{ratings.physicalRating}}</p>
-        <h3>Sensory accessibility:</h3>
-        <p>{{ratings.sensoryRating}}</p>
-        <h3>Neurodivergent accessibility:</h3>
-        <p>{{ratings.neurodivergentRating}}</p>
-    </section>
-
-    <div class="two-pane">
+<main>
+    {{#with place}}
+        <h1>{{name}}</h1>
+        <p>{{description}}</p>
+        <h2>Average Rating</h2>
+        <p>{{ratings.averageRating}}</p>
         <section>
-            <h2>Reviews</h2>
-            {{#unless reviews.length}}
-                <p class="empty-section">No reviews yet!</p>
-            {{/unless}}
-            {{#each reviews}}
-                {{> reviewCard this }}
-            {{/each}}
+            <h3>Physical accessibility:</h3>
+            <p>{{ratings.physicalRating}}</p>
+            <h3>Sensory accessibility:</h3>
+            <p>{{ratings.sensoryRating}}</p>
+            <h3>Neurodivergent accessibility:</h3>
+            <p>{{ratings.neurodivergentRating}}</p>
         </section>
-        <section>
-            {{#unless comments.length}}
-                <p class="empty-section">No comments yet!</p>
-            {{/unless}}
-            <h2>Comments</h2>
-            {{#each comments}}
-                {{> commentCard this }}
-            {{/each}}
-        </section>
-    </div>
 
-
-{{/with}}
+        <div class="two-pane">
+            <section>
+                <h2>Reviews</h2>
+                {{#unless reviews.length}}
+                    <p class="empty-section">No reviews yet!</p>
+                {{/unless}}
+                {{#if ../user}}
+                    <button><span class="material-symbols-outlined">plus</span>Add Review</button>
+                {{/if}}
+                {{#each reviews}}
+                    {{> reviewCard this }}
+                {{/each}}
+            </section>
+            <section>
+                <h2>Comments</h2>
+                {{#unless comments.length}}
+                    <p class="empty-section">No comments yet!</p>
+                {{/unless}}
+                {{#each comments}}
+                    {{> commentCard comment=this reply=true user=../user}}
+                {{/each}}
+            </section>
+        </div>
+    {{/with}}
+</main>
