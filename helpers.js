@@ -643,10 +643,6 @@ export const removeDuplicates = (array) => {
     return seen;
 };
 
-(function () {
-    const cs = parseCategories(["neurodivergent"]);
-})();
-
 /**
  * Parse a list of categories.
  *
