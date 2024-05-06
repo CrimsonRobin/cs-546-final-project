@@ -5,7 +5,7 @@ import {
     normalizeLongitude,
     parseLatitude,
     removeDuplicates,
-    throwIfNullOrUndefined,
+    throwIfNullOrUndefined, roundTo,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -157,6 +157,47 @@ export const deleteReview = async (reviewId) => {
     }
     //TODO recompute average
     return placeReviewed;
+};
+
+/**
+ * Computes the average ratings for each disability category for a place.
+ *
+ * @param {string} placeId The ID of the place to calculate the average for.
+ * @returns {Promise<{DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}>} An object
+ * containing the average ratings by category. If a place does not have ratings for a given category, then
+ * that category's average rating is `null`.
+ * @author Anthony Webster
+ */
+export const getAverageCategoryRatings = async (placeId) =>
+{
+    // Let's take the easy way out and do this in JS instead.
+    const place = await getPlace(placeId);
+    const ratings = {
+        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
+    };
+    for (const categories of place.reviews.map(r => r.categories))
+    {
+        for (const { categoryName, rating } of categories)
+        {
+            if (ratings[categoryName] === undefined)
+            {
+                ratings[categoryName] = { count: 0, total: 0 };
+            }
+            ratings[categoryName].count++;
+            ratings[categoryName].total += rating;
+        }
+    }
+
+    const averaged = {};
+    for (const [category, { count, total }] in Object.entries(ratings))
+    {
+        averaged[category] = count === 0 ? null : total / count;
+    }
+
+    return averaged;
 };
 
 //comment functions:
