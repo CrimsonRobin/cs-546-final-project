@@ -1,34 +1,41 @@
 import {
     parseNonEmptyString,
     parseObjectId,
-    parseQualifications
+    parsePassword,
+    parseQualifications,
+    removeDuplicates,
 } from "../helpers.js";
 import { Place, User } from "../config/database.js";
 import { ObjectId } from "mongodb";
 import { DateTime } from "luxon";
+import bcrypt from 'bcryptjs';
 
 // Create User
-export const parseUserFields = (username, hashedPassword, qualifications) => {
+export const parseUserFields = (firstname, lastname, username, password, qualifications) => {
     // If name and description are not strings or are empty strings, the method should throw.
     return {
+        firstname: parseNonEmptyString(firstname, "Firstname"),
+        lastname: parseNonEmptyString(lastname, "Lastname"),
         username: parseNonEmptyString(username, "Username"),
-        hashedPassword: parseNonEmptyString(hashedPassword, "Password"),
+        hashedPassword: parseNonEmptyString(password, "Password"),
         qualifications: parseQualifications(qualifications),
     };
 };
 
-export const createUser = async (username, hashedPassword, qualifications) => {
-    const parsed = parseUserFields(username, hashedPassword, qualifications);
+export const createUser = async (firstname, lastname, username, password, qualifications) => {
+    const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
     const document = new User({
         _id: ObjectId,
+        firstname: firstname,
+        lastname: lastname,
         username: username,
-        hashedPassword: hashedPassword,
+        hashedPassword: await bcrypt.hash(password, 12),
         createdAt: DateTime.now().toBSON(),
-        qualifications: qualifications,
+        qualifications: removeDuplicates(qualifications),
     });
 
     await document.save();
-    return document;
+    return true;
 };
 
 // Get User
@@ -67,6 +74,33 @@ export const getNumReview = (userId) => {
 // Get expertise
 export const getExpertise = (userId) => {
     return getUser(userId).qualifications;
+};
+
+export const loginUser = async (username, password) => {
+
+    username = parseStringWithLengthBounds(username, 3, 25);
+    password = parsePassword(password);
+  
+    const userCollection = await User();
+    const existingUser = await userCollection.findOne({ username: username });
+  
+    if (!existingUser) {
+      throw "Either the username or password is invalid";
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+  
+    if (!isPasswordValid) {
+      throw "Either the username or password is invalid";
+    }
+  
+    return {
+        firstname: existingUser.firstname,
+        lastname: existingUser.lastname,
+        username: existingUser.username,
+        createdAt: existingUser.createdAt,
+        qualifications: existingUser.qualifications,
+    };
 };
 
 /**
