@@ -70,7 +70,7 @@ export const getPlace = async (placeId) => {
     if (!foundPlace) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    foundPlace.avgRating = await getAverageCategoryRatings(foundPlace);
+    foundPlace.avgRatings = await getAverageCategoryRatings(foundPlace);
     return foundPlace;
 };
 
