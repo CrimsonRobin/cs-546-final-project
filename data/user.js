@@ -35,7 +35,7 @@ export const createUser = async (firstname, lastname, username, password, qualif
         firstname: firstname,
         lastname: lastname,
         username: username,
-        hashedPassword: await bcrypt.hash(password, 12),
+        hashedPassword: await bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
         qualifications: removeDuplicates(qualifications),
     });
