@@ -72,8 +72,8 @@ app.use("/register", redirectHome);
 
 app.use("/logout", redirectLogin);
 //TODO fix placeholder stuff
-app.use("/places:placeId/createReview", redirectLogin);
-app.use("/places:placeId/comment", redirectLogin);
+app.use("/place/:id/addReview", redirectLogin);
+app.use("/place/:id/addComment", redirectLogin);
 //TODO add like and dislike handling
 
 /*app.use("/review/:id", (req, res, next ) =>{
