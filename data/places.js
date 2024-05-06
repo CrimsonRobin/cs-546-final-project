@@ -5,7 +5,8 @@ import {
     normalizeLongitude,
     parseLatitude,
     removeDuplicates,
-    throwIfNullOrUndefined, roundTo,
+    throwIfNullOrUndefined,
+    roundTo,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -65,14 +66,13 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
 
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
-    const result = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
-    if (!result) {
+    const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
+    if (!foundPlace) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    return result;
+    foundPlace.avgRatings = await getAverageCategoryRatings(foundPlace);
+    return foundPlace;
 };
-
-//delete places?
 
 //review functions:
 
@@ -103,8 +103,6 @@ export const addReview = async (placeId, author, content, categories) => {
     if (!review) {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
-    //TODO: recompute average rating of place
-
     return review;
 };
 //get specific review
@@ -136,26 +134,26 @@ export const updateReview = async (reviewId, content, categories) => {
     if (content === searchedReview.content && categories === searchedReview.categories) {
         return;
     }
-    const updatedReview = await Place.updateOne(
+    const updatedPlace = await Place.findOneAndUpdate(
         { "reviews._id": new ObjectId(reviewId) },
         { $set: { "reviews.content": content, "reviews.categories": categories } }
     ).exec();
     throwIfNullOrUndefined(updateReview);
-    //TODO: recompute average
-    return updatedReview;
+    //recompute average
+    getAverageCategoryRatings(updatedPlace._id);
+    return searchedReview;
 };
 //delete review
 export const deleteReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review Id");
-    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) });
-    const updateResult = await collection.updateOne(
-        { "reviews._id": reviewIdObject },
-        { $pull: { reviews: { _id: reviewIdObject } } }
-    );
+    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) }).exec();
+    const updateResult = await Place.updateOne(
+        { "reviews._id": new ObjectId(reviewId) },
+        { $pull: { reviews: { _id: new ObjectId(reviewId) } } }
+    ).exec();
     if (!updateResult) {
         throw new Error(`Failed to delete review with id ${reviewId}`);
     }
-    //TODO recompute average
     return placeReviewed;
 };
 
@@ -169,8 +167,7 @@ export const deleteReview = async (reviewId) => {
  * for a given category, then that category's average rating is `null`.
  * @author Anthony Webster
  */
-export const getAverageRatings = async (placeId) =>
-{
+export const getAverageCategoryRatings = async (placeId) => {
     // Let's take the easy way out and do this in JS instead.
     const place = await getPlace(placeId);
     let overallTotal = 0;
@@ -180,12 +177,9 @@ export const getAverageRatings = async (placeId) =>
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
         DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
     };
-    for (const categories of place.reviews.map(r => r.categories))
-    {
-        for (const { categoryName, rating } of categories)
-        {
-            if (ratings[categoryName] === undefined)
-            {
+    for (const categories of place.reviews.map((r) => r.categories)) {
+        for (const { categoryName, rating } of categories) {
+            if (ratings[categoryName] === undefined) {
                 ratings[categoryName] = { count: 0, total: 0 };
             }
             ratings[categoryName].count++;
@@ -196,8 +190,7 @@ export const getAverageRatings = async (placeId) =>
     }
 
     const averaged = {};
-    for (const [category, { count, total }] in Object.entries(ratings))
-    {
+    for (const [category, { count, total }] in Object.entries(ratings)) {
         averaged[category] = count === 0 ? null : total / count;
     }
 
@@ -286,10 +279,6 @@ export const getAllCommentsFromReview = async (reviewId) => {
 
 //get specific comment
 export const getComment = async () => {};
-
-//update comment
-
-//delete comment
 
 //search
 const stateAbbreviationToFullNameMap = {
