@@ -113,7 +113,7 @@ export const getReview = async (reviewId) => {
     const searchedReview = await Place.findOne(
         { "reviews._id": new ObjectId(reviewId) },
         { projection: { "reviews.$": true, _id: false } }
-    );
+    ).exec();
     if (searchedReview === null) {
         throw new Error(`Review with that id could not be found!`);
     }
