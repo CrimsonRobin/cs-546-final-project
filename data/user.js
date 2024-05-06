@@ -17,7 +17,8 @@ import bcrypt from 'bcryptjs';
 export const BCRYPT_SALT_ROUNDS = 12;
 
 // Create User
-export const parseUserFields = (firstname, lastname, username, password, qualifications) => {
+export const parseUserFields = (firstname, lastname, username, password, qualifications) =>
+{
     // If name and description are not strings or are empty strings, the method should throw.
     return {
         firstname: parseNonEmptyString(firstname, "Firstname"),
@@ -28,7 +29,8 @@ export const parseUserFields = (firstname, lastname, username, password, qualifi
     };
 };
 
-export const createUser = async (firstname, lastname, username, password, qualifications) => {
+export const createUser = async (firstname, lastname, username, password, qualifications) =>
+{
     const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
     const document = new User({
         _id: ObjectId,
@@ -45,61 +47,72 @@ export const createUser = async (firstname, lastname, username, password, qualif
 };
 
 // Get User
-export const getUser = async (userId) => {
+export const getUser = async (userId) =>
+{
     userId = parseObjectId(userId, "User id");
     const collection = await User();
     const result = await collection.findOne({
         _id: ObjectId.createFromHexString(userId),
     });
-    if (!result) {
+    if (!result)
+    {
         throw new Error(`Failed to find product with id ${userId}`);
     }
     result._id = result._id.toString();
     return result;
 };
 // Get All Users
-export const getUsers = async () => {
+export const getUsers = async () =>
+{
     const userCollection = await User();
     let userList = await userCollection.find({}).toArray();
     return userList;
 };
 // Update User
-export const updateUser = async (userId) => {};
+export const updateUser = async (userId) =>
+{
+};
 // Get Average Rating
-export const getAvgRating = (userId) => {
+export const getAvgRating = (userId) =>
+{
     let allReviews = getUserReviews(userId).reviews;
     let sum = allReviews.reduce((total, currVal) => total + Number(currVal.rating), 0);
     let avg = sum / allReviews.length;
     return avg;
 };
 // Get amount of reviews
-export const getNumReview = (userId) => {
+export const getNumReview = (userId) =>
+{
     let allReviews = getUserReviews(userId).reviews;
     return allReviews.length;
 };
 // Get expertise
-export const getExpertise = (userId) => {
+export const getExpertise = (userId) =>
+{
     return getUser(userId).qualifications;
 };
 
-export const loginUser = async (username, password) => {
+export const loginUser = async (username, password) =>
+{
 
     username = parseStringWithLengthBounds(username, 3, 25);
     password = parsePassword(password);
-  
+
     const userCollection = await User();
     const existingUser = await userCollection.findOne({ username: username });
-  
-    if (!existingUser) {
-      throw "Either the username or password is invalid";
+
+    if (!existingUser)
+    {
+        throw "Either the username or password is invalid";
     }
-  
+
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
-  
-    if (!isPasswordValid) {
-      throw "Either the username or password is invalid";
+
+    if (!isPasswordValid)
+    {
+        throw "Either the username or password is invalid";
     }
-  
+
     return {
         firstname: existingUser.firstname,
         lastname: existingUser.lastname,
@@ -113,7 +126,7 @@ export const loginUser = async (username, password) => {
  * Gets all reviews for the given user.
  *
  * @param {string} userId The ID of the user.
- * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
+ * @returns {Promise<{_id: string, reviews: any[]}[]>} The reviews that the user has posted across all places.
  * @author Anthony Webster
  */
 export const getUserReviews = async (userId) =>
@@ -133,4 +146,40 @@ export const getUserReviews = async (userId) =>
     }
 
     return reviews;
+};
+
+/**
+ * Computes the average ratings by category for a user across all reviews that the given user has posted.
+ * @param {string} userId The ID of the user to compute averages for.
+ * @returns {Promise<{DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}>} An object
+ * containing the average ratings by category. If a place does not have ratings for a given category, then
+ * that category's average rating is `null`.
+ * @author Anthony Webster
+ */
+export const getUserAverageRatingsByCategory = async (userId) =>
+{
+    const userReviews = (await getUserReviews(userId)).flatMap(u => u.reviews).flatMap(r => r.categories);
+    const aggregates = {
+        DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 }
+    };
+
+    for (const { categoryName, rating } of userReviews)
+    {
+        if (aggregates[categoryName] === undefined)
+        {
+            aggregates[categoryName] = { count: 0, total: 0 };
+        }
+        aggregates[categoryName].count++;
+        aggregates[categoryName].total += rating;
+    }
+
+    const averages = {};
+    for (const [categoryName, { count, total }] of Object.entries(aggregates))
+    {
+        averages[categoryName] = count === 0 ? null : total / count;
+    }
+    return averages;
 };
