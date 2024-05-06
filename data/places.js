@@ -136,11 +136,60 @@ export const addPlaceComment = async (placeId, author, content) => {
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
+    
+    await getPlace(placeId); //check if the place exists
 
-    const place = await getPlace(placeId);
+    const comment = await Place.updateOne(
+        { _id: placeId },
+        {
+            $push: {
+                comments: {
+                    author: author,
+                    content: content,
+                    createdAt: new Date(),
+                    likes: [],
+                    dislikes: [],
+                },
+            },
+        }
+    ).exec();
+
+    if (!comment) {
+        throw new Error(`Could not insert comment in place with id ${placeId}`);
+    }
+
+    return comment;
 };
 
 //create review comment
+export const addReviewComment = async(reviewId, author, content) => {
+    author = parseNonEmptyString(author, "Name of author");
+    content = parseNonEmptyString(content, "Content of comment");
+    reviewId = parseObjectId(reviewId, "Review Id");
+    
+    await getReview(reviewId); //check if the place exists
+
+    const comment = await Place.updateOne(
+        { 'reviews._id': reviewId },
+        {
+            $push: {
+                comments: {
+                    author: author,
+                    content: content,
+                    createdAt: new Date(),
+                    likes: [],
+                    dislikes: [],
+                },
+            },
+        }
+    ).exec();
+
+    if (!comment) {
+        throw new Error(`Could not insert comment in place with id ${reviewId}`);
+    }
+
+    return comment;
+};
 
 //get all comments from place/review
 
