@@ -1,14 +1,13 @@
 {{> navbar }}
 
-<h1>Establishments near you</h1>
-<form action="/" id="search">
-    <input type="text" name="search-query" placeholder="Search establishments..." aria-label="Search">
-    <button type="submit">Search</button>
-</form>
+<main>
+    <h1>Establishments near you</h1>
+    <form action="/" id="search">
+        <input type="text" name="search-query" placeholder="Search establishments..." aria-label="Search">
+        <button type="submit">Search</button>
+    </form>
 
-<div id="home-feed">
-    {{#each establishments}}
-        {{!TODO add establishment component}}
-        <p>{{this.name}}</p>
-    {{/each}}
-</div>
+    <div id="results">
+        {{> searchResults }}
+    </div>
+</main>

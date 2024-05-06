@@ -1,8 +1,15 @@
-{{> navbar }}
-
-<main>
-    {{#with review}}
-        <h2 class="{{ratings.averageRating}}">{{ratings.averageRating}}</h2>
+{{#with place}}
+    <a href="/places/{{_id}}"></a>
+    <div class="card place">
+        <div class="overall-rating {{ratings.averageRating}}">
+            <p>{{ratings.averageRating}}</p>
+        </div>
+        <div class="main">
+            <h2>{{name}}</h2>
+            <p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>{{address}}</p>
+            <p><span class="material-symbols-outlined" aria-hidden="true">star</span>{{ratings.length}}</p>
+            <p><span class="material-symbols-outlined" aria-hidden="true">comment</span>{{comments.length}}</p>
+        </div>
         <div class="individual-ratings">
             <p><span class="material-symbols-outlined" aria-hidden="true">accessible_forward</span>Physical
                 <span class="individual-rating {{ratings.physicalRating}}">{{ratings.physicalRating}}</span></p>
@@ -12,8 +19,5 @@
                 <span class="individual-rating {{ratings.neurodivergentRating}}">{{ratings.neurodivergentRating}}</span>
             </p>
         </div>
-        <p>{{date}}</p>
-        <p>{{content}}</p>
-        {{> likeDislike user=../user type=review _id=_id }}
-    {{/with}}
-</main>
+    </div>
+{{/with}}
