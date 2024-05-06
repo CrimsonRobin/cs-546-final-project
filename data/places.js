@@ -237,11 +237,96 @@ export const getAllCommentsFromReview = async (reviewId) => {
 };
 
 //get specific comment
-export const getComment = async () => {};
+export const getComment = async (reviewId, commentId) => {
+    reviewId = parseObjectId(reviewId);
+    commentId = parseObjectId(commentId);
+
+    const comments = await getAllCommentsFromReview(reviewId);
+
+    for (let i = 0; i < comments.length; i++) {
+        if (String(comments[i]._id) === String(commentId)) {
+            return comments[i];
+        }
+    }
+    throw new Error("No such comment found");
+};
 
 //update comment
 
 //delete comment
+
+//Increase Review Likes
+export const increaseReviewLikes = async (name, reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    let review = getReview(reviewId);
+    review.likes.append(name);
+};
+//Decrease Review Likes
+export const decreaseReviewLikes = async (name, reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    let review = getReview(reviewId);
+    const index = review.likes.indexOf(name);
+    if (index === -1) {
+        throw new error("User has already removed their like");
+    } else {
+        review.likes.splice(index, 1);
+    }
+};
+//Increase Comment Likes
+export const increaseCommentLikes = async (name, reviewId, commentId) => {
+    reviewId = parseObjectId(reviewId);
+    commentId = parseObjectId(commentId);
+    let comment = getComment(reviewId, commentId);
+    comment.likes.append(name);
+};
+//Decrease Comment Likes
+export const decreaseCommentLikes = async (name, reviewId, commentId) => {
+    reviewId = parseObjectId(reviewId);
+    commentId = parseObjectId(commentId);
+    let comment = getComment(reviewId, commentId);
+    const index = comment.likes.indexOf(name);
+    if (index === -1) {
+        throw new error("User has already removed their like");
+    } else {
+        comment.likes.splice(index, 1);
+    }
+};
+//Increase Review Dislikes
+export const increaseReviewDislikes = async (name, reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    let review = getReview(reviewId);
+    review.dislikes.append(name);
+};
+//Decrease Review Dislikes
+export const decreaseReviewDislikes = async (name, reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    let review = getReview(reviewId);
+    const index = review.dislikes.indexOf(name);
+    if (index === -1) {
+        throw new error("User has already removed their like");
+    } else {
+        review.dislikes.splice(index, 1);
+    }
+};
+//Increase Comment Dislikes
+export const increaseCommentDisikes = async (name, reviewId, commentId) => {
+    reviewId = parseObjectId(reviewId);
+    commentId = parseObjectId(commentId);
+    let comment = getComment(reviewId, commentId);
+    comment.dislikes.append(name);
+};
+//Decrease Comment Dislikes
+export const decreaseCommentDislikes = async (name, reviewId, commentId) => {
+    reviewId = parseObjectId(reviewId);
+    commentId = parseObjectId(commentId);
+    let comment = getComment(reviewId, commentId);
+    const index = comment.dislikes.indexOf(name);
+    if (index === -1) {
+        throw new error("User has already removed their like");
+    } else {
+        comment.dislikes.splice(index, 1);
+    }
+};
 
 //search
 const stateAbbreviationToFullNameMap = {
