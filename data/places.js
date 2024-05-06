@@ -111,7 +111,7 @@ export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review id");
     const searchedReview = await Place.findOne(
         { "reviews._id": new ObjectId(reviewId) },
-        { projection: { "reviews.$": 1, _id: 0 } }
+        { projection: { "reviews.$": true, _id: false } }
     );
     if (searchedReview === null) {
         throw new Error(`Review with that id could not be found!`);
@@ -126,7 +126,11 @@ export const getAllReviewsFromPlace = async (placeId) => {
 };
 
 //update review
-export const updateReview = async () => {};
+export const updateReview = async (reviewId, content, categories) => {
+    reviewId = parseObjectId(reviewId, "Review Id");
+    content = parseNonEmptyString(content, "Review content");
+    categories = parseCategories(categories);
+};
 //delete review
 
 //comment functions:
@@ -136,7 +140,7 @@ export const addPlaceComment = async (placeId, author, content) => {
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
-    
+
     await getPlace(placeId); //check if the place exists
 
     const comment = await Place.updateOne(
@@ -162,15 +166,15 @@ export const addPlaceComment = async (placeId, author, content) => {
 };
 
 //create review comment
-export const addReviewComment = async(reviewId, author, content) => {
+export const addReviewComment = async (reviewId, author, content) => {
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of comment");
     reviewId = parseObjectId(reviewId, "Review Id");
-    
+
     await getReview(reviewId); //check if the place exists
 
     const comment = await Place.updateOne(
-        { 'reviews._id': reviewId },
+        { "reviews._id": reviewId },
         {
             $push: {
                 comments: {
