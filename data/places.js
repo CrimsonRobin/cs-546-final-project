@@ -251,10 +251,6 @@ export const getComment = async (reviewId, commentId) => {
     throw new Error("No such comment found");
 };
 
-//update comment
-
-//delete comment
-
 //Increase Review Likes
 export const increaseReviewLikes = async (name, reviewId) => {
     reviewId = parseObjectId(reviewId);
