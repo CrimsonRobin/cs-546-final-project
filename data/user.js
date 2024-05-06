@@ -1,24 +1,10 @@
 import {
-    assertTypeIs,
-    isInfinity,
-    isNullOrUndefined,
-    parseCategories,
-    parseDate,
     parseNonEmptyString,
     parseObjectId,
-    parseQualifications,
-    roundTo,
-    throwIfNullOrUndefined,
-    nonEmptyStringOrDefault,
+    parseQualifications
 } from "../helpers.js";
-import {
-    connectToDatabase,
-    closeDatabaseConnection,
-} from "../config/mongoConnection.js";
 import { Place, User } from "../config/database.js";
-import { parseOsmId, parseOsmType } from "./geolocation.js";
 import { ObjectId } from "mongodb";
-import Enumerable from "linq";
 import { DateTime } from "luxon";
 
 // Create User

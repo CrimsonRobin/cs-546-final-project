@@ -1,16 +1,11 @@
 import {
-    assertTypeIs,
-    isInfinity,
-    isNullOrUndefined,
     parseCategories,
-    parseDate,
     parseNonEmptyString,
     parseObjectId,
-    roundTo,
-    throwIfNullOrUndefined,
+    normalizeLongitude,
+    parseLatitude,
+    removeDuplicates
 } from "../helpers.js";
-import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
-import { normalizeLongitude, parseLatitude, parseNonEmptyString, parseObjectId, removeDuplicates } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
 import { ObjectId } from "mongodb";
