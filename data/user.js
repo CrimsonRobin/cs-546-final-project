@@ -17,12 +17,12 @@ export const parseUserFields = (username, hashedPassword, qualifications) => {
     };
 };
 
-export const createUser = async (username, hashedPassword, qualifications) => {
-    const parsed = parseUserFields(username, hashedPassword, qualifications);
+export const createUser = async (username, password, qualifications) => {
+    const parsed = parseUserFields(username, password, qualifications);
     const document = new User({
         _id: ObjectId,
         username: username,
-        hashedPassword: hashedPassword,
+        hashedPassword: await bcrypt.hash(password, 12),
         createdAt: DateTime.now().toBSON(),
         qualifications: qualifications,
     });
