@@ -196,8 +196,24 @@ export const addReviewComment = async (reviewId, author, content) => {
 };
 
 //get all comments from place/review
+export const getAllCommentsFromPlace = async(placeId) => {
+    placeId = parseObjectId(placeId);
+    const place = await getPlace(placeId);
+
+    return place.comments;
+};
+
+export const getAllCommentsFromReview = async(reviewId) => {
+    reviewId = parseObjectId(reviewId);
+    const review = await getReview(reviewId);
+
+    return review.comments;
+}
 
 //get specific comment
+export const getComment = async() => {
+
+};
 
 //update comment
 
