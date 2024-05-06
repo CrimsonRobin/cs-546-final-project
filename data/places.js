@@ -273,10 +273,6 @@ export const getAllCommentsFromReview = async (reviewId) => {
 //get specific comment
 export const getComment = async () => {};
 
-//update comment
-
-//delete comment
-
 //search
 const stateAbbreviationToFullNameMap = {
     al: "alabama",
