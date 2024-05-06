@@ -4,8 +4,11 @@
         <img src="/public/assets/logo-dark.svg" alt="a11y logo">
     </a>
     <div>
+        <button id="light-dark-toggle">
+            <span class="material-symbols-outlined"></span>
+        </button>
         {{#if user}}
-            <a href="/user?id={{user.id}}" >
+            <a href="/user?id={{user._id}}" >
             <span class="material-symbols-outlined" aria-label="Account">account_circle</span>
             </a>
         {{else}}

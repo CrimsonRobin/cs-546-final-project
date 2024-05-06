@@ -17,6 +17,58 @@
     'opsz' 24
 }
 
-.dark .light, .light .dark {
-    visibility: hidden;
+.light {
+    display: inherit;
+}
+
+.dark {
+    display: none;
+}
+
+:root {
+    --bg: #f0f0f0;
+    --fg: #121212;
+    --accent-bg: #A51D2D;
+    --accent-fg: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .light {
+        display: none;
+    }
+
+    .dark {
+        display: inherit;
+    }
+
+    :root {
+        --bg: #121212;
+        --fg: #f0f0f0;
+        --accent-bg: #E9818D;
+        --accent-fg: #000000;
+    }
+}
+
+body {
+    color: var(--fg);
+    background-color: var(--bg);
+}
+
+a {
+    color: var(--accent-bg);
+}
+
+button {
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent-bg);
+    color: var(--accent-fg);
+}
+
+.login-register {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
