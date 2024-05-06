@@ -124,32 +124,6 @@ export const getReview = async (reviewId) => {
 //get all from specific place
 export const getAllReviews = async () => {};
 
-/**
- * Gets all reviews for the given user.
- *
- * @param {string} userId The ID of the user.
- * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
- * @author Anthony Webster
- */
-export const getUserReviews = async (userId) =>
-{
-    const parsedId = ObjectId.createFromHexString(parseObjectId(userId, "user id"));
-    const reviews = await Place
-        .aggregate([
-            { $match: { "reviews.author": parsedId } },
-            { $project: { "_id": true, "reviews": true } },
-            { $unwind: "$reviews" }
-        ])
-        .exec();
-
-    for (const review of reviews)
-    {
-        review._id = review._id.toString();
-    }
-
-    return reviews;
-};
-
 //update review
 
 //delete review
