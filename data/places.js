@@ -64,6 +64,7 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     });
 
     await document.save();
+    return document;
 };
 
 export const getPlace = async (placeId) => {
@@ -72,7 +73,6 @@ export const getPlace = async (placeId) => {
     if (!result) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    result._id = result._id.toString();
     return result;
 };
 
@@ -96,8 +96,8 @@ export const addReview = async (placeId, author, content, categories) => {
                     author: author,
                     content: content,
                     createdAt: new Date(),
-                    likes: 0,
-                    dislikes: 0,
+                    likes: [],
+                    dislikes: [],
                     categories: categories,
                     comments: [],
                 },
@@ -109,7 +109,7 @@ export const addReview = async (placeId, author, content, categories) => {
     }
     //TODO: recompute average rating of place
 
-    await document.save();
+    return review;
 };
 //get specific review
 export const getReview = async (reviewId) => {
@@ -118,12 +118,35 @@ export const getReview = async (reviewId) => {
     if (!result) {
         throw new Error(`Failed to find product with id ${reviewId}`);
     }
-    result._id = result._id.toString();
     return result;
 };
 //get all from specific place
-export const getAllReviews = async () => {};
-//get all from specific user
+export const getAllReviewsFromPlace = async (placeId) => {
+    placeId = parseObjectId(placeId);
+    const placeReviewed = await getPlace(placeId);
+    return placeReviewed.reviews;
+};
+/**
+ * Gets all reviews for the given user.
+ *
+ * @param {string} userId The ID of the user.
+ * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
+ * @author Anthony Webster
+ */
+export const getUserReviews = async (userId) => {
+    const parsedId = ObjectId.createFromHexString(parseObjectId(userId, "user id"));
+    const reviews = await Place.aggregate([
+        { $match: { "reviews.author": parsedId } },
+        { $project: { _id: true, reviews: true } },
+        { $unwind: "$reviews" },
+    ]).exec();
+
+    for (const review of reviews) {
+        review._id = review._id.toString();
+    }
+
+    return reviews;
+};
 
 //update review
 
@@ -132,11 +155,11 @@ export const getAllReviews = async () => {};
 //comment functions:
 
 //create place comment
-export const addPlaceComment = async(placeId, author, content) => {
+export const addPlaceComment = async (placeId, author, content) => {
     author = parseNonEmptyString(author, "Name of author");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
-    
+
     const place = await getPlace(placeId);
 };
 
