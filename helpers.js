@@ -669,7 +669,7 @@ export const parseQualifications = (qualifications) => {
             throw new Error(`Invalid qualification "${qualification}"`);
         }
     }
-    return qualifications;
+    return removeDuplicates(qualifications);
 };
 
 /**

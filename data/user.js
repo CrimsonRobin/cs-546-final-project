@@ -3,7 +3,7 @@ import {
     parseObjectId,
     parsePassword,
     parseQualifications,
-    parseStringWithLengthBounds, parseUsername,
+    parseUsername,
     removeDuplicates,
 } from "../helpers.js";
 import { Place, User } from "../config/database.js";
@@ -18,29 +18,16 @@ import bcrypt from 'bcryptjs';
 export const BCRYPT_SALT_ROUNDS = 12;
 
 // Create User
-export const parseUserFields = (firstname, lastname, username, password, qualifications) =>
+export const createUser = async (firstname, lastname, username, password, qualifications) =>
 {
-    // If name and description are not strings or are empty strings, the method should throw.
-    return {
+    const document = new User({
+        _id: new ObjectId(),
         firstname: parseNonEmptyString(firstname, "First name"),
         lastname: parseNonEmptyString(lastname, "Last name"),
         username: parseUsername(username),
-        hashedPassword: parsePassword(password),
-        qualifications: parseQualifications(qualifications),
-    };
-};
-
-export const createUser = async (firstname, lastname, username, password, qualifications) =>
-{
-    const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
-    const document = new User({
-        _id: ObjectId,
-        firstname: firstname,
-        lastname: lastname,
-        username: username,
-        hashedPassword: await bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
+        hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
-        qualifications: removeDuplicates(qualifications),
+        qualifications: parseQualifications(qualifications),
     });
 
     await document.save();
