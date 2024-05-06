@@ -1,0 +1,11 @@
+<div class="like-dislike" data-voteId="{{_id}}" data-type="{{type}}">
+    {{#if user}}
+        <button class="like">
+            <span class="material-symbols-outlined{{#if liked}} selected{{/if}}">thumb_up</span>
+        </button>
+        <button class="dislike">
+            <span class="material-symbols-outlined{{#if disliked}} selected{{/if}}">thumb-down</span>
+        </button>
+    {{/if}}
+    <p>Likes: <span class="score">{{likes}}</span></p>
+</div>
