@@ -7,8 +7,7 @@
 </form>
 
 <div id="home-feed">
-    {{#each establishments}}
-        {{!TODO add establishment component}}
-        <p>{{this.name}}</p>
+    {{#each places}}
+        {{> placeCard place=this }}
     {{/each}}
 </div>
