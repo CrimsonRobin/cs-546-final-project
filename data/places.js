@@ -71,7 +71,7 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
  */
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
-    const place = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
+    const place = (await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec()).toObject();
     if (!place) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }

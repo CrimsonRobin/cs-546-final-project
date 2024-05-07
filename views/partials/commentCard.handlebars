@@ -1,7 +1,7 @@
 {{#with comment}}
     <div class="card comment">
         <h2>{{author}}</h2>
-        <p>{{date}}</p>
+        <p>{{createdAt}}</p>
         <p>{{content}}</p>
         {{#if ../user}}
             {{> likeDislike user=../user type="comment" _id=_id }}
