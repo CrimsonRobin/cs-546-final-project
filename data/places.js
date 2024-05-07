@@ -119,16 +119,17 @@ export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review Id");
 
     const objectId = ObjectId.createFromHexString(reviewId);
-    if (!await Place.exists({"reviews.id": objectId}).exec()) {
-        throw new Error(`Review with id ${reviewId} does not exist`);
-    }
-
-    return await Place.aggregate([
+    const results = await Place.aggregate([
         { $match: { "reviews._id": objectId } },
         { $unwind: "$reviews" },
         { $match: { "reviews._id": objectId } },
         { $project: { _id: false, reviews: true } }
     ]).exec();
+
+    if (results.length !== 1) {
+        throw new Error(`Review with id ${reviewId} does not exist`);
+    }
+    return results[0];
 };
 //get all from specific place
 
