@@ -693,6 +693,7 @@ const stateAbbreviationToFullName = (abbreviation) => {
 const normalizeSearchQuery = (query) => {
     // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
     // State abbreviations could be written as "N.Y." instead of "NY"
+    query = parseNonEmptyString(query, "search query");
     const qs = query
         .toLowerCase()
         .replaceAll(/[^a-zA-Z0-9]+/g, " ")
@@ -717,6 +718,9 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) => {
     let totalMatches = 0;
 
     for (let against of [placeData.location.address, placeData.name, placeData.description]) {
+        if (isNullOrUndefined(against)) {
+            continue;
+        }
         against = normalizeSearchQuery(against);
         totalMatches += normalizedQuery.reduce((acc, e) => (against.some((p) => p.indexOf(e) >= 0) ? 1 : 0), 0);
     }
@@ -735,7 +739,7 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) => {
  */
 export const search = async (query) => {
     const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
-    const places = await Place.find({}, ["_id", "location"], null).exec();
+    const places = (await Place.find({}, null, null).exec()).map(r => r.toObject());
 
     return Enumerable.from(places)
         .select((p) => [computeSearchMatchScore(normalizedQuery, p), p])

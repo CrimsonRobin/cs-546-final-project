@@ -237,6 +237,7 @@ const places = {
         description: "Stevens Institute of Technology: The College",
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.mildred._id.toString(),
                 content: "I went to college here. Shout out to Professor Patrick Hill in CS546!",
                 createdAt: bsonDate("2024-05-06T00:15:26.000-04:00"),
@@ -281,6 +282,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.roger._id.toString(),
                         content: "Pretty spot on. Wish more residence halls had elevators though.",
                         createdAt: bsonDate("2024-05-01T13:36:24.000-04:00"),
@@ -319,6 +321,7 @@ const places = {
         description: "The Wesley J. Howe Center administrative building at Stevens Institute of Technology",
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.christian._id.toString(),
                 content: "Lot of administrative stuff happens here. Wish they didn't get rid of Colonel John's though.",
                 createdAt: bsonDate("2023-01-31T16:45:36.673-05"),
@@ -377,6 +380,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.roger._id.toString(),
                         content: "Bang on, one of my favorite accessible places on campus.",
                         createdAt: bsonDate("2024-04-01T13:36:24.000-04:00"),
@@ -385,6 +389,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.samuel._id.toString(),
                         content: "Great accessible building.",
                         createdAt: bsonDate("2023-01-01T03:21:20.000-05:00"),
@@ -402,6 +407,7 @@ const places = {
         description: "Hoboken University Medical Center: The Medical Center",
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.rachel._id.toString(),
                 content: "Gets a bad rap but at least there's a hospital within the city.",
                 createdAt: bsonDate("2022-08-20T19:36:15.154-04:00"),
@@ -503,6 +509,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.roger._id.toString(),
                         content: "Joan chill with the ableism",
                         createdAt: bsonDate("2023-11-15T19:28:30.000-04:00"),
@@ -541,6 +548,7 @@ const places = {
         description: "NJ Transit train station in Hoboken",
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.rachel._id.toString(),
                 content: "This place is the actual terminal for the regular NJ Transit rail system, not the PATH train, not the HBLR Light Rail.",
                 createdAt: bsonDate("2020-09-08T14:46:32.789+01:00"),
@@ -602,6 +610,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.roger._id.toString(),
                         content: "It is, but not immediately, you have to ask for some things",
                         createdAt: bsonDate("2023-04-21T13:18:28.538+02:00"),
@@ -688,6 +697,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.mildred._id.toString(),
                         content: "Bumping this review, it's accurate",
                         createdAt: bsonDate("2012-05-25T04:43:13.610-03:00"),
@@ -708,6 +718,7 @@ const places = {
                         }]
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.paul._id.toString(),
                         content: "Great review",
                         createdAt: bsonDate("2007-11-18T01:45:37.124-05:00"),
@@ -737,6 +748,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.lawrence._id.toString(),
                 content: "Good area, good station",
                 createdAt: bsonDate("2019-04-19T14:34:56.982-08:00"),
@@ -745,6 +757,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.sean._id.toString(),
                 content: "Like the ramps here",
                 createdAt: bsonDate("2017-07-06T08:54:23.655-06:00"),
@@ -757,6 +770,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.samuel._id.toString(),
                 content: "Cool place, I've found that the train operators always like a short chat",
                 createdAt: bsonDate("2015-01-12T21:00:14.980-06:00"),
@@ -806,6 +820,7 @@ const places = {
                 categories: [{ categoryName: NEURODIVERGENT, rating: 1.0 }],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.rose._id.toString(),
                         content: "Accurate",
                         createdAt: bsonDate("2003-05-20T16:23:02.964-06:00"),
@@ -821,6 +836,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.samuel._id.toString(),
                         content: "",
                         createdAt: bsonDate("2004-03-06T05:26:09.747-06:00"),
@@ -872,6 +888,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.kyle._id.toString(),
                 content: "It's a massive airport",
                 createdAt: bsonDate("2014-01-28T13:24:53.755-03:00"),
@@ -895,6 +912,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.mildred._id.toString(),
                 content: "This place is one of the largest airports on the east coast. Certainly an experience being here.",
                 createdAt: bsonDate("2008-01-15T12:41:37.792-06:00"),
@@ -912,6 +930,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.linda._id.toString(),
                 content: "#EWR is home!",
                 createdAt: bsonDate("2023-10-21T03:24:16.184-05:00"),
@@ -972,6 +991,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.douglas._id.toString(),
                         content: "Agree!",
                         createdAt: bsonDate("2017-02-04T13:05:24.543-03:00"),
@@ -993,6 +1013,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.aaron._id.toString(),
                         content: "I've found them a little frustrating to work with, but you can get what you need.",
                         createdAt: bsonDate("2003-09-16T11:34:51.655-08:00"),
@@ -1018,6 +1039,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.samuel._id.toString(),
                         content: "As Aaron said, they can be annoying at times but overall they're pretty good.",
                         createdAt: bsonDate("2007-09-19T02:09:26.417-06:00"),
@@ -1074,6 +1096,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.joan._id.toString(),
                         content: "As another user said before it can be annoying to work with the department but you'll get what you need eventually",
                         createdAt: bsonDate("2002-11-04T07:48:10.409-08:00"),
@@ -1095,6 +1118,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.steven._id.toString(),
                         content: "I really hate the department, they're so irritating!",
                         createdAt: bsonDate("2001-12-08T16:21:11.208-07:00"),
@@ -1111,6 +1135,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.william._id.toString(),
                         content: "Shout-out to my professors that were so understanding when I broke my arm!",
                         createdAt: bsonDate("2020-11-10T00:15:27.640-03:00"),
@@ -1142,6 +1167,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.kyle._id.toString(),
                 content: "Went to school here. Beautiful campus!",
                 createdAt: bsonDate("2010-10-27T17:36:40.702-08:00"),
@@ -1169,6 +1195,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.christian._id.toString(),
                 content: "Love the campus, lots of space, but there's not much to do in Poughkeepsie.",
                 createdAt: bsonDate("2010-01-11T03:12:27.365-03:00"),
@@ -1193,6 +1220,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.katherine._id.toString(),
                 content: "A few years ago Christian said that there isn't much to do in Poughkeepsie. He's right, but the town has been making lots of improvements lately.",
                 createdAt: bsonDate("2023-06-28T19:44:42.569-07:00"),
@@ -1217,6 +1245,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.roger._id.toString(),
                 content: "Rather difficult to do things without a car here - everything is pretty spread out. You can also befriend a car owner.",
                 createdAt: bsonDate("2009-04-24T03:59:15.816-05:00"),
@@ -1282,6 +1311,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.aaron._id.toString(),
                         content: "Yeah the part about the holidays is true. Within 10 days of a major holiday this place is a zoo!",
                         createdAt: bsonDate("2007-04-06T21:08:59.002-08:00"),
@@ -1311,6 +1341,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.rachel._id.toString(),
                         content: "It's also decently busy here around 15:00 when school gets out and on weekends around midday.",
                         createdAt: bsonDate("2002-05-13T17:51:22.327-04:00"),
@@ -1387,6 +1418,7 @@ const places = {
                     { categoryName: PHYSICAL, rating: 4.2 }
                 ],
                 comments: [{
+                    _id: new ObjectId(),
                     author: users.linda._id.toString(),
                     content: "Not really sure what you're talking about - this place is great!",
                     createdAt: bsonDate("2014-08-16T10:44:32.488-08:00"),
@@ -1410,6 +1442,7 @@ const places = {
             }
         ],
         comments: [{
+            _id: new ObjectId(),
             author: users.douglas._id.toString(),
             content: "A little pricey but a great store!",
             createdAt: bsonDate("2008-06-03T17:40:22.899-03:00"),
@@ -1471,6 +1504,7 @@ const places = {
                 ],
                 categories: [{ categoryName: PHYSICAL, rating: 1.0 }],
                 comments: [{
+                    _id: new ObjectId(),
                     author: users.joan._id.toString(),
                     content: "You have a point but at least everything is fully accessible without assistance.",
                     createdAt: bsonDate("2003-05-10T22:33:48.423-08:00"),
@@ -1510,6 +1544,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.samuel._id.toString(),
                         content: "Truth!",
                         createdAt: bsonDate("2015-09-25T13:23:59.328-05:00"),
@@ -1531,6 +1566,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.katherine._id.toString(),
                         content: "Disagree man, every time I go here the employees are cold and unapproachable.",
                         createdAt: bsonDate("2021-09-19T21:56:11.588-08:00"),
@@ -1550,6 +1586,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.logan._id.toString(),
                 content: "Pricey but nice store",
                 createdAt: bsonDate("2008-08-13T18:13:56.485-07:00"),
@@ -1572,6 +1609,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.timothy._id.toString(),
                 content: "Selection is mostly stereotypical upscale food. Decent prepared food though.",
                 createdAt: bsonDate("2008-11-06T04:17:02.323-04:00"),
@@ -1591,6 +1629,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.samuel._id.toString(),
                 content: "Get a savings card - this place is pricier than you think!",
                 createdAt: bsonDate("2017-10-26T13:02:22.937-08:00"),
@@ -1615,6 +1654,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.mildred._id.toString(),
                 content: "Go for the sales - when they have big sales their prices can't be beat.",
                 createdAt: bsonDate("2022-01-14T19:44:13.566-07:00"),
@@ -1676,6 +1716,7 @@ const places = {
                 categories: [{ categoryName: NEURODIVERGENT, rating: 2.8 }],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.paul._id.toString(),
                         content: "+1 - it's super overstimulating outside",
                         createdAt: bsonDate("2008-09-17T14:16:52.771-03:00"),
@@ -1692,6 +1733,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.rose._id.toString(),
                         content: "I always hate driving here because the drive is anxiety inducing",
                         createdAt: bsonDate("2005-08-02T15:39:21.735-08:00"),
@@ -1731,6 +1773,7 @@ const places = {
             }
         ],
         comments: [{
+            _id: new ObjectId(),
             author: users.linda._id.toString(),
             content: "My favorite Kings location!",
             createdAt: bsonDate("2020-10-27T01:55:00.081-03:00"),
@@ -1788,6 +1831,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.paul._id.toString(),
                         content: "Yeah, I went here last year and had the same seating problem.",
                         createdAt: bsonDate("2014-08-15T23:41:26.934-03:00"),
@@ -1803,6 +1847,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.janet._id.toString(),
                         content: "I went here for a performance and they told me to go to the top row because I was too close to the stage",
                         createdAt: bsonDate("2018-12-26T21:11:49.557-05:00"),
@@ -1821,6 +1866,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.rose._id.toString(),
                         content: "Agree. The kayak launch is not accessible though!",
                         createdAt: bsonDate("2017-04-28T03:02:12.593-04:00"),
@@ -1857,6 +1903,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.timothy._id.toString(),
                         content: "Can't believe the city of Hoboken lets this place get as bad as it does.",
                         createdAt: bsonDate("2002-07-06T21:52:53.367-05:00"),
@@ -1877,6 +1924,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.logan._id.toString(),
                         content: "Love the place but I unfortunately agree. This place is nice but not always clean.",
                         createdAt: bsonDate("2000-06-05T06:02:49.370-08:00"),
@@ -1907,6 +1955,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.kyle._id.toString(),
                         content: "This bites, I was really hoping to go kayaking on the Hudson River.",
                         createdAt: bsonDate("2011-01-05T13:29:09.027-06:00"),
@@ -1931,6 +1980,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.christian._id.toString(),
                 content: "Beautiful place!",
                 createdAt: bsonDate("2007-03-14T07:20:09.178-05:00"),
@@ -1949,6 +1999,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.rachel._id.toString(),
                 content: "My favorite place to go and relax for a little while.",
                 createdAt: bsonDate("2002-03-09T11:13:33.569-05:00"),
@@ -2015,6 +2066,7 @@ const places = {
                     { categoryName: PHYSICAL, rating: 2.8 }
                 ],
                 comments: [{
+                    _id: new ObjectId(),
                     author: users.william._id.toString(),
                     content: "No, this place is amazing. Very relaxing with the polluted view of NYC.",
                     createdAt: bsonDate("2000-06-23T19:56:42.362-06:00"),
@@ -2077,6 +2129,7 @@ const places = {
                 categories: [{ categoryName: NEURODIVERGENT, rating: 1.7 }],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.lawrence._id.toString(),
                         content: "Couldn't have said it better myself",
                         createdAt: bsonDate("2012-11-02T09:41:51.389-05:00"),
@@ -2103,6 +2156,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.william._id.toString(),
                         content: "I mean I've lived around here for years and while yeah this place can be overstimulating it's not terrible. The NYC subway during commuter hours when two people are having a dance off with the loudest possible boomboxes and screaming children is definitely worse, especially when you're on the subway for 40 minutes each way.",
                         createdAt: bsonDate("2005-06-14T07:05:42.874-05:00"),
@@ -2130,6 +2184,7 @@ const places = {
             }
         ],
         comments: [{
+            _id: new ObjectId(),
             author: users.rachel._id.toString(),
             content: "The worst place I've ever visited. Nothing but bare trees and people crying here.",
             createdAt: bsonDate("2014-06-12T13:41:14.100-08:00"),
@@ -2244,6 +2299,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.linda._id.toString(),
                         content: "Don't really agree with you William. This place is quite nice and there's plenty of space.",
                         createdAt: bsonDate("2015-10-18T05:37:14.310-03:00"),
@@ -2261,6 +2317,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.steven._id.toString(),
                         content: "William, my man, respectfully, you're a little insane. This place is amazing.",
                         createdAt: bsonDate("2016-05-13T12:24:29.853-05:00"),
@@ -2280,6 +2337,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.christian._id.toString(),
                         content: "Used to be like this years ago, but after living here and being a regular visitor to this park I couldn't be happier. Really helps when I'm having depressive episodes.",
                         createdAt: bsonDate("2016-08-25T00:10:21.789-08:00"),
@@ -2299,6 +2357,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.paul._id.toString(),
                         content: "William, I see where you're coming from, but please do realize that there are some 55k people in Hoboken. It's not unreasonable to expect that this place will be busy on nice days.",
                         createdAt: bsonDate("2018-03-07T01:17:13.918-08:00"),
@@ -2335,6 +2394,7 @@ const places = {
                 ],
                 comments: [
                     {
+                        _id: new ObjectId(),
                         author: users.sean._id.toString(),
                         content: "Agree. Accurate.",
                         createdAt: bsonDate("2001-08-09T02:53:29.258-06:00"),
@@ -2355,6 +2415,7 @@ const places = {
                         replies: []
                     },
                     {
+                        _id: new ObjectId(),
                         author: users.lawrence._id.toString(),
                         content: "Accurate, but do remember that there are like 50k people in Hoboken...",
                         createdAt: bsonDate("2010-07-24T16:21:39.661-03:00"),
@@ -2377,6 +2438,7 @@ const places = {
         ],
         comments: [
             {
+                _id: new ObjectId(),
                 author: users.christian._id.toString(),
                 content: "Great place to relax and spend time outside.",
                 createdAt: bsonDate("2002-10-28T14:48:19.544-03:00"),
@@ -2395,6 +2457,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.douglas._id.toString(),
                 content: "Love coming here when I need a rest from my day to day life.",
                 createdAt: bsonDate("2014-04-24T00:30:58.428-07:00"),
@@ -2418,6 +2481,7 @@ const places = {
                 replies: []
             },
             {
+                _id: new ObjectId(),
                 author: users.paul._id.toString(),
                 content: "Love riding my bike around the park, just have to watch for people and dogs.",
                 createdAt: bsonDate("2004-10-06T02:37:49.555-08:00"),
