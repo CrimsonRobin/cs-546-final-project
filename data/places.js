@@ -188,11 +188,10 @@ export const getAverageCategoryRatings = async (placeId) => {
     const place = await getPlace(placeId);
     let overallTotal = 0;
     let overallCount = 0;
-    const ratings = {
-        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
-        DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
-        DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
-    };
+    const ratings = {};
+    ratings[DISABILITY_CATEGORY_NEURODIVERGENT] = { count: 0, total: 0 };
+    ratings[DISABILITY_CATEGORY_PHYSICAL] = { count: 0, total: 0 };
+    ratings[DISABILITY_CATEGORY_SENSORY] = { count: 0, total: 0 };
     for (const categories of place.reviews.map((r) => r.categories)) {
         for (const { categoryName, rating } of categories) {
             if (ratings[categoryName] === undefined) {
@@ -219,7 +218,7 @@ export const getAverageCategoryRatings = async (placeId) => {
 export const mapAvgRatingsToLetters = (avgRatings) => {
     const letterRatings = {
         overall: ratingToLetter(avgRatings.overall),
-        byCategory: Object.fromEntries(Object.entries(avgRatings).map((p) => [p[0], ratingToLetter(p[1])])),
+        byCategory: Object.fromEntries(Object.entries(avgRatings.byCategory).map(([key, value]) => [key, ratingToLetter(value)])),
     };
     return letterRatings;
 };

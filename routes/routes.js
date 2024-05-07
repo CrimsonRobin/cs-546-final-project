@@ -42,6 +42,9 @@ import {
     togglePlaceCommentDislike,
     toggleReviewCommentLike,
     toggleReviewCommentDislike,
+    DISABILITY_CATEGORY_PHYSICAL,
+    DISABILITY_CATEGORY_SENSORY,
+    DISABILITY_CATEGORY_NEURODIVERGENT
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
 import { parseSearchRadius, nominatimSearch, nominatimSearchWithin } from "../data/geolocation.js";
@@ -339,9 +342,9 @@ router.route("/place/:id").get(async (req, res) => {
 
         place.averageRatings = {
             overallRating: letterRatings.overall,
-            physicalRating: letterRatings.byCategory.DISABILITY_CATEGORY_PHYSICAL,
-            sensoryRating: letterRatings.byCategory.DISABILITY_CATEGORY_SENSORY,
-            neurodivergentRating: letterRatings.byCategory.DISABILITY_CATEGORY_NEURODIVERGENT,
+            physicalRating: letterRatings.byCategory[DISABILITY_CATEGORY_PHYSICAL],
+            sensoryRating: letterRatings.byCategory[DISABILITY_CATEGORY_SENSORY],
+            neurodivergentRating: letterRatings.byCategory[DISABILITY_CATEGORY_NEURODIVERGENT],
         };
 
         return res.render("place", {
