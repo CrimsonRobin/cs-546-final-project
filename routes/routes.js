@@ -13,7 +13,9 @@ import express from "express";
 import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, 
     parseCategories, parseNonEmptyString, parseLatitude, normalizeLongitude, parseNumber} from "../helpers.js";
 import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces,
-    addPlaceCommentDislike, addPlaceCommentLike, addReviewCommentLike, addReviewLike, addReviewDislike, addPlaceCommentDislike, 
+    addPlaceCommentDislike, addPlaceCommentLike, addReviewCommentLike, addReviewLike, addReviewDislike, addPlaceCommentDislike,
+    addPlaceCommentReply,
+    addReviewCommentReply, 
 } from "../data/places.js";
 import {createUser, getUser, loginUser} from "../data/user.js";
 
@@ -99,17 +101,17 @@ router.route('/api/search')
     .get(async (req, res) => {
         //latitude, longitude, radius <- should be numbers
         let errors = [];
-        const searchResults = undefined;
+        let searchResults = undefined;
 
         if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm === undefined) {
             searchResults = await getAllPlaces();
-            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
 
         if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm) {
             searchResults = await search(req.query.searchTerm);
-            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
 
@@ -118,18 +120,18 @@ router.route('/api/search')
         req.query.radius = tryCatchChain(errors, () => parseNumber(req.query.radius));
 
         if(errors.length > 0) {
-            return res.render('/searchResults', {title: "Search Results", layout: false, message: errors, 
+            return res.render('searchResults', {title: "Search Results", layout: false, message: errors, 
             user: req.session ? req.session.user : undefined});
         }
 
         if(req.query.searchTerm) {
             searchResults = await searchNear(req.query.searchTerm, req.query.latitude, req.query.longitude, req.query.radius);
-            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
         else {
             searchResults = await findAllNear(req.query.latitude, req.query.longitude, req.query.radius);
-            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
     });
@@ -260,6 +262,30 @@ router.route('/review/:id/like')
 router.route('/review/:id/like')
     .post(async (req, res) => {
 
+    });
+
+router.route('/comment/:id/reply')
+    .post(async (req, res) => {
+        try {
+            req.params.id = parseObjectId(req.params.id, "Comment Id");
+            req.body.content = parseNonEmptyString(req.body.content, "Content");
+
+            await addPlaceCommentReply(req.params.id, req.session.user._id, req.body.content);
+        } catch (error) {
+            
+        }
+    });
+
+router.route('/review/:reviewId/comment/:id/reply')
+    .post(async (req, res) => {
+        try {
+            req.params.id = parseObjectId(req.params.id, "Comment Id");
+            req.body.content = parseNonEmptyString(req.body.content, "Content");
+
+            await addReviewCommentReply(req.params.id, req.session.user._id, req.body.content);
+        } catch (error) {
+            
+        }
     });
 
 router.route('/about')
