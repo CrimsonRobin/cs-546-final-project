@@ -123,7 +123,7 @@ export const getReview = async (reviewId) => {
         { $match: { "reviews._id": objectId } },
         { $unwind: "$reviews" },
         { $match: { "reviews._id": objectId } },
-        { $project: { _id: false, reviews: true } }
+        { $project: { _id: false, reviews: true } },
     ]).exec();
 
     if (results.length !== 1) {
@@ -281,7 +281,7 @@ export const addPlaceComment = async (placeId, author, content) => {
                     createdAt: new Date(),
                     likes: [],
                     dislikes: [],
-                    replies: []
+                    replies: [],
                 },
             },
         }
@@ -312,7 +312,7 @@ export const addReviewComment = async (reviewId, author, content) => {
                     createdAt: new Date(),
                     likes: [],
                     dislikes: [],
-                    replies: []
+                    replies: [],
                 },
             },
         }
@@ -326,8 +326,7 @@ export const addReviewComment = async (reviewId, author, content) => {
 };
 
 //get all comments from place/review
-export const getAllCommentsFromPlace = async (placeId) =>
-{
+export const getAllCommentsFromPlace = async (placeId) => {
     return (await getPlace(parseObjectId(placeId))).comments;
 };
 
