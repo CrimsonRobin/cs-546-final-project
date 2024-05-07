@@ -335,7 +335,22 @@ export const getAllCommentsFromReview = async (reviewId) => {
 };
 
 //get specific comment
-export const getComment = async (reviewId, commentId) => {
+export const getCommentFromPlace = async (placeId, commentId) => {
+    placeId = parseObjectId(placeId);
+    commentId = parseObjectId(commentId);
+
+    const comments = await getAllCommentsFromPlace(placeId);
+
+    for (const comment of comments) {
+        if (comment._id.toString() === commentId) {
+            return comment;
+        }
+    }
+    throw new Error("No such comment found");
+};
+
+//get specific comment
+export const getCommentFromReview = async (reviewId, commentId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
 
