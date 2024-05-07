@@ -561,7 +561,7 @@ export const parsePassword = (password) => {
     if (!/[0-9]/.test(password)) {
         throw new Error("Password requires at least one number");
     }
-    if (/[^a-zA-Z0-9]/.test(password)) {
+    if (!/[^a-zA-Z0-9]/.test(password)) {
         throw new Error("Password requires at least one special character");
     }
 
