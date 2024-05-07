@@ -382,19 +382,18 @@ export const removeReviewLike = async (reviewId, userId) => {
 
 export const ToggleReviewDislike = async (reviewId, userId) => {
     userId = parseObjectId(userId);
-    const place = await Place.findOne({"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))}).exec().toObject();
+    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+        .exec()
+        .toObject();
 
-    if(place.reviews.dislikes.some((id) => id === userId)) {
+    if (place.reviews.dislikes.some((id) => id === userId)) {
         await removeReviewDislike(reviewId, userId);
-    }
-    else if (place.reviews.likes.some((id) => id === userId)) {
+    } else if (place.reviews.likes.some((id) => id === userId)) {
         await removeReviewLike(reviewId, userId);
         await addReviewDislike(reviewId, userId);
-    }
-    else {
+    } else {
         await addReviewDislike(reviewId, userId);
     }
-    
 };
 
 const addReviewDislike = async (reviewId, userId) => {
@@ -405,7 +404,7 @@ const addReviewDislike = async (reviewId, userId) => {
         { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
         { $push: { reviews: { dislikes: userId } } }
     ).exec();
-}
+};
 
 const removeReviewDislike = async (reviewId, userId) => {
     reviewId = parseObjectId(reviewId);
@@ -437,6 +436,22 @@ export const togglePlaceCommentLike = async (commentId, userId) => {
         await addPlaceCommentLike(commentId, userId);
     } else {
         await addPlaceCommentLike(commentId, userId);
+    }
+};
+
+export const togglePlaceCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    let place = await Place.findOne({
+        "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)),
+    }).exec();
+    place = place.toObject();
+    if (place.comments.dislikes.some((c) => c === userId)) {
+        await removePlaceCommentDislike(commentId, userId);
+    } else if (place.comments.likes.some((c) => c === userId)) {
+        await removePlaceCommentLike(commentId, userId);
+        await addPlaceCommentDislike(commentId, userId);
+    } else {
+        await addPlaceCommentDislike(commentId, userId);
     }
 };
 
