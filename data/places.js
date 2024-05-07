@@ -380,20 +380,24 @@ export const removeReviewLike = async (reviewId, userId) => {
     ).exec();
 };
 
-export const addReviewDislike = async (reviewId, userId) => {
+export const ToggleReviewDislike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
     userId = parseObjectId(userId);
-    await Place.updateOne(
-        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
-        { $push: { reviews: { dislikes: userId } } }
-    ).exec();
-};
 
-export const removeReviewDislike = async (reviewId, userId) => {
-    userId = parseObjectId(userId);
-    await Place.updateOne(
-        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
-        { $pull: { reviews: { dislikes: userId } } }
-    ).exec();
+    const place = await Place.findOne({"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))}).exec().toObject();
+
+    if(place.reviews.dislikes.some((id) => id === userId)) {
+        await Place.updateOne(
+            { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+            { $pull: { reviews: { dislikes: userId } } }
+        ).exec();
+    }
+    else {
+        await Place.updateOne(
+            { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+            { $push: { reviews: { dislikes: userId } } }
+        ).exec();
+    }
 };
 
 /**
