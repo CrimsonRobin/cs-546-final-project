@@ -1,4 +1,4 @@
-import { configDotenv } from "dotenv";
+// import { configDotenv } from "dotenv";
 import { connectToDatabase, closeDatabaseConnection } from "../config/mongoConnection.js";
 import { ObjectId } from "mongodb";
 import {
@@ -2440,8 +2440,8 @@ const places = {
 
 const seedMainAsync = async () =>
 {
-    console.log("Load environment");
-    configDotenv({ path: "../.env" });
+    // console.log("Load environment");
+    // configDotenv({ path: "../.env" });
 
     console.log("Connecting to database");
     await connectToDatabase();

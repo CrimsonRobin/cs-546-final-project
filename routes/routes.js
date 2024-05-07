@@ -10,12 +10,15 @@
 */
 
 import express from "express";
-import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, 
-    parseCategories, parseNonEmptyString, parseLatitude, normalizeLongitude, parseNumber} from "../helpers.js";
-import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces,
-    addPlaceCommentDislike, addPlaceCommentLike, addReviewCommentLike, addReviewLike, addReviewDislike, addPlaceCommentDislike, 
+import {
+    parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId,
+    parseCategories, parseNonEmptyString, parseLatitude, normalizeLongitude, parseNumber
+} from "../helpers.js";
+import {
+    getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces,
+    addPlaceCommentLike, addReviewCommentLike, addReviewLike, addReviewDislike, addPlaceCommentDislike,
 } from "../data/places.js";
-import {createUser, getUser, loginUser} from "../data/user.js";
+import { createUser, getUser, loginUser } from "../data/user.js";
 
 const router = express.Router();
   
@@ -248,18 +251,19 @@ router.route('/review/:id/addComment')
 
 router.route('/review/:id/like')
     .post(async (req, res) => {
-        try {
-            req.params.id = parseObjectId(req.params.id, "Review Id");
-
-
-        } catch (error) {
-            
+        let errors = [];
+    
+        req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+        if(errors.length > 0) {
+            return res.status(400).render("error", {title: "Add Review Comment Failed", errors: errors});
         }
-    });
-
-router.route('/review/:id/like')
-    .post(async (req, res) => {
-
+        try {
+            await likeReview(req.params.id, req.body.author);
+            return res.redirect(`/review/${review._id.toString()}`);
+        } catch (error) {
+            return res.render("error", {title: "Add Review Comment Failed", error: error.message, user: req.session ? req.session.user : undefined})
+        }
     });
 
 router.route('/about')
