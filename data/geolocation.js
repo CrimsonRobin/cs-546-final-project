@@ -602,7 +602,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
         if (placeIdsToExclude.length > 0)
         {
-            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map((i) => encodeURIComponent(i)).join(","));
+            url.searchParams.append("exclude_place_ids", placeIdsToExclude.join(","));
         }
 
         const data = await makeNominatimApiRequest(url);
