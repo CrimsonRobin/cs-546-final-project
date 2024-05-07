@@ -381,14 +381,16 @@ const places = {
                         content: "Bang on, one of my favorite accessible places on campus.",
                         createdAt: bsonDate("2024-04-01T13:36:24.000-04:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
                         content: "Great accessible building.",
                         createdAt: bsonDate("2023-01-01T03:21:20.000-05:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     },
                 ],
             }
@@ -413,6 +415,7 @@ const places = {
                     users.katherine._id.toString(),
                     users.gregory._id.toString()
                 ],
+                replies: []
             }
         ],
         location: {
@@ -525,7 +528,8 @@ const places = {
                             users.steven._id.toString(),
                             users.lawrence._id.toString()
                         ],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     }
                 ],
             }
@@ -606,7 +610,8 @@ const places = {
                         ],
                         dislikes: [
                             users.joan._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ],
             }
@@ -736,7 +741,8 @@ const places = {
                 content: "Good area, good station",
                 createdAt: bsonDate("2019-04-19T14:34:56.982-08:00"),
                 likes: [users.lawrence._id.toString()],
-                dislikes: []
+                dislikes: [],
+                replies: []
             },
             {
                 author: users.sean._id.toString(),
@@ -747,7 +753,8 @@ const places = {
                     users.janet._id.toString(),
                     users.samuel._id.toString()
                 ],
-                dislikes: []
+                dislikes: [],
+                replies: []
             },
             {
                 author: users.samuel._id.toString(),
@@ -765,7 +772,8 @@ const places = {
                     users.mildred._id.toString(),
                     users.christian._id.toString()
                 ],
-                dislikes: [users.katherine._id.toString()]
+                dislikes: [users.katherine._id.toString()],
+                replies: []
             }
         ]
     },
@@ -809,7 +817,8 @@ const places = {
                         dislikes: [
                             users.paul._id.toString(),
                             users.lawrence._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
@@ -824,7 +833,8 @@ const places = {
                             users.steven._id.toString(),
                             users.janet._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     }
                 ]
             },
@@ -881,7 +891,8 @@ const places = {
                     users.logan._id.toString(),
                     users.mildred._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.mildred._id.toString(),
@@ -897,7 +908,8 @@ const places = {
                     users.lawrence._id.toString(),
                     users.janet._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.linda._id.toString(),
@@ -919,7 +931,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.janet._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
