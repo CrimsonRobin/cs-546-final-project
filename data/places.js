@@ -795,6 +795,7 @@ export const findAllNear = async (latitude, longitude, radius) => {
 
     const places = await Place.find({}, ["_id", "location"], null).exec();
     return Enumerable.from(places)
+        .select(p => p.toObject())
         .select((p) => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
         .where((p) => p[0] <= radius)
         .orderByDescending((p) => p[0])
