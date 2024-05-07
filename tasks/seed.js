@@ -230,572 +230,6 @@ const users = {
     }
 };
 
-/*
-comments: [
-    {
-        author: { type: String, ref: "users" },
-        content: String,
-        createdAt: Date,
-        likes: [{ type: String, ref: "users" }],
-        dislikes: [{ type: String, ref: "users" }],
-    },
-],
- */
-/*
-{
-    _id: ObjectId,
-    author: { type: String, ref: "users" },
-    content: String,
-    createdAt: Date,
-    likes: [{ type: String, ref: "users" }],
-    dislikes: [{ type: String, ref: "users" }],
-    categories: [
-        {
-            categoryName: String,
-            rating: Number,
-        },
-    ],
-    comments: [
-        {
-            author: { type: String, ref: "users" },
-            content: String,
-            createdAt: Date,
-            likes: [{ type: String, ref: "users" }],
-            dislikes: [{ type: String, ref: "users" }],
-        },
-    ],
-},
- */
-
-// region old places
-// const places = {
-//     stevens: {
-//         _id: new ObjectId(),
-//         name: "Stevens Institute of Technology",
-//         description: "Stevens Institute of Technology: The College",
-//         comments: [
-//             {
-//                 author: users.mildred._id.toString(),
-//                 content: "I went to college here. Shout out to Professor Patrick Hill in CS546!",
-//                 createdAt: bsonDate("2024-05-06T00:15:26.000-04:00"),
-//                 likes: [users.aaron._id.toString(), users.christian._id.toString()],
-//                 dislikes: [users.linda._id.toString()],
-//             }
-//         ],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "27080296",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Stevens Institute of Technology, Castle Point Terrace, Uptown, Hoboken, Hudson County, New Jersey, 07030, United States",
-//             latitude: 40.744809599999996,
-//             longitude: -74.0252392276461,
-//         },
-//         reviews: [
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.aaron._id.toString(),
-//                 content: "A decently accessible place. Most places are accessible one way or another. Burchard accessibility is not great - you have to go around the back. Do not use the stair lift - last time I used it, it broke down and I got carried off.",
-//                 createdAt: bsonDate("2023-03-15T14:06:54.000-04:00"),
-//                 likes: [
-//                     users.roger._id.toString(),
-//                     users.katherine._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.sean._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 dislikes: [],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 4,
-//                     },
-//                 ],
-//                 comments: [
-//                     {
-//                         author: users.roger._id.toString(),
-//                         content: "Pretty spot on. Wish more residence halls had elevators though.",
-//                         createdAt: bsonDate("2024-05-01T13:36:24.000-04:00"),
-//                         likes: [users.sean._id.toString()],
-//                         dislikes: [users.joan._id.toString()]
-//                     },
-//                 ],
-//             },
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.logan._id.toString(),
-//                 content: "Not disabled but pretty accessible from what I've seen. A few curbs here and there.",
-//                 createdAt: bsonDate("2022-07-15T17:17:34.000-04:00"),
-//                 likes: [],
-//                 dislikes: [],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 4.9,
-//                     },
-//                 ],
-//                 comments: [],
-//             },
-//         ],
-//     },
-//     stevensHoweCenter: {
-//         _id: new ObjectId(),
-//         name: "Wesley J. Howe Center",
-//         description: "The Wesley J. Howe Center administrative building at Stevens Institute of Technology",
-//         comments: [
-//             {
-//                 author: users.christian._id.toString(),
-//                 content: "Lot of administrative stuff happens here. Wish they didn't get rid of Colonel John's though.",
-//                 createdAt: bsonDate("2023-01-31T16:45:36.673-05"),
-//                 likes: [
-//                     // Let this be a sign that Stevens should have kept Colonel John's.
-//                     users.william._id.toString(),
-//                     users.linda._id.toString(),
-//                     users.rose._id.toString(),
-//                     users.douglas._id.toString(),
-//                     users.aaron._id.toString(),
-//                     users.joan._id.toString(),
-//                     users.kyle._id.toString(),
-//                     users.janet._id.toString(),
-//                     users.logan._id.toString(),
-//                     users.christian._id.toString(),
-//                     users.mildred._id.toString(),
-//                     users.samuel._id.toString(),
-//                     users.paul._id.toString(),
-//                     users.rachel._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.sean._id.toString(),
-//                     users.steven._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 dislikes: [],
-//             },
-//         ],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "26974143",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Wesley J. Howe Center, 1, Wittpenn Walk, Uptown, Hoboken, Hudson County, New Jersey, 07030, United States",
-//             latitude: 40.7448047,
-//             longitude: -74.02386051290601,
-//         },
-//         reviews: [
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.katherine._id.toString(),
-//                 content: "Very accessible building. Sucks if someone blocks the curb cut out front though, you have to go around the whole circle. Wheelchair users can access the Bissinger room via the freight elevator on the first floor or the stair lift on the 4th floor.",
-//                 createdAt: bsonDate("2022-07-15T17:17:34.000-04"),
-//                 likes: [
-//                     users.roger._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.sean._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 dislikes: [users.joan._id.toString()],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 4.8,
-//                     },
-//                 ],
-//                 comments: [
-//                     {
-//                         author: users.roger._id.toString(),
-//                         content: "Bang on, one of my favorite accessible places on campus.",
-//                         createdAt: bsonDate("2024-04-01T13:36:24.000-04:00"),
-//                         likes: [users.sean._id.toString()],
-//                         dislikes: [users.joan._id.toString()]
-//                     },
-//                     {
-//                         author: users.samuel._id.toString(),
-//                         content: "Great accessible building.",
-//                         createdAt: bsonDate("2023-01-01T03:21:20.000-05:00"),
-//                         likes: [users.sean._id.toString()],
-//                         dislikes: [users.joan._id.toString()]
-//                     },
-//                 ],
-//             }
-//         ],
-//     },
-//     hobokenHospital: {
-//         _id: new ObjectId(),
-//         name: "Hoboken University Medical Center",
-//         description: "Hoboken University Medical Center: The Medical Center",
-//         comments: [
-//             {
-//                 author: users.rachel._id.toString(),
-//                 content: "Gets a bad rap but at least there's a hospital within the city.",
-//                 createdAt: bsonDate("2022-08-20T19:36:15.154-04:00"),
-//                 likes: [
-//                     users.joan._id.toString(),
-//                     users.samuel._id.toString(),
-//                     users.paul._id.toString()
-//                 ],
-//                 dislikes: [
-//                     users.roger._id.toString(),
-//                     users.katherine._id.toString(),
-//                     users.gregory._id.toString()
-//                 ],
-//             }
-//         ],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "27080832",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Hoboken University Medical Center, 308, Willow Avenue, Downtown, Hoboken, Hudson County, New Jersey, 07030, United States",
-//             latitude: 40.741482500000004,
-//             longitude: -74.03397040924716,
-//         },
-//         reviews: [
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.katherine._id.toString(),
-//                 content: "It's the hospital, the whole thing's accessible. Lot of semi-irritating beeping though.",
-//                 createdAt: bsonDate("2022-07-15T17:17:34.000-04:00"),
-//                 likes: [
-//                     users.roger._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 dislikes: [
-//                     users.joan._id.toString(),
-//                     users.sean._id.toString(),
-//                 ],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 5,
-//                     },
-//                     {
-//                         categoryName: NEURODIVERGENT,
-//                         rating: 4.9
-//                     },
-//                     {
-//                         categoryName: SENSORY,
-//                         rating: 4.5
-//                     }
-//                 ],
-//                 comments: [],
-//             },
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.joan._id.toString(),
-//                 content: "I mean I just walked everywhere. Beeping is mega annoying though.",
-//                 createdAt: bsonDate("2023-11-15T19:28:30.000-04:00"),
-//                 likes: [],
-//                 dislikes: [
-//                     users.mildred._id.toString(),
-//                     users.roger._id.toString(),
-//                     users.samuel._id.toString(),
-//                     users.william._id.toString(),
-//                     users.paul._id.toString(),
-//                     users.rachel._id.toString(),
-//                     users.timothy._id.toString(),
-//                     users.linda._id.toString(),
-//                     users.katherine._id.toString(),
-//                     users.rose._id.toString(),
-//                     users.douglas._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.sean._id.toString(),
-//                     users.aaron._id.toString(),
-//                     users.kyle._id.toString(),
-//                     users.janet._id.toString(),
-//                     users.logan._id.toString(),
-//                     users.christian._id.toString(),
-//                     users.steven._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 5,
-//                     },
-//                     {
-//                         categoryName: NEURODIVERGENT,
-//                         rating: 1,
-//                     },
-//                     {
-//                         categoryName: SENSORY,
-//                         rating: 1,
-//                     }
-//                 ],
-//                 comments: [
-//                     {
-//                         author: users.roger._id.toString(),
-//                         content: "Joan chill with the ableism",
-//                         createdAt: bsonDate("2023-11-15T19:28:30.000-04:00"),
-//                         likes: [
-//                             users.mildred._id.toString(),
-//                             users.roger._id.toString(),
-//                             users.samuel._id.toString(),
-//                             users.william._id.toString(),
-//                             users.paul._id.toString(),
-//                             users.rachel._id.toString(),
-//                             users.timothy._id.toString(),
-//                             users.linda._id.toString(),
-//                             users.katherine._id.toString(),
-//                             users.rose._id.toString(),
-//                             users.douglas._id.toString(),
-//                             users.gregory._id.toString(),
-//                             users.sean._id.toString(),
-//                             users.aaron._id.toString(),
-//                             users.kyle._id.toString(),
-//                             users.janet._id.toString(),
-//                             users.logan._id.toString(),
-//                             users.christian._id.toString(),
-//                             users.steven._id.toString(),
-//                             users.lawrence._id.toString()
-//                         ],
-//                         dislikes: [users.joan._id.toString()]
-//                     }
-//                 ],
-//             }
-//         ],
-//     },
-//     hobokenTrainStation: {
-//         _id: new ObjectId(),
-//         name: "NJ Transit Hoboken Train Station",
-//         description: "NJ Transit train station in Hoboken",
-//         comments: [
-//             {
-//                 author: users.rachel._id.toString(),
-//                 content: "This place is the actual terminal for the regular NJ Transit rail system, not the PATH train, not the HBLR Light Rail.",
-//                 createdAt: bsonDate("2020-09-08T14:46:32.789+01:00"),
-//                 likes: [
-//                     users.joan._id.toString(),
-//                     users.samuel._id.toString(),
-//                     users.paul._id.toString(),
-//                     users.roger._id.toString(),
-//                     users.katherine._id.toString(),
-//                     users.gregory._id.toString()
-//                 ],
-//                 dislikes: [],
-//             }
-//         ],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "7024801771",
-//             osmType: OSM_TYPE_NODE,
-//             address: "Hoboken Terminal, Warrington Plaza, Downtown, Hoboken, Hudson County, New Jersey, 07030, United States",
-//             latitude: 40.7349447,
-//             longitude: -74.0273829,
-//         },
-//         reviews: [
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.katherine._id.toString(),
-//                 content: "Compared to the rest of US public transportation, this isn't that bad. Basically just ask for help getting on the train and they'll put you on a little lift onto the train.",
-//                 createdAt: bsonDate("2022-03-09T07:28:32.200+05:00"),
-//                 likes: [
-//                     users.roger._id.toString(),
-//                     users.gregory._id.toString(),
-//                     users.lawrence._id.toString()
-//                 ],
-//                 dislikes: [
-//                     users.joan._id.toString()
-//                 ],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 4,
-//                     }
-//                 ],
-//                 comments: [],
-//             },
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.joan._id.toString(),
-//                 content: "It's accessible",
-//                 createdAt: bsonDate("2023-04-05T05:24:21.804-06:00"),
-//                 likes: [],
-//                 dislikes: [users.mildred._id.toString()],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 5,
-//                     }
-//                 ],
-//                 comments: [
-//                     {
-//                         author: users.roger._id.toString(),
-//                         content: "It is, but not immediately, you have to ask for some things",
-//                         createdAt: bsonDate("2023-04-21T13:18:28.538+02:00"),
-//                         likes: [
-//                             users.mildred._id.toString()
-//                         ],
-//                         dislikes: [
-//                             users.joan._id.toString()
-//                         ]
-//                     }
-//                 ],
-//             }
-//         ],
-//     },
-//     ninthStreetLightRail: {
-//         _id: new ObjectId(),
-//         name: "9th Street NJ Transit HBLR Station",
-//         description: "NJ Transit Hudson-Bergen Light Rail Station at 9th Street",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "7681854809",
-//             osmType: OSM_TYPE_NODE,
-//             address: "9th Street-Congress Street, Jackson Street, Hoboken, Hudson County, New Jersey, 10017, United States",
-//             latitude: 40.7487251,
-//             longitude: -74.0386637,
-//         },
-//         reviews: [
-//             {
-//                 _id: new ObjectId(),
-//                 author: users.joan._id.toString(),
-//                 content: "It's accessible",
-//                 createdAt: bsonDate("2023-04-05T05:24:21.804-06:00"),
-//                 likes: [],
-//                 dislikes: [users.mildred._id.toString()],
-//                 categories: [
-//                     {
-//                         categoryName: PHYSICAL,
-//                         rating: 5,
-//                     }
-//                 ],
-//                 comments: [
-//                     {
-//                         author: users.roger._id.toString(),
-//                         content: "It is, but not immediately, you have to ask for some things",
-//                         createdAt: bsonDate("2023-04-21T13:18:28.538+02:00"),
-//                         likes: [
-//                             users.mildred._id.toString()
-//                         ],
-//                         dislikes: [
-//                             users.joan._id.toString()
-//                         ]
-//                     }
-//                 ],
-//             }
-//         ],
-//     },
-//     newarkAirport: {
-//         _id: new ObjectId(),
-//         name: "Newark Liberty International Airport",
-//         description: "International EWR Airport - Newark Liberty",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "141207228",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Newark Liberty International Airport, US 1-9 Local, Newark, Essex County, New Jersey, 07114, United States",
-//             latitude: 40.68906405,
-//             longitude: -74.17725485035348,
-//         },
-//         reviews: [],
-//     },
-//     maristCollege: {
-//         _id: new ObjectId(),
-//         name: "Marist College",
-//         description: "Private college in Poughkeepsie, NY",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "14077708",
-//             osmType: OSM_TYPE_RELATION,
-//             address: "Marist College, Poplar Street, Fairview, Town of Poughkeepsie, Dutchess County, New York, 12601, United States",
-//             latitude: 41.722007000000005,
-//             longitude: -73.93438356318902,
-//         },
-//         reviews: [],
-//     },
-//     kingsVerona: {
-//         _id: new ObjectId(),
-//         name: "Kings Food Market",
-//         description: "Upscale American food market chain",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "857949885",
-//             osmType: OSM_TYPE_NODE,
-//             address: "Kings, 265-345, Pompton Avenue, Verona, Essex County, New Jersey, 07044, United States",
-//             latitude: 40.8338064,
-//             longitude: -74.2256087,
-//         },
-//         reviews: [],
-//     },
-//     kingsHoboken: {
-//         _id: new ObjectId(),
-//         name: "Kings Food Market",
-//         description: "Upscale American food market chain",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "4788723924",
-//             osmType: OSM_TYPE_NODE,
-//             address: "Kings Food Markets, Hudson Street, Uptown, Hoboken, Hudson County, New Jersey, 07030, United States",
-//             latitude: 40.7517055,
-//             longitude: -74.0251939,
-//         },
-//         reviews: [],
-//     },
-//     kingsMillburn: {
-//         _id: new ObjectId(),
-//         name: "Kings Food Market",
-//         description: "Upscale American food market chain",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "1015998401",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Kings, Morris Turnpike, Short Hills, Millburn, Essex County, New Jersey, 07078, United States",
-//             latitude: 40.72243455,
-//             longitude: -74.33439192391381,
-//         },
-//         reviews: [],
-//     },
-//     sinatraParkHoboken: {
-//         _id: new ObjectId(),
-//         name: "Sinatra Park",
-//         description: "Small park featuring an outdoor amphitheater, soccer field, and a kayak launch with a view of New York City",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "24404351",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Sinatra Park, Downtown, Hoboken, Hudson County, New Jersey, United States",
-//             latitude: 40.7411793,
-//             longitude: -74.02634826593933,
-//         },
-//         reviews: [],
-//     },
-//     pierCParkHoboken: {
-//         _id: new ObjectId(),
-//         name: "Pier C Park",
-//         description: "This park with scenic views of NYC features a fishing pier, playground, water play area & promenade.",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "10831115",
-//             osmType: OSM_TYPE_RELATION,
-//             address: "Pier C Park, Downtown, Hoboken, Hudson County, New Jersey, United States",
-//             latitude: 40.7401825,
-//             longitude: -74.02576306969146,
-//         },
-//         reviews: [],
-//     },
-//     pierAParkHoboken: {
-//         _id: new ObjectId(),
-//         name: "Pier A Park",
-//         description: "Park with scenic views of NYC in downtown Hoboken",
-//         comments: [],
-//         location: {
-//             _id: new ObjectId(),
-//             osmId: "24404263",
-//             osmType: OSM_TYPE_WAY,
-//             address: "Pier A Park, Downtown, Hoboken, Hudson County, New Jersey, United States",
-//             latitude: 40.73687525,
-//             longitude: -74.0262606326309,
-//         },
-//         reviews: [],
-//     }
-// }
-// endregion old places
-
 const places = {
     stevens: {
         _id: new ObjectId(),
@@ -808,6 +242,12 @@ const places = {
                 createdAt: bsonDate("2024-05-06T00:15:26.000-04:00"),
                 likes: [users.aaron._id.toString(), users.christian._id.toString()],
                 dislikes: [users.linda._id.toString()],
+                replies: [{
+                    _id: new ObjectId(),
+                    author: users.william._id.toString(),
+                    content: "I just found the reply button!",
+                    createdAt: bsonDate("2013-04-26T14:17:35.861-03:00")
+                }]
             }
         ],
         location: {
@@ -832,6 +272,7 @@ const places = {
                     users.lawrence._id.toString()
                 ],
                 dislikes: [],
+                accessibilityByRequestOnly: true,
                 categories: [
                     {
                         categoryName: PHYSICAL,
@@ -844,7 +285,13 @@ const places = {
                         content: "Pretty spot on. Wish more residence halls had elevators though.",
                         createdAt: bsonDate("2024-05-01T13:36:24.000-04:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: [{
+                            _id: new ObjectId(),
+                            author: users.william._id.toString(),
+                            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at mauris arcu.",
+                            createdAt: bsonDate("2013-04-26T14:17:35.861-03:00")
+                        }]
                     },
                 ],
             },
@@ -855,6 +302,7 @@ const places = {
                 createdAt: bsonDate("2022-07-15T17:17:34.000-04:00"),
                 likes: [],
                 dislikes: [],
+                accessibilityByRequestOnly: false,
                 categories: [
                     {
                         categoryName: PHYSICAL,
@@ -896,6 +344,7 @@ const places = {
                     users.lawrence._id.toString()
                 ],
                 dislikes: [],
+                replies: []
             },
         ],
         location: {
@@ -919,6 +368,7 @@ const places = {
                     users.lawrence._id.toString()
                 ],
                 dislikes: [users.joan._id.toString()],
+                accessibilityByRequestOnly: true,
                 categories: [
                     {
                         categoryName: PHYSICAL,
@@ -931,14 +381,16 @@ const places = {
                         content: "Bang on, one of my favorite accessible places on campus.",
                         createdAt: bsonDate("2024-04-01T13:36:24.000-04:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
                         content: "Great accessible building.",
                         createdAt: bsonDate("2023-01-01T03:21:20.000-05:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     },
                 ],
             }
@@ -963,6 +415,7 @@ const places = {
                     users.katherine._id.toString(),
                     users.gregory._id.toString()
                 ],
+                replies: []
             }
         ],
         location: {
@@ -979,6 +432,7 @@ const places = {
                 author: users.katherine._id.toString(),
                 content: "It's the hospital, the whole thing's accessible. Lot of semi-irritating beeping though.",
                 createdAt: bsonDate("2022-07-15T17:17:34.000-04:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.roger._id.toString(),
                     users.gregory._id.toString(),
@@ -1009,6 +463,7 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "I mean I just walked everywhere. Beeping is mega annoying though.",
                 createdAt: bsonDate("2023-11-15T19:28:30.000-04:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [
                     users.mildred._id.toString(),
@@ -1073,7 +528,8 @@ const places = {
                             users.steven._id.toString(),
                             users.lawrence._id.toString()
                         ],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: []
                     }
                 ],
             }
@@ -1113,6 +569,7 @@ const places = {
                 author: users.katherine._id.toString(),
                 content: "Compared to the rest of US public transportation, this isn't that bad. Basically just ask for help getting on the train and they'll put you on a little lift onto the train.",
                 createdAt: bsonDate("2022-03-09T07:28:32.200+05:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.roger._id.toString(),
                     users.gregory._id.toString(),
@@ -1134,6 +591,7 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "It's accessible",
                 createdAt: bsonDate("2023-04-05T05:24:21.804-06:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [users.mildred._id.toString()],
                 categories: [
@@ -1152,7 +610,8 @@ const places = {
                         ],
                         dislikes: [
                             users.joan._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ],
             }
@@ -1176,6 +635,7 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "Very very accessible, no elevators, all ramps and small gaps, no intervention needed. Ride on, ride off.",
                 createdAt: bsonDate("2004-11-04T04:21:11.114-08:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.douglas._id.toString(),
                     users.rose._id.toString(),
@@ -1207,6 +667,7 @@ const places = {
                 author: users.rachel._id.toString(),
                 content: "Great place, haven't had any physical accessibility issues.",
                 createdAt: bsonDate("2015-03-16T20:00:51.299-08:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.kyle._id.toString(),
                     users.samuel._id.toString(),
@@ -1238,7 +699,13 @@ const places = {
                             users.janet._id.toString(),
                             users.sean._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: [{
+                            _id: new ObjectId(),
+                            author: users.samuel._id.toString(),
+                            content: "This is an example comment",
+                            createdAt: bsonDate("2014-07-24T19:35:52.737-06:00")
+                        }]
                     },
                     {
                         author: users.paul._id.toString(),
@@ -1262,7 +729,8 @@ const places = {
                             users.rose._id.toString(),
                             users.william._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -1273,7 +741,8 @@ const places = {
                 content: "Good area, good station",
                 createdAt: bsonDate("2019-04-19T14:34:56.982-08:00"),
                 likes: [users.lawrence._id.toString()],
-                dislikes: []
+                dislikes: [],
+                replies: []
             },
             {
                 author: users.sean._id.toString(),
@@ -1284,7 +753,8 @@ const places = {
                     users.janet._id.toString(),
                     users.samuel._id.toString()
                 ],
-                dislikes: []
+                dislikes: [],
+                replies: []
             },
             {
                 author: users.samuel._id.toString(),
@@ -1302,7 +772,8 @@ const places = {
                     users.mildred._id.toString(),
                     users.christian._id.toString()
                 ],
-                dislikes: [users.katherine._id.toString()]
+                dislikes: [users.katherine._id.toString()],
+                replies: []
             }
         ]
     },
@@ -1324,6 +795,7 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "Well this place is massive. But overall pretty accessible as far as I know. Noisy at times. How the airline treats your stuff is another story though.",
                 createdAt: bsonDate("2018-09-27T03:11:08.219-04:00"),
+                accessibilityByRequestOnly: true,
                 likes: [],
                 dislikes: [
                     users.roger._id.toString(),
@@ -1345,7 +817,8 @@ const places = {
                         dislikes: [
                             users.paul._id.toString(),
                             users.lawrence._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
@@ -1360,7 +833,8 @@ const places = {
                             users.steven._id.toString(),
                             users.janet._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     }
                 ]
             },
@@ -1369,6 +843,7 @@ const places = {
                 author: users.rose._id.toString(),
                 content: "Never really liked airports. This place is massive. Accessible though. Not great for sensory disabilities though, it's very busy here.",
                 createdAt: bsonDate("2019-10-12T06:12:31.767-05:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.janet._id.toString(),
                     users.william._id.toString(),
@@ -1416,7 +891,8 @@ const places = {
                     users.logan._id.toString(),
                     users.mildred._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.mildred._id.toString(),
@@ -1432,7 +908,8 @@ const places = {
                     users.lawrence._id.toString(),
                     users.janet._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.linda._id.toString(),
@@ -1454,7 +931,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.janet._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -1476,6 +954,7 @@ const places = {
                 author: users.christian._id.toString(),
                 content: "Went to school here. They're pretty accommodating, just speak to your professor and the accessibility and accommodations department.",
                 createdAt: bsonDate("2010-10-07T01:17:46.410-05:00"),
+                accessibilityByRequestOnly: true,
                 likes: [users.kyle._id.toString()],
                 dislikes: [
                     users.gregory._id.toString(),
@@ -1510,7 +989,8 @@ const places = {
                             users.katherine._id.toString(),
                             users.christian._id.toString(),
                             users.rachel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.aaron._id.toString(),
@@ -1534,7 +1014,8 @@ const places = {
                             users.joan._id.toString(),
                             users.steven._id.toString(),
                             users.christian._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
@@ -1547,7 +1028,8 @@ const places = {
                         dislikes: [
                             users.janet._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1556,6 +1038,7 @@ const places = {
                 author: users.janet._id.toString(),
                 content: "Went to school here. There are steps around many places, but not bad.",
                 createdAt: bsonDate("2022-04-12T09:15:58.810-04:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [
                     users.linda._id.toString(),
@@ -1578,6 +1061,7 @@ const places = {
                 author: users.william._id.toString(),
                 content: "I went to school here. Beautiful campus. Everyone is respectful and working with the department of accommodations is nice.",
                 createdAt: bsonDate("2022-07-02T16:21:41.279-07:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.roger._id.toString(),
                     users.katherine._id.toString()
@@ -1607,7 +1091,8 @@ const places = {
                         dislikes: [
                             users.christian._id.toString(),
                             users.douglas._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.steven._id.toString(),
@@ -1622,7 +1107,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.katherine._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.william._id.toString(),
@@ -1637,7 +1123,8 @@ const places = {
                             users.mildred._id.toString(),
                             users.lawrence._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     }
                 ]
             },
@@ -1646,6 +1133,7 @@ const places = {
                 author: users.samuel._id.toString(),
                 content: "Total garbage. So unhelpful for getting accommodations for my OCD.",
                 createdAt: bsonDate("2017-03-09T06:19:50.470-03:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [],
                 categories: [{ categoryName: NEURODIVERGENT, rating: 1.4 }],
@@ -1677,7 +1165,8 @@ const places = {
                     users.paul._id.toString(),
                     users.christian._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.christian._id.toString(),
@@ -1700,7 +1189,8 @@ const places = {
                     users.gregory._id.toString(),
                     users.lawrence._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.katherine._id.toString(),
@@ -1723,7 +1213,8 @@ const places = {
                     users.katherine._id.toString(),
                     users.christian._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.roger._id.toString(),
@@ -1741,7 +1232,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.steven._id.toString(),
                     users.christian._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -1763,6 +1255,7 @@ const places = {
                 author: users.janet._id.toString(),
                 content: "Really accessible except for times around the holidays when it gets crowded and noisy. Some aisles are narrow in general. Everything is on one level and there are auto doors everywhere.",
                 createdAt: bsonDate("2018-01-08T11:37:47.397-05:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.mildred._id.toString(),
                     users.lawrence._id.toString(),
@@ -1814,7 +1307,8 @@ const places = {
                             users.paul._id.toString(),
                             users.lawrence._id.toString(),
                             users.logan._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.rachel._id.toString(),
@@ -1833,7 +1327,8 @@ const places = {
                             users.rose._id.toString(),
                             users.aaron._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1842,6 +1337,7 @@ const places = {
                 author: users.katherine._id.toString(),
                 content: "Love this place. Great employees, very accessible.",
                 createdAt: bsonDate("2022-05-18T22:16:15.331-04:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.rachel._id.toString(),
                     users.aaron._id.toString(),
@@ -1875,6 +1371,7 @@ const places = {
                 author: users.william._id.toString(),
                 content: "I really hate this place. Never had a good experience here. Everything sucks about it. Only good thing is it's physically accessible.",
                 createdAt: bsonDate("2021-03-06T08:22:25.057-07:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.william._id.toString(),
                     users.steven._id.toString(),
@@ -1907,7 +1404,8 @@ const places = {
                         users.rachel._id.toString(),
                         users.douglas._id.toString(),
                         users.steven._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             }
         ],
@@ -1931,7 +1429,8 @@ const places = {
                 users.gregory._id.toString(),
                 users.william._id.toString(),
                 users.steven._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     kingsHoboken: {
@@ -1952,6 +1451,7 @@ const places = {
                 author: users.kyle._id.toString(),
                 content: "Nice store. Very narrow. Crowded during holidays.",
                 createdAt: bsonDate("2007-01-11T09:55:53.097-08:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.roger._id.toString(),
                     users.gregory._id.toString(),
@@ -1992,7 +1492,8 @@ const places = {
                         users.steven._id.toString(),
                         users.christian._id.toString(),
                         users.rachel._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             },
             {
@@ -2000,6 +1501,7 @@ const places = {
                 author: users.steven._id.toString(),
                 content: "Great store, very accessible, employees are helpful if you ask",
                 createdAt: bsonDate("2001-03-16T21:17:48.419-07:00"),
+                accessibilityByRequestOnly: false,
                 likes: [users.roger._id.toString()],
                 dislikes: [],
                 categories: [
@@ -2025,7 +1527,8 @@ const places = {
                             users.lawrence._id.toString(),
                             users.steven._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.katherine._id.toString(),
@@ -2039,7 +1542,8 @@ const places = {
                         dislikes: [
                             users.sean._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2064,7 +1568,8 @@ const places = {
                     users.joan._id.toString(),
                     users.paul._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.timothy._id.toString(),
@@ -2082,7 +1587,8 @@ const places = {
                     users.timothy._id.toString(),
                     users.william._id.toString(),
                     users.kyle._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.samuel._id.toString(),
@@ -2105,7 +1611,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.joan._id.toString(),
                     users.william._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.mildred._id.toString(),
@@ -2122,7 +1629,8 @@ const places = {
                     users.janet._id.toString(),
                     users.mildred._id.toString(),
                     users.linda._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -2144,6 +1652,7 @@ const places = {
                 author: users.lawrence._id.toString(),
                 content: "Terribly inaccessible surrounding area but the store isn't bad. Very overstimulating outside.",
                 createdAt: bsonDate("2004-04-21T10:58:12.182-04:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.rachel._id.toString(),
                     users.kyle._id.toString(),
@@ -2179,7 +1688,8 @@ const places = {
                             users.kyle._id.toString(),
                             users.logan._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.rose._id.toString(),
@@ -2200,7 +1710,8 @@ const places = {
                             users.steven._id.toString(),
                             users.christian._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -2209,6 +1720,7 @@ const places = {
                 author: users.william._id.toString(),
                 content: "This place is always really busy. But great physical accessibility. Some small areas inside.",
                 createdAt: bsonDate("2017-06-02T10:46:21.781-06:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [],
                 categories: [
@@ -2236,7 +1748,8 @@ const places = {
             dislikes: [
                 users.joan._id.toString(),
                 users.gregory._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     sinatraParkHoboken: {
@@ -2257,6 +1770,7 @@ const places = {
                 author: users.mildred._id.toString(),
                 content: "Partially physically accessible. There are two in/out ramps, but the actual amphitheater \"seats\" aren't accessible. You're either on the top row or the bottom row.",
                 createdAt: bsonDate("2016-07-17T02:25:18.314-07:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.christian._id.toString(),
                     users.aaron._id.toString()
@@ -2285,7 +1799,8 @@ const places = {
                             users.mildred._id.toString(),
                             users.rachel._id.toString()
                         ],
-                        dislikes: [users.katherine._id.toString()]
+                        dislikes: [users.katherine._id.toString()],
+                        replies: []
                     },
                     {
                         author: users.janet._id.toString(),
@@ -2302,7 +1817,8 @@ const places = {
                             users.kyle._id.toString(),
                             users.rachel._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.rose._id.toString(),
@@ -2322,7 +1838,8 @@ const places = {
                             users.joan._id.toString(),
                             users.kyle._id.toString(),
                             users.lawrence._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -2331,6 +1848,7 @@ const places = {
                 author: users.samuel._id.toString(),
                 content: "The kayak launch is inaccessible! There are massive wood beams blocking it. Also some garbage builds up here from time to time.",
                 createdAt: bsonDate("2007-09-20T19:30:08.183-03:00"),
+                accessibilityByRequestOnly: true,
                 likes: [],
                 dislikes: [],
                 categories: [
@@ -2355,7 +1873,8 @@ const places = {
                             users.janet._id.toString(),
                             users.gregory._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.logan._id.toString(),
@@ -2384,7 +1903,8 @@ const places = {
                             users.lawrence._id.toString(),
                             users.logan._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.kyle._id.toString(),
@@ -2403,7 +1923,8 @@ const places = {
                             users.logan._id.toString(),
                             users.paul._id.toString(),
                             users.christian._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2424,7 +1945,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.mildred._id.toString(),
                     users.janet._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.rachel._id.toString(),
@@ -2436,7 +1958,8 @@ const places = {
                     users.katherine._id.toString(),
                     users.gregory._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -2458,6 +1981,7 @@ const places = {
                 author: users.joan._id.toString(),
                 content: "Partially accessible. Some of the inner parts of the park aren't accessible, but the perimeter is completely accessible. Very busy in the sprint and summer, especially on weekends.",
                 createdAt: bsonDate("2006-03-18T16:42:41.072-08:00"),
+                accessibilityByRequestOnly: true,
                 likes: [],
                 dislikes: [
                     users.rose._id.toString(),
@@ -2475,6 +1999,7 @@ const places = {
                 author: users.timothy._id.toString(),
                 content: "Terrible place if you want to really relax. Lots of people here.",
                 createdAt: bsonDate("2017-05-19T11:19:26.203-05:00"),
+                accessibilityByRequestOnly: false,
                 likes: [users.samuel._id.toString()],
                 dislikes: [
                     users.rachel._id.toString(),
@@ -2501,7 +2026,8 @@ const places = {
                         users.douglas._id.toString(),
                         users.kyle._id.toString(),
                         users.christian._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             },
             {
@@ -2509,6 +2035,7 @@ const places = {
                 author: users.gregory._id.toString(),
                 content: "Can't comment on physical disability, but this place is always packed. Very overstimulating sometimes.",
                 createdAt: bsonDate("2008-06-13T06:33:11.629-03:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.rachel._id.toString(),
                     users.kyle._id.toString(),
@@ -2538,6 +2065,7 @@ const places = {
                 author: users.william._id.toString(),
                 content: "Greg said this best, I mean I love this place but there are a lot of people here.",
                 createdAt: bsonDate("2022-07-10T21:41:59.623-03:00"),
+                accessibilityByRequestOnly: true,
                 likes: [],
                 dislikes: [
                     users.christian._id.toString(),
@@ -2571,7 +2099,8 @@ const places = {
                             users.christian._id.toString(),
                             users.janet._id.toString(),
                             users.rachel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.william._id.toString(),
@@ -2594,7 +2123,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.timothy._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2614,7 +2144,8 @@ const places = {
                 users.william._id.toString(),
                 users.paul._id.toString(),
                 users.janet._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     pierAParkHoboken: {
@@ -2635,6 +2166,7 @@ const places = {
                 author: users.christian._id.toString(),
                 content: "Much bigger than pier C. Everything's pretty flat. Have to go around for one part though since it's elevated by about 2 feet",
                 createdAt: bsonDate("2019-02-06T13:47:18.312-07:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.aaron._id.toString(),
                     users.timothy._id.toString(),
@@ -2659,6 +2191,7 @@ const places = {
                 author: users.mildred._id.toString(),
                 content: "Love this place. Much bigger than Pier C. Popular site for weddings, proposals, and date nights. Can be overstimulating during major days of the year, like the first few warm days of the season.",
                 createdAt: bsonDate("2011-12-22T12:40:23.516-06:00"),
+                accessibilityByRequestOnly: false,
                 likes: [
                     users.timothy._id.toString(),
                     users.lawrence._id.toString(),
@@ -2689,6 +2222,7 @@ const places = {
                 author: users.william._id.toString(),
                 content: "Really don't like this place. Always way too much going on. Never can relax or anything. Always feel like I should leave as soon as I should get there - if possible! There are just that many people here!",
                 createdAt: bsonDate("2004-02-27T05:51:39.901-05:00"),
+                accessibilityByRequestOnly: true,
                 likes: [
                     users.joan._id.toString(),
                     users.samuel._id.toString(),
@@ -2723,7 +2257,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.logan._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.steven._id.toString(),
@@ -2741,7 +2276,8 @@ const places = {
                             users.rachel._id.toString(),
                             users.timothy._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.christian._id.toString(),
@@ -2759,7 +2295,8 @@ const places = {
                             users.paul._id.toString(),
                             users.christian._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.paul._id.toString(),
@@ -2778,7 +2315,8 @@ const places = {
                             users.linda._id.toString(),
                             users.sean._id.toString(),
                             users.timothy._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -2787,6 +2325,7 @@ const places = {
                 author: users.katherine._id.toString(),
                 content: "An alright place. Great physical accessibility, but not really my speed otherwise. Some people may find that there are too many people here for comfort, especially on nice days.",
                 createdAt: bsonDate("2004-11-08T09:56:20.339-08:00"),
+                accessibilityByRequestOnly: false,
                 likes: [],
                 dislikes: [],
                 categories: [
@@ -2812,7 +2351,8 @@ const places = {
                             users.joan._id.toString(),
                             users.roger._id.toString(),
                             users.linda._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.lawrence._id.toString(),
@@ -2829,7 +2369,8 @@ const places = {
                             users.linda._id.toString(),
                             users.douglas._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2850,7 +2391,8 @@ const places = {
                     users.sean._id.toString(),
                     users.logan._id.toString(),
                     users.timothy._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.douglas._id.toString(),
@@ -2872,7 +2414,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.steven._id.toString(),
                     users.janet._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.paul._id.toString(),
@@ -2888,7 +2431,8 @@ const places = {
                     users.paul._id.toString(),
                     users.lawrence._id.toString(),
                     users.christian._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     }
