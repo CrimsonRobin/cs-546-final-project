@@ -63,7 +63,8 @@ a {
     color: var(--accent-bg);
 }
 
-button {
+button, .button-link {
+    text-decoration: none;
     padding: 8px;
     border: none;
     border-radius: 4px;
@@ -144,9 +145,17 @@ header img, header div {
 #search {
     width: 100%;
     display: flex;
+    align-content: center;
+    justify-content: space-between;
 }
 
 #search-box {
     width: 100%;
     display: flex;
+}
+
+.right-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: end;
 }

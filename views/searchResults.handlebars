@@ -10,4 +10,7 @@
     {{#each results}}
         {{> placeCard place=this user=user }}
     {{/each}}
+    {{#unless results}}
+        <p>No results found. <a href="/api/nominatimSearch"></a></p>
+    {{/unless}}
 {{/if}}

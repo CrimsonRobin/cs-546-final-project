@@ -1,25 +1,23 @@
 {{#with comment}}
     <div class="card comment">
-        <h2>{{name}}</h2>
+        <h2>{{author}}</h2>
         <p>{{date}}</p>
         <p>{{content}}</p>
-        {{#unless ../reply}}
-            {{#if ../user}}
-                {{> likeDislike user=../user type="comment" _id=_id }}
-                <!--                <button class="reply" data-id="{{_id}}"><span class="material-symbols-outlined">plus</span>Reply</button>-->
+        {{#if ../user}}
+            {{> likeDislike user=../user type="comment" _id=_id }}
+            <button class="reply" data-id="{{_id}}"><span class="material-symbols-outlined">plus</span>Reply</button>
+            <dialog>
                 <form action="/comment/{{_id}}/reply" method="POST">
                     <label for="content">Message</label>
                     <textarea name="content" id="content" cols="30" rows="5"></textarea>
                     <button type="submit">Reply</button>
                 </form>
-            {{/if}}
-        {{/unless}}
-        {{#if replies}}
-            <div class="replies">
-                {{#each replies}}
-                    {{> commentCard comment=this reply=true user=../user}}
-                {{/each}}
-            </div>
+            </dialog>
         {{/if}}
+        <div class="replies">
+            {{#each replies}}
+                {{> commentCard comment=this reply=true user=../user}}
+            {{/each}}
+        </div>
     </div>
 {{/with}}

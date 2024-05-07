@@ -129,7 +129,7 @@ export const getReview = async (reviewId) => {
     if (results.length !== 1) {
         throw new Error(`Review with id ${reviewId} does not exist`);
     }
-    return results[0].toObject();
+    return results[0].reviews;
 };
 //get all from specific place
 
@@ -769,7 +769,7 @@ export const findAllNear = async (latitude, longitude, radius) => {
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
 
-    const places = await Place.find({}, ["_id", "location"], null).exec();
+    const places = await Place.find({}, null, null).exec();
     return Enumerable.from(places)
         .select(p => p.toObject())
         .select((p) => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
