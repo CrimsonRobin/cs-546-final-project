@@ -78,6 +78,10 @@ export const getPlace = async (placeId) => {
     return foundPlace;
 };
 
+export const getAllPlaces = async () => {
+    return await Place.find({}).exec();
+};
+
 //review functions:
 
 //create
@@ -130,10 +134,11 @@ export const getReview = async (reviewId) => {
  */
 export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
-    return (await Place
-        .findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
-        .select("reviews")
-        .exec()).reviews;
+    return (
+        await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
+            .select("reviews")
+            .exec()
+    ).reviews;
 };
 
 //update review
@@ -176,12 +181,11 @@ export const deleteReview = async (reviewId) => {
  * @returns {Promise<boolean>} True if the user has already reviewed this place, false otherwise.
  * @author Anthony Webster
  */
-export const userHasReviewForPlace = async (placeId, userId) =>
-{
+export const userHasReviewForPlace = async (placeId, userId) => {
     placeId = parseObjectId(placeId);
     userId = parseObjectId(userId);
     const placeReviews = await getAllReviewsFromPlace(placeId);
-    return placeReviews.some(r => parseObjectId(r.author) === userId);
+    return placeReviews.some((r) => parseObjectId(r.author) === userId);
 };
 
 /**
