@@ -242,6 +242,12 @@ const places = {
                 createdAt: bsonDate("2024-05-06T00:15:26.000-04:00"),
                 likes: [users.aaron._id.toString(), users.christian._id.toString()],
                 dislikes: [users.linda._id.toString()],
+                replies: [{
+                    _id: new ObjectId(),
+                    author: users.william._id.toString(),
+                    content: "I just found the reply button!",
+                    createdAt: bsonDate("2013-04-26T14:17:35.861-03:00")
+                }]
             }
         ],
         location: {
@@ -279,7 +285,13 @@ const places = {
                         content: "Pretty spot on. Wish more residence halls had elevators though.",
                         createdAt: bsonDate("2024-05-01T13:36:24.000-04:00"),
                         likes: [users.sean._id.toString()],
-                        dislikes: [users.joan._id.toString()]
+                        dislikes: [users.joan._id.toString()],
+                        replies: [{
+                            _id: new ObjectId(),
+                            author: users.william._id.toString(),
+                            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at mauris arcu.",
+                            createdAt: bsonDate("2013-04-26T14:17:35.861-03:00")
+                        }]
                     },
                 ],
             },
@@ -332,6 +344,7 @@ const places = {
                     users.lawrence._id.toString()
                 ],
                 dislikes: [],
+                replies: []
             },
         ],
         location: {
@@ -681,7 +694,13 @@ const places = {
                             users.janet._id.toString(),
                             users.sean._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: [{
+                            _id: new ObjectId(),
+                            author: users.samuel._id.toString(),
+                            content: "This is an example comment",
+                            createdAt: bsonDate("2014-07-24T19:35:52.737-06:00")
+                        }]
                     },
                     {
                         author: users.paul._id.toString(),
@@ -705,7 +724,8 @@ const places = {
                             users.rose._id.toString(),
                             users.william._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
