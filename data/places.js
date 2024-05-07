@@ -527,7 +527,7 @@ export const toggleReviewCommentLike = async (reviewId, commentId, userId) => {
     }
 };
 
-export const toggleReviewCommentDislike = async (commentId, userId) => {
+export const toggleReviewCommentDislike = async (reviewId, commentId, userId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
     userId = parseObjectId(userId);
