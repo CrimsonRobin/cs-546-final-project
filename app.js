@@ -4,11 +4,11 @@ import configRoutes from "./routes/index.js";
 import { connectToDatabase } from "./config/mongoConnection.js";
 import exphbs from "express-handlebars";
 import session from "express-session";
-import { configDotenv } from "dotenv";
+// import { configDotenv } from "dotenv";
 import path from "path";
 
-// Load environment as early as possible
-configDotenv({ path: "./.env" });
+// // Load environment as early as possible
+// configDotenv({ path: "./.env" });
 
 const app = express();
 

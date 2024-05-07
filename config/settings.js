@@ -1,7 +1,7 @@
 export const getMongoConfig = () =>
 {
     return {
-        serverUrl: `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}`,
-        database: `${process.env.DATABASE_NAME}`
+        serverUrl: `mongodb://localhost:27017`,
+        database: `a11y`
     };
 };
