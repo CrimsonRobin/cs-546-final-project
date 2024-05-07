@@ -416,6 +416,7 @@ router.route("/about").get(async (req, res) => {
     return res.render("about", { title: "About", user: req.session ? req.session.user : undefined });
 });
 
+//handle comment likes
 router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
@@ -425,7 +426,7 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
         //return res.render("error", { title: "Invalid Comment Id or Place Id" });
     }
     try {
-        addPlaceCommentLike();
+        const likedPlace = addPlaceCommentLike(req.params.commentId, req.params.placeId);
     } catch (e) {
         //return res.render("error", { title: "" });
     }
