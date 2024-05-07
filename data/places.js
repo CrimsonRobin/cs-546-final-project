@@ -324,10 +324,7 @@ export const addReviewComment = async (reviewId, author, content) =>
 //get all comments from place/review
 export const getAllCommentsFromPlace = async (placeId) =>
 {
-    placeId = parseObjectId(placeId);
-    const place = await getPlace(placeId);
-
-    return place.comments;
+    return (await getPlace(parseObjectId(placeId))).comments;
 };
 
 export const getAllCommentsFromReview = async (reviewId) =>
