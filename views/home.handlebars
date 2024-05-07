@@ -3,9 +3,18 @@
 <main>
     <h1>Establishments near you</h1>
     <form action="/" id="search">
-        <input type="text" name="search-query" placeholder="Search places..." aria-label="Search">
+        <input type="text" name="search-query" id="search-box" placeholder="Search places..." aria-label="Search">
         <button type="submit"><span class="material-symbols-outlined" aria-hidden="true">search</span>Search</button>
-
+        <input type="checkbox" name="advanced" id="advanced">
+        <label for="advanced">Advanced search</label>
+        <div id="advanced-settings" hidden>
+            <label for="radius">Radius:</label>
+            <input type="range" name="radius" id="radius" max="500" min="0">
+            <label for="latitude">Latitude:</label>
+            <input type="number" name="latitude" id="latitude" max="82" min="-82">
+            <label for="longitude">Longitude:</label>
+            <input type="number" name="longitude" id="longitude" max="90" min="-90">
+        </div>
     </form>
 
     <div id="results"></div>

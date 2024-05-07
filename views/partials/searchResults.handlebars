@@ -7,6 +7,6 @@
 {{else}}
     <p>{{message}}</p>
     {{#each results}}
-        {{> placeCard this }}
+        {{> placeCard place=this user=user }}
     {{/each}}
 {{/if}}
