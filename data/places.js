@@ -72,15 +72,14 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
     const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
-    if (!foundPlace) {
+    if (foundPlace === null) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    //foundPlace.avgRatings = await getAverageCategoryRatings(placeId);
     return foundPlace;
 };
 
 export const getAllPlaces = async () => {
-    return (await Place.find({}).exec()).map((place) => place.toObject());
+    return (await Place.find({}, null, null).exec()).map((place) => place.toObject());
 };
 
 //review functions:
@@ -777,4 +776,35 @@ export const findAllNear = async (latitude, longitude, radius) => {
         .orderByDescending((p) => p[0])
         .select((p) => p[1])
         .toArray();
+};
+
+export const getLikedItems = async (userId) => {
+    userId = parseObjectId(userId, "user id");
+    const allReviews = (await Place.aggregate([
+        {$unwind: "$reviews"},
+        {$project: {_id: false, reviews: true}}
+    ]).exec()).map(r => r.toObject());
+
+    const likedReviews = allReviews
+        .filter(r => r.likes.includes(userId))
+        .map(r => r._id.toString());
+
+    const likedReviewComments = allReviews
+        .map(r => r.comments)
+        .filter(r => r.likes.includes(userId))
+        .map(r => r._id.toString());
+
+    const allPlaceComments = (await Place.aggregate([
+        {$unwind: "$comments"},
+        {$project: {_id: false, comments: true}}
+    ]).exec()).map(r => r.toObject());
+    const likedPlaceComments = allPlaceComments
+        .filter(c => c.likes.includes(userId))
+        .map(c => c._id.toString());
+
+    return {
+        likedReviewComments: likedReviewComments,
+        likedPlaceComments: likedPlaceComments,
+        likedReviews: likedReviews
+    };
 };
