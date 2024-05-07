@@ -696,7 +696,7 @@ export const parseUsername = (username) =>
 {
     username = parseStringWithLengthBounds(username, USERNAME_MINIMUM_LENGTH, USERNAME_MAXIMUM_LENGTH, true, "username");
 
-    if (!(/^[a-z0-9]$/ig.test(username)))
+    if (/[^a-z0-9]/ig.test(username))
     {
         throw new Error("Username can only contain alphanumeric characters");
     }
