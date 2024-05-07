@@ -2,19 +2,19 @@
  * The disability category for physical disabilities.
  * @type {string}
  */
-export const DISABILITY_CATEGORY_PHYSICAL = "physical";
+const DISABILITY_CATEGORY_PHYSICAL = "physical";
 
 /**
  * The disability category for neurodivergency.
  * @type {string}
  */
-export const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
+const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
 
 /**
  * The disability category for sensory disabilities.
  * @type {string}
  */
-export const DISABILITY_CATEGORY_SENSORY = "sensory";
+const DISABILITY_CATEGORY_SENSORY = "sensory";
 
 /**
  * Test if the given object is null or undefined.
@@ -23,7 +23,7 @@ export const DISABILITY_CATEGORY_SENSORY = "sensory";
  * @returns {boolean} True if the given object is null or undefined, false otherwise.
  * @author Anthony Webster
  */
-export const isNullOrUndefined = (x) =>
+const isNullOrUndefined = (x) =>
 {
     return x === null || x === undefined;
 };
@@ -57,7 +57,7 @@ const nonEmptyStringOrDefault = (s, defaultVal) =>
  * @param paramName The name of the parameter
  * @author Anthony Webster
  */
-export const assertTypeIs = (obj, type, paramName = undefined) =>
+const assertTypeIs = (obj, type, paramName = undefined) =>
 {
     throwIfNullOrUndefined(type);
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
@@ -98,7 +98,7 @@ export const assertTypeIs = (obj, type, paramName = undefined) =>
  * @param {string|undefined} paramName The name of the parameter.
  * @author Anthony Webster
  */
-export const throwIfNullOrUndefined = (x, paramName = undefined) =>
+const throwIfNullOrUndefined = (x, paramName = undefined) =>
 {
     nonEmptyStringOrDefault(paramName, "Parameter");
 
@@ -121,7 +121,7 @@ export const throwIfNullOrUndefined = (x, paramName = undefined) =>
  * @throws {Error} If the given string is null, undefined, or not a string.
  * @author Anthony Webster
  */
-export const throwIfNotString = (x, paramName = undefined) =>
+const throwIfNotString = (x, paramName = undefined) =>
 {
     throwIfNullOrUndefined(x, paramName);
     if (typeof x !== "string")
@@ -140,7 +140,7 @@ export const throwIfNotString = (x, paramName = undefined) =>
  * the given string is empty.
  * @author Anthony Webster
  */
-export const parseNonEmptyString = (s, paramName = undefined) =>
+const parseNonEmptyString = (s, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "String");
     throwIfNullOrUndefined(s, paramName);
@@ -163,7 +163,7 @@ export const parseNonEmptyString = (s, paramName = undefined) =>
  * @returns {boolean} True if the number is positive infinity or negative infinity; otherwise, false.
  * @author Anthony Webster.
  */
-export const isInfinity = (n) =>
+const isInfinity = (n) =>
 {
     // From my previous work in lab 4
     return !isNullOrUndefined(n) && typeof n === "number" && (n === Infinity || n === -Infinity);
@@ -177,7 +177,7 @@ export const isInfinity = (n) =>
  * @throws {Error} If the given number is NaN.
  * @author Anthony Webster
  */
-export const assertIsNotNaN = (n, paramName = undefined) =>
+const assertIsNotNaN = (n, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
     if (Number.isNaN(n))
@@ -193,7 +193,7 @@ export const assertIsNotNaN = (n, paramName = undefined) =>
  * @param {string|undefined} paramName The name of the parameter.
  * @throws {Error} If the given number is positive infinity or negative infinity.
  */
-export const assertIsNotInfinity = (n, paramName = undefined) =>
+const assertIsNotInfinity = (n, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "Parameter");
     if (isInfinity(n))
@@ -215,7 +215,7 @@ export const assertIsNotInfinity = (n, paramName = undefined) =>
  *
  * @author Anthony Webster
  */
-export const assertIsInteger = (n, paramName = undefined) =>
+const assertIsInteger = (n, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "Number");
     assertTypeIs(n, "number", paramName);
@@ -241,7 +241,7 @@ export const assertIsInteger = (n, paramName = undefined) =>
  *
  * @author Anthony Webster
  */
-export const roundTo = (n, places = 0) =>
+const roundTo = (n, places = 0) =>
 {
     assertTypeIs(n, "number", "Places");
     assertIsInteger(places, "Places");
@@ -276,7 +276,7 @@ export const roundTo = (n, places = 0) =>
  * @returns {T} The element at index zero of the given array.
  * @author Anthony Webster
  */
-export const exactlyOneElement = (arr, paramName = "array") =>
+const exactlyOneElement = (arr, paramName = "array") =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "array");
     assertTypeIs(arr, "array", paramName);
@@ -294,7 +294,7 @@ export const exactlyOneElement = (arr, paramName = "array") =>
  * @returns {!number} The given degrees converted to radians.
  * @author Anthony Webster
  */
-export const degreesToRadians = (degrees) =>
+const degreesToRadians = (degrees) =>
 {
     assertTypeIs(degrees, "number", "degrees");
     return degrees * (Math.PI / 180.0);
@@ -307,7 +307,7 @@ export const degreesToRadians = (degrees) =>
  * @returns {!number} The haversine of the given angle.
  * @author Anthony Webster
  */
-export const haversin = (theta) =>
+const haversin = (theta) =>
 {
     assertTypeIs(theta, "number", "angle");
     const s = Math.sin(theta / 2.0);
@@ -322,7 +322,7 @@ export const haversin = (theta) =>
  *                    otherwise, false.
  * @author Anthony Webster
  */
-export const isNumber = (x) =>
+const isNumber = (x) =>
 {
     return !isNullOrUndefined(x) && typeof x === "number" && !Number.isNaN(x);
 };
@@ -339,7 +339,7 @@ export const isNumber = (x) =>
  *                 otherwise parsed to a number.
  * @author Anthony Webster
  */
-export const parseNumber = (str, trim = false) =>
+const parseNumber = (str, trim = false) =>
 {
     // Normal languages (not JS) don't let you parse garbage like "   56 " or "45qwerty" into an int.
     // This function restores this NORMAL functionality that already should exist in JS.
@@ -410,7 +410,7 @@ export const parseNumber = (str, trim = false) =>
  * @returns {number} The parsed latitude
  * @author Anthony Webster
  */
-export const parseLatitude = (latitude) =>
+const parseLatitude = (latitude) =>
 {
     assertTypeIs(latitude, "number", "latitude");
     if (latitude < -90 || latitude > 90)
@@ -429,7 +429,7 @@ export const parseLatitude = (latitude) =>
  * @returns {number} The normalized longitude.
  * @author Anthony Webster
  */
-export const normalizeLongitude = (longitude) =>
+const normalizeLongitude = (longitude) =>
 {
     assertTypeIs(longitude, "number", "Longitude");
     if (isInfinity(longitude) || Number.isNaN(longitude))
@@ -456,7 +456,7 @@ export const normalizeLongitude = (longitude) =>
  * @returns {Promise<any>}
  * @author Anthony Webster
  */
-export const sleep = (milliseconds) =>
+const sleep = (milliseconds) =>
 {
     assertTypeIs(milliseconds, "number", "milliseconds");
     if (milliseconds <= 0)
@@ -475,7 +475,7 @@ export const sleep = (milliseconds) =>
  * @returns {T|undefined} The result of calling the function or undefined if the function call threw an error.
  * @author Anthony Webster
  */
-export const tryCatchChain = (errors, func) =>
+const tryCatchChain = (errors, func) =>
 {
     try
     {
@@ -506,7 +506,7 @@ export const tryCatchChain = (errors, func) =>
  *
  * @author Anthony Webster
  */
-export const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true, paramName = undefined) =>
+const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true, paramName = undefined) =>
 {
     paramName = nonEmptyStringOrDefault(paramName, "String");
     throwIfNotString(s, paramName);
@@ -537,13 +537,13 @@ export const parseStringWithLengthBounds = (s, minLength, maxLength, trim = true
  * The minimum length of a password.
  * @type {number}
  */
-export const PASSWORD_MINIMUM_LENGTH = 8;
+const PASSWORD_MINIMUM_LENGTH = 8;
 
 /**
  * The maximum length of a password.
  * @type {number}
  */
-export const PASSWORD_MAXIMUM_LENGTH = 256;
+const PASSWORD_MAXIMUM_LENGTH = 256;
 
 /**
  * Parses a password.
@@ -560,7 +560,7 @@ export const PASSWORD_MAXIMUM_LENGTH = 256;
  *
  * @author Samuel Miller, Anthony Webster
  */
-export const parsePassword = (password) =>
+const parsePassword = (password) =>
 {
     throwIfNotString(password, "Password");
 
@@ -600,7 +600,7 @@ export const parsePassword = (password) =>
  *
  * @author Samuel Miller
  */
-export const validCheckbox = (checkbox, paramName = undefined) =>
+const validCheckbox = (checkbox, paramName = undefined) =>
 {
     if (checkbox === undefined || checkbox === "on")
     {
@@ -612,7 +612,7 @@ export const validCheckbox = (checkbox, paramName = undefined) =>
     }
 };
 
-export const containsDuplicates = (array) =>
+const containsDuplicates = (array) =>
 {
     assertTypeIs(array, "array", "array");
     return new Set(array).size !== array.length;
@@ -625,7 +625,7 @@ export const containsDuplicates = (array) =>
  * @returns {({categoryName: string, rating: number})[]} The parsed comments.
  * @author Amanda Merino, Anthony Webster
  */
-export const parseCategories = (categories) =>
+const parseCategories = (categories) =>
 {
     throwIfNullOrUndefined(categories, "categories");
     assertTypeIs(categories, "array", "categories");
@@ -666,7 +666,7 @@ export const parseCategories = (categories) =>
  * @returns {T[]} The array with duplicates removed.
  * @author Anthony Webster
  */
-export const removeDuplicates = (array) =>
+const removeDuplicates = (array) =>
 {
     assertTypeIs(array, "array", "array");
     const seen = [];
@@ -680,11 +680,6 @@ export const removeDuplicates = (array) =>
     return seen;
 };
 
-(function ()
-{
-    const cs = parseCategories(["neurodivergent"]);
-})();
-
 /**
  * Parse a list of categories.
  *
@@ -692,7 +687,7 @@ export const removeDuplicates = (array) =>
  * @returns {({qualification: string})[]} The parsed comments.
  * @author Chris Kang
  */
-export const parseQualifications = (qualifications) =>
+const parseQualifications = (qualifications) =>
 {
     throwIfNullOrUndefined(qualifications, "qualifications");
     assertTypeIs(qualifications, "array", "qualifications");

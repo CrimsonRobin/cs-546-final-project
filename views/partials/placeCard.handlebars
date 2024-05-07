@@ -1,23 +1,27 @@
 {{#with place}}
-    <a href="/places/{{_id}}"></a>
-    <div class="card place">
-        <div class="overall-rating {{ratings.averageRating}}">
-            <p>{{ratings.averageRating}}</p>
+    <a href="/place/{{_id}}">
+        <div class="card place">
+            <div class="overall-rating {{ratings.averageRating}}">
+                <p>{{ratings.averageRating}}</p>
+            </div>
+            <div class="main">
+                <h2>{{name}}</h2>
+                <p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>{{location.address}}</p>
+                <p><span class="material-symbols-outlined" aria-hidden="true">star</span>{{reviews.length}}</p>
+                <p><span class="material-symbols-outlined" aria-hidden="true">comment</span>{{comments.length}}</p>
+            </div>
+            <div class="individual-ratings">
+                <p{{#if ../physical}} class="highlight"{{/if}}><span class="material-symbols-outlined"
+                                                                     aria-hidden="true">accessible_forward</span>Physical
+                    <span class="individual-rating {{ratings.physicalRating}}">{{ratings.physicalRating}}</span></p>
+                <p{{#if ../sensory}} class="highlight"{{/if}}><span class="material-symbols-outlined"
+                                                                    aria-hidden="true">blind</span>Sensory
+                    <span class="individual-rating {{ratings.sensoryRating}}">{{ratings.sensoryRating}}</span></p>
+                <p{{#if ../neurodivergent}} class="highlight"{{/if}}><span class="material-symbols-outlined"
+                                                                           aria-hidden="true">neurology</span>Neurodivergent
+                    <span class="individual-rating {{ratings.neurodivergentRating}}">{{ratings.neurodivergentRating}}</span>
+                </p>
+            </div>
         </div>
-        <div class="main">
-            <h2>{{name}}</h2>
-            <p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>{{address}}</p>
-            <p><span class="material-symbols-outlined" aria-hidden="true">star</span>{{ratings.length}}</p>
-            <p><span class="material-symbols-outlined" aria-hidden="true">comment</span>{{comments.length}}</p>
-        </div>
-        <div class="individual-ratings">
-            <p{{#if ../physical}} class="highlight"{{/if}}><span class="material-symbols-outlined" aria-hidden="true">accessible_forward</span>Physical
-                <span class="individual-rating {{ratings.physicalRating}}">{{ratings.physicalRating}}</span></p>
-            <p{{#if ../sensory}} class="highlight"{{/if}}><span class="material-symbols-outlined" aria-hidden="true">blind</span>Sensory
-                <span class="individual-rating {{ratings.sensoryRating}}">{{ratings.sensoryRating}}</span></p>
-            <p{{#if ../neurodivergent}} class="highlight"{{/if}}><span class="material-symbols-outlined" aria-hidden="true">neurology</span>Neurodivergent
-                <span class="individual-rating {{ratings.neurodivergentRating}}">{{ratings.neurodivergentRating}}</span>
-            </p>
-        </div>
-    </div>
+    </a>
 {{/with}}
