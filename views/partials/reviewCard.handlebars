@@ -1,5 +1,5 @@
 {{#with review}}
-    <a href="/reviews/{{_id}}">
+    <a href="/review/{{_id}}">
         <div class="card review">
             <h2 class="{{ratings.averageRating}}">{{ratings.averageRating}}</h2>
             <p>Ask for Accessibility: {{#if ask}}Yes{{else}}No{{/if}}</p>
@@ -12,7 +12,7 @@
                     <span>{{ratings.neurodivergentRating}}</span>
                 </p>
             </div>
-            <p>{{date}}</p>
+            <p>{{createdAt}}</p>
             <p>{{content}}</p>
             {{> likeDislike user=../user type="review" _id=_id }}
         </div>
