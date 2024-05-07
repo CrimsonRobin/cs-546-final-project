@@ -78,8 +78,8 @@ export const getPlace = async (placeId) => {
 
 //create
 export const addReview = async (placeId, author, content, categories) => {
-    placeId = parseObjectId(placeId, "Place id");
-    author = parseNonEmptyString(author, "Name of author");
+    placeId = parseObjectId(placeId, "Place Id");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of review");
     categories = parseCategories(categories);
     const placeReviewed = await getPlace(placeId);
@@ -107,7 +107,7 @@ export const addReview = async (placeId, author, content, categories) => {
 };
 //get specific review
 export const getReview = async (reviewId) => {
-    reviewId = parseObjectId(reviewId, "Review id");
+    reviewId = parseObjectId(reviewId, "Review Id");
     const searchedReview = await Place.findOne(
         { "reviews._id": new ObjectId(reviewId) },
         { projection: { "reviews.$": true, _id: false } }
@@ -204,7 +204,7 @@ export const getAverageCategoryRatings = async (placeId) => {
 
 //create place comment
 export const addPlaceComment = async (placeId, author, content) => {
-    author = parseNonEmptyString(author, "Name of author");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
 
@@ -234,7 +234,7 @@ export const addPlaceComment = async (placeId, author, content) => {
 
 //create review comment
 export const addReviewComment = async (reviewId, author, content) => {
-    author = parseNonEmptyString(author, "Name of author");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     reviewId = parseObjectId(reviewId, "Review Id");
 
