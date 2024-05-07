@@ -337,16 +337,6 @@ router.route("/place/:id").get(async (req, res) => {
         req.params.id = parseObjectId(req.params.id, "Place Id");
         const place = await getPlace(req.params.id);
 
-        const avgRatings = await getAverageCategoryRatings(req.params.id);
-        const letterRatings = mapAvgRatingsToLetters(avgRatings);
-
-        place.averageRatings = {
-            overallRating: letterRatings.overall,
-            physicalRating: letterRatings.byCategory[DISABILITY_CATEGORY_PHYSICAL],
-            sensoryRating: letterRatings.byCategory[DISABILITY_CATEGORY_SENSORY],
-            neurodivergentRating: letterRatings.byCategory[DISABILITY_CATEGORY_NEURODIVERGENT],
-        };
-
         return res.render("place", {
             title: "Place",
             place: place,
@@ -417,7 +407,14 @@ router.route("/review/:id").get(async (req, res) => {
     //Get Review Object and pass it (including title)
     try {
         req.params.id = parseObjectId(req.params.id, "Review Id");
-        const review = getReview(req.params.id);
+        const review = await getReview(req.params.id);
+
+        if(req.session.user) {
+            review.liked = review.likes.includes(req.session.user._id);
+            review.disliked = review.dislikes.includes(req.session.user._id);
+
+            //review.comments = review.comments.map(());
+        }
 
         return res.render("review", {
             title: "Review",
