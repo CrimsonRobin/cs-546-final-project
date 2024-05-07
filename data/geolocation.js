@@ -13,6 +13,7 @@ import {
     sleep,
 } from "../helpers.js";
 import Enumerable from "linq";
+import { DateTime } from "luxon";
 
 /**
  * The base URL for the Nominatim API.
@@ -197,35 +198,54 @@ const getNominatimApiUrl = (endpoint) =>
  *
  * The Nominatim API should respond with JSON.
  *
- * @param url The full URL to the Nominatim endpoint with any and all parameters.
+ * @param {string|URL} url The full URL to the Nominatim endpoint with any and all parameters.
  * @returns {Promise<any>} The data from Nominatim.
  * @author Anthony Webster
  */
-const makeNominatimApiRequest = async (url) =>
+const makeNominatimApiRequest = (function ()
 {
-    // [deep sigh and exhale]
-    // Nominatim has a strict maximum of one request per second.
-    // This is a bit of a nuclear option, but we'll pause before making any requests to be sure that
-    // we don't exceed that limit. While it's nuclear and a little obnoxious, it makes sure that we
-    // abide by the rules and respect the service. I like to think of it also as a "thank you" for
-    // the service being FOSS.
-    await sleep(1250);
+    /**
+     * The time that the most recent Nominatim API request was made.
+     * @type {?DateTime}
+     */
+    let timeOfLastApiRequest = null;
 
-    if (url instanceof URL)
+    return async (url) =>
     {
-        url = url.toString();
+        if (isNullOrUndefined(timeOfLastApiRequest))
+        {
+            timeOfLastApiRequest = DateTime.now();
+        }
+        else
+        {
+            // Nominatim has a strict maximum of one request per second, so we'll "extra abide" by that
+            // policy by ensuring our requests are at least (slightly more than) one second apart.
+            const millisSinceLastRequest = timeOfLastApiRequest.diffNow("milliseconds").milliseconds;
+            if (millisSinceLastRequest >= 0 && millisSinceLastRequest <= 1250)
+            {
+                // We'll do this just to ensure that we don't try to sleep for a negative amount of time.
+                const millisRemaining = Math.max(0, 1250 - millisSinceLastRequest);
+                await sleep(millisRemaining);
+            }
+            timeOfLastApiRequest = DateTime.now();
+        }
+
+        if (url instanceof URL)
+        {
+            url = url.toString();
+        }
+
+        const response = await fetch(url, {
+            method: "GET",
+            // body: params,
+            headers: {
+                "User-Agent": "curl/8.7.1",
+            },
+        });
+
+        return await response.json();
     }
-
-    const response = await fetch(url, {
-        method: "GET",
-        // body: params,
-        headers: {
-            "User-Agent": "curl/8.7.1",
-        },
-    });
-
-    return await response.json();
-};
+})();
 
 // TODO: Create separate typedefs where some of this stuff gets too "noisy".
 /**

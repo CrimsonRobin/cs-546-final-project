@@ -30,7 +30,8 @@
     --fg: #121212;
     --accent-bg: #A51D2D;
     --accent-fg: #ffffff;
-
+    --bg-on: #ffffff;
+    --shadow: #808080;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,10 +44,12 @@
     }
 
     :root {
-        --bg: #121212;
+        --bg: #202020;
         --fg: #f0f0f0;
         --accent-bg: #E9818D;
         --accent-fg: #000000;
+        --bg-on: #303030;
+        --shadow: #121212;
     }
 }
 
@@ -70,23 +73,31 @@ button {
     align-items: center;
 }
 
-.login-register {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
 .empty-section {
     font-style: italic;
 }
 
 .card {
-    background-color: var(--bg);
-    filter: drop-shadow(0 8px 8px);
+    background-color: var(--bg-on);
+    filter: drop-shadow(0 8px 8px var(--shadow));
     border-radius: 12px;
-    margin: 8px;
+    margin: 24px 12px 12px;
     padding: 12px;
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+}
+
+a:has(.card) {
+    text-decoration: none;
+    color: var(--fg);
+}
+
+p:has(.material-symbols-outlined) {
+    display: flex;
+    align-content: center;
+    justify-content: left;
+    gap: 8px;
 }
 
 .highlight {
@@ -106,9 +117,16 @@ main {
     margin: auto;
 }
 
+main .login-register {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
 header {
     display: flex;
-    background-color: var(--bg);
+    background-color: var(--bg-on);
     justify-content: space-between;
     align-items: center;
     position: fixed;
@@ -116,9 +134,19 @@ header {
     top: 0;
     width: 100%;
     height: 64px;
-    filter: drop-shadow(0px 5px 5px);
+    filter: drop-shadow(0px 5px 5px var(--shadow));
 }
 
 header img, header div {
     padding: 8px;
+}
+
+#search {
+    width: 100%;
+    display: flex;
+}
+
+#search-box {
+    width: 100%;
+    display: flex;
 }

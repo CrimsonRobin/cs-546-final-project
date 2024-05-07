@@ -410,6 +410,7 @@ export const toggleReviewLike = async (reviewId, userId) => {
     } else {
         await addReviewLike(reviewId, userId);
     }
+    return await getReview(reviewId);
 };
 
 export const toggleReviewDislike = async (reviewId, userId) => {
@@ -424,6 +425,7 @@ export const toggleReviewDislike = async (reviewId, userId) => {
     } else {
         await addReviewDislike(reviewId, userId);
     }
+    return await getReview(reviewId);
 };
 
 const addReviewDislike = async (reviewId, userId) => {
@@ -457,7 +459,7 @@ export const togglePlaceCommentLike = async (placeId, commentId, userId) => {
     placeId = parseObjectId(placeId);
     commentId = parseObjectId(commentId);
     userId = parseObjectId(userId);
-    const comment = getCommentFromPlace(placeId, commentId);
+    const comment = await getCommentFromPlace(placeId, commentId);
     if (comment.likes.some((c) => c === userId)) {
         await removePlaceCommentLike(commentId, userId);
     } else if (comment.dislikes.some((c) => c === userId)) {
@@ -466,13 +468,14 @@ export const togglePlaceCommentLike = async (placeId, commentId, userId) => {
     } else {
         await addPlaceCommentLike(commentId, userId);
     }
+    return await getCommentFromPlace(placeId, commentId);
 };
 
 export const togglePlaceCommentDislike = async (placeId, commentId, userId) => {
     placeId = parseObjectId(placeId);
     commentId = parseObjectId(commentId);
     userId = parseObjectId(userId);
-    const comment = getCommentFromPlace(placeId, commentId);
+    const comment = await getCommentFromPlace(placeId, commentId);
     if (comment.dislikes.some((c) => c === userId)) {
         await removePlaceCommentDislike(commentId, userId);
     } else if (comment.likes.some((c) => c === userId)) {
@@ -481,6 +484,7 @@ export const togglePlaceCommentDislike = async (placeId, commentId, userId) => {
     } else {
         await addPlaceCommentDislike(commentId, userId);
     }
+    return await getCommentFromPlace(placeId, commentId);
 };
 
 const addPlaceCommentLike = async (commentId, userId) => {
@@ -519,7 +523,7 @@ export const toggleReviewCommentLike = async (reviewId, commentId, userId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
     userId = parseObjectId(userId);
-    const comment = getCommentFromPlace(reviewId, commentId);
+    const comment = await getCommentFromReview(reviewId, commentId);
     if (comment.likes.some((id) => id === userId)) {
         await removeReviewCommentLike(reviewId, userId);
     } else if (comment.dislikes.some((id) => id === userId)) {
@@ -528,13 +532,14 @@ export const toggleReviewCommentLike = async (reviewId, commentId, userId) => {
     } else {
         await addReviewCommentLike(reviewId, userId);
     }
+    return await getCommentFromReview(reviewId, commentId);
 };
 
 export const toggleReviewCommentDislike = async (reviewId, commentId, userId) => {
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
     userId = parseObjectId(userId);
-    const comment = getCommentFromPlace(reviewId, commentId);
+    const comment = await getCommentFromReview(reviewId, commentId);
     if (comment.dislikes.some((id) => id === userId)) {
         await removeReviewCommentDislike(reviewId, userId);
     } else if (comment.likes.some((id) => id === userId)) {
@@ -543,6 +548,7 @@ export const toggleReviewCommentDislike = async (reviewId, commentId, userId) =>
     } else {
         await addReviewCommentDislike(reviewId, userId);
     }
+    return await getCommentFromReview(reviewId, commentId);
 };
 
 export const addReviewCommentLike = async (commentId, userId) => {
