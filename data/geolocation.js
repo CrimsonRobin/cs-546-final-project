@@ -17,7 +17,7 @@ import Enumerable from "linq";
 /**
  * The base URL for the Nominatim API.
  * @type {string}
- @author Anthony Webster
+ * @author Anthony Webster
  */
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/";
 
