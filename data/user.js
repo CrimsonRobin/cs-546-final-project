@@ -28,6 +28,19 @@ export const createUser = async (firstname, lastname, username, password, qualif
         hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
         qualifications: parseQualifications(qualifications),
+    };
+};
+
+export const createUser = async (firstname, lastname, username, password, qualifications) => {
+    const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
+    const document = new User({
+        _id: ObjectId,
+        firstname: firstname,
+        lastname: lastname,
+        username: username,
+        hashedPassword: await bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
+        createdAt: DateTime.now().toBSON(),
+        qualifications: removeDuplicates(qualifications),
     });
 
     await document.save();
@@ -90,6 +103,7 @@ export const loginUser = async (username, password) =>
     }
 
     return {
+        _id: existingUser._id.toString(),
         firstname: existingUser.firstname,
         lastname: existingUser.lastname,
         username: existingUser.username,
