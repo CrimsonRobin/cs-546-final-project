@@ -434,6 +434,80 @@ export const removePlaceCommentDislike = async (commentId, userId) =>
         { $pull: { comments: { dislikes: userId } } }).exec();
 };
 
+export const addReviewCommentLike = async (commentId, userId) =>
+{
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews.comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { reviews: { comments: { likes: userId } } } }).exec();
+};
+
+export const removeReviewCommentLike = async (commentId, userId) =>
+{
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { reviews: { comments: { likes: userId } } } }).exec();
+};
+
+export const addReviewCommentDislike = async (commentId, userId) =>
+{
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { reviews: { comments: { dislikes: userId } } } }).exec();
+};
+
+export const removeReviewCommentDislike = async (commentId, userId) =>
+{
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { reviews: { comments: { dislikes: userId } } } }).exec();
+};
+
+export const addPlaceCommentReply = async (commentId, authorId, content) =>
+{
+    commentId = parseObjectId(commentId, "comment id");
+    authorId = parseObjectId(authorId, "author id");
+    content = parseNonEmptyString(content, "reply content");
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(commentId) },
+        {
+            $push: {
+                comments: {
+                    replies: {
+                        _id: new ObjectId(),
+                        author: authorId,
+                        content: content
+                    }
+                }
+            }
+        }).exec();
+};
+
+export const addReviewCommentReply = async (commentId, authorId, content) =>
+{
+    commentId = parseObjectId(commentId, "comment id");
+    authorId = parseObjectId(authorId, "author id");
+    content = parseNonEmptyString(content, "reply content");
+    await Place.updateOne(
+        { "reviews.comments._id": ObjectId.createFromHexString(commentId) },
+        {
+            $push: {
+                reviews: {
+                    comments: {
+                        replies: {
+                            _id: new ObjectId(),
+                            author: authorId,
+                            content: content
+                        }
+                    }
+                }
+            }
+        }).exec();
+};
+
 //search
 const stateAbbreviationToFullNameMap = {
     al: "alabama",
