@@ -30,7 +30,8 @@ export const DISABILITY_CATEGORY_NEURODIVERGENT = "neurodivergent";
  */
 export const DISABILITY_CATEGORY_SENSORY = "sensory";
 
-export const parsePlaceFields = (name, description, osmType, osmId) => {
+export const parsePlaceFields = (name, description, osmType, osmId) =>
+{
     // If name and description are not strings or are empty strings, the method should throw.
     return {
         name: parseNonEmptyString(name, "Place name"),
@@ -40,7 +41,8 @@ export const parsePlaceFields = (name, description, osmType, osmId) => {
     };
 };
 
-export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) => {
+export const createPlace = async (name, description, osmType, osmId, address, longitude, latitude) =>
+{
     const parsed = parsePlaceFields(name, description, osmType, osmId);
     const document = new Place({
         _id: new ObjectId(),
@@ -68,24 +70,28 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
  * @param placeId
  * @returns {Promise<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown extends any[] ? Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>[] : Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>>}
  */
-export const getPlace = async (placeId) => {
+export const getPlace = async (placeId) =>
+{
     placeId = parseObjectId(placeId, "Place id");
     const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
-    if (!foundPlace) {
+    if (!foundPlace)
+    {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
     foundPlace.avgRatings = await getAverageCategoryRatings(foundPlace);
     return foundPlace;
 };
 
-export const getAllPlaces = async () => {
+export const getAllPlaces = async () =>
+{
     return await Place.find({}).exec();
 };
 
 //review functions:
 
 //create
-export const addReview = async (placeId, author, content, categories) => {
+export const addReview = async (placeId, author, content, categories) =>
+{
     placeId = parseObjectId(placeId, "Place Id");
     author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of review");
@@ -108,19 +114,22 @@ export const addReview = async (placeId, author, content, categories) => {
             },
         }
     ).exec();
-    if (!review) {
+    if (!review)
+    {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
     return review;
 };
 //get specific review
-export const getReview = async (reviewId) => {
+export const getReview = async (reviewId) =>
+{
     reviewId = parseObjectId(reviewId, "Review Id");
     const searchedReview = await Place.findOne(
         { "reviews._id": new ObjectId(reviewId) },
         { projection: { "reviews.$": true, _id: false } }
     ).exec();
-    if (searchedReview === null) {
+    if (searchedReview === null)
+    {
         throw new Error(`Review with that id could not be found!`);
     }
     return searchedReview;
@@ -132,7 +141,8 @@ export const getReview = async (reviewId) => {
  * @param placeId
  * @returns {Promise<*>}
  */
-export const getAllReviewsFromPlace = async (placeId) => {
+export const getAllReviewsFromPlace = async (placeId) =>
+{
     placeId = parseObjectId(placeId);
     return (
         await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
@@ -142,13 +152,15 @@ export const getAllReviewsFromPlace = async (placeId) => {
 };
 
 //update review
-export const updateReview = async (reviewId, content, categories) => {
+export const updateReview = async (reviewId, content, categories) =>
+{
     reviewId = parseObjectId(reviewId, "Review Id");
     content = parseNonEmptyString(content, "Review content");
     categories = parseCategories(categories);
     const searchedReview = getReview(reviewId);
     //if no changes were actually made, end early
-    if (content === searchedReview.content && categories === searchedReview.categories) {
+    if (content === searchedReview.content && categories === searchedReview.categories)
+    {
         return;
     }
     const updatedPlace = await Place.findOneAndUpdate(
@@ -161,14 +173,16 @@ export const updateReview = async (reviewId, content, categories) => {
     return searchedReview;
 };
 //delete review
-export const deleteReview = async (reviewId) => {
+export const deleteReview = async (reviewId) =>
+{
     reviewId = parseObjectId(reviewId, "Review Id");
     const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) }).exec();
     const updateResult = await Place.updateOne(
         { "reviews._id": new ObjectId(reviewId) },
         { $pull: { reviews: { _id: new ObjectId(reviewId) } } }
     ).exec();
-    if (!updateResult) {
+    if (!updateResult)
+    {
         throw new Error(`Failed to delete review with id ${reviewId}`);
     }
     return placeReviewed;
@@ -181,7 +195,8 @@ export const deleteReview = async (reviewId) => {
  * @returns {Promise<boolean>} True if the user has already reviewed this place, false otherwise.
  * @author Anthony Webster
  */
-export const userHasReviewForPlace = async (placeId, userId) => {
+export const userHasReviewForPlace = async (placeId, userId) =>
+{
     placeId = parseObjectId(placeId);
     userId = parseObjectId(userId);
     const placeReviews = await getAllReviewsFromPlace(placeId);
@@ -198,7 +213,8 @@ export const userHasReviewForPlace = async (placeId, userId) => {
  * for a given category, then that category's average rating is `null`.
  * @author Anthony Webster
  */
-export const getAverageCategoryRatings = async (placeId) => {
+export const getAverageCategoryRatings = async (placeId) =>
+{
     // Let's take the easy way out and do this in JS instead.
     const place = await getPlace(placeId);
     let overallTotal = 0;
@@ -208,9 +224,12 @@ export const getAverageCategoryRatings = async (placeId) => {
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
         DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
     };
-    for (const categories of place.reviews.map((r) => r.categories)) {
-        for (const { categoryName, rating } of categories) {
-            if (ratings[categoryName] === undefined) {
+    for (const categories of place.reviews.map((r) => r.categories))
+    {
+        for (const { categoryName, rating } of categories)
+        {
+            if (ratings[categoryName] === undefined)
+            {
                 ratings[categoryName] = { count: 0, total: 0 };
             }
             ratings[categoryName].count++;
@@ -221,7 +240,8 @@ export const getAverageCategoryRatings = async (placeId) => {
     }
 
     const averaged = {};
-    for (const [category, { count, total }] in Object.entries(ratings)) {
+    for (const [category, { count, total }] in Object.entries(ratings))
+    {
         averaged[category] = count === 0 ? null : total / count;
     }
 
@@ -234,7 +254,8 @@ export const getAverageCategoryRatings = async (placeId) => {
 //comment functions:
 
 //create place comment
-export const addPlaceComment = async (placeId, author, content) => {
+export const addPlaceComment = async (placeId, author, content) =>
+{
     author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
@@ -256,7 +277,8 @@ export const addPlaceComment = async (placeId, author, content) => {
         }
     ).exec();
 
-    if (!comment) {
+    if (!comment)
+    {
         throw new Error(`Could not insert comment in place with id ${placeId}`);
     }
 
@@ -264,7 +286,8 @@ export const addPlaceComment = async (placeId, author, content) => {
 };
 
 //create review comment
-export const addReviewComment = async (reviewId, author, content) => {
+export const addReviewComment = async (reviewId, author, content) =>
+{
     author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     reviewId = parseObjectId(reviewId, "Review Id");
@@ -286,7 +309,8 @@ export const addReviewComment = async (reviewId, author, content) => {
         }
     ).exec();
 
-    if (!comment) {
+    if (!comment)
+    {
         throw new Error(`Could not insert comment in place with id ${reviewId}`);
     }
 
@@ -294,26 +318,31 @@ export const addReviewComment = async (reviewId, author, content) => {
 };
 
 //get all comments from place/review
-export const getAllCommentsFromPlace = async (placeId) => {
+export const getAllCommentsFromPlace = async (placeId) =>
+{
     placeId = parseObjectId(placeId);
     const place = await getPlace(placeId);
 
     return place.comments;
 };
 
-export const getAllCommentsFromReview = async (reviewId) => {
+export const getAllCommentsFromReview = async (reviewId) =>
+{
     return (await getReview(parseObjectId(reviewId))).comments;
 };
 
 //get specific comment
-export const getComment = async (reviewId, commentId) => {
+export const getComment = async (reviewId, commentId) =>
+{
     reviewId = parseObjectId(reviewId);
     commentId = parseObjectId(commentId);
 
     const comments = await getAllCommentsFromReview(reviewId);
 
-    for (const comment of comments) {
-        if (comment._id.toString() === commentId) {
+    for (const comment of comments)
+    {
+        if (comment._id.toString() === commentId)
+        {
             return comment;
         }
     }
@@ -326,11 +355,12 @@ export const getComment = async (reviewId, commentId) => {
  * @param {string} userId The ID of the user that has liked the review.
  * @returns {Promise<void>}
  */
-export const addReviewLike = async (reviewId, userId) => {
+export const addReviewLike = async (reviewId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
-        {$push: {reviews: {likes: userId}}}).exec();
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $push: { reviews: { likes: userId } } }).exec();
 };
 
 /**
@@ -342,25 +372,28 @@ export const addReviewLike = async (reviewId, userId) => {
  * @param {string} userId The ID of the user to remove.
  * @returns {Promise<void>}
  */
-export const removeReviewLike = async (reviewId, userId) => {
+export const removeReviewLike = async (reviewId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
-        {$pull: {reviews: {likes: userId}}}).exec();
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $pull: { reviews: { likes: userId } } }).exec();
 };
 
-export const addReviewDislike = async (reviewId, userId) => {
+export const addReviewDislike = async (reviewId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
-        {$push: {reviews: {dislikes: userId}}}).exec();
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $push: { reviews: { dislikes: userId } } }).exec();
 };
 
-export const removeReviewDislike = async (reviewId, userId) => {
+export const removeReviewDislike = async (reviewId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
-        {$pull: {reviews: {dislikes: userId}}}).exec();
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $pull: { reviews: { dislikes: userId } } }).exec();
 };
 
 /**
@@ -369,32 +402,36 @@ export const removeReviewDislike = async (reviewId, userId) => {
  * @param {string} userId The ID of the user that has liked the review.
  * @returns {Promise<void>}
  */
-export const addPlaceCommentLike = async (commentId, userId) => {
+export const addPlaceCommentLike = async (commentId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
-        {$push: {comments: {likes: userId}}}).exec();
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { comments: { likes: userId } } }).exec();
 };
 
-export const removePlaceCommentLike = async (commentId, userId) => {
+export const removePlaceCommentLike = async (commentId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
-        {$pull: {comments: {likes: userId}}}).exec();
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { comments: { likes: userId } } }).exec();
 };
 
-export const addPlaceCommentDislike = async (commentId, userId) => {
+export const addPlaceCommentDislike = async (commentId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
-        {$push: {comments: {dislikes: userId}}}).exec();
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { comments: { dislikes: userId } } }).exec();
 };
 
-export const removePlaceCommentDislike = async (commentId, userId) => {
+export const removePlaceCommentDislike = async (commentId, userId) =>
+{
     userId = parseObjectId(userId);
     await Place.updateOne(
-        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
-        {$pull: {comments: {dislikes: userId}}}).exec();
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { comments: { dislikes: userId } } }).exec();
 };
 
 //search
@@ -452,12 +489,15 @@ const stateAbbreviationToFullNameMap = {
     wy: "wyoming",
 };
 
-const stateAbbreviationToFullName = (abbreviation) => {
+const stateAbbreviationToFullName = (abbreviation) =>
+{
     abbreviation = parseNonEmptyString(abbreviation, "state abbreviation");
-    if (abbreviation.length !== 2) {
+    if (abbreviation.length !== 2)
+    {
         throw new Error("State abbreviation must be exactly 2 characters");
     }
-    if (!(abbreviation in stateAbbreviationToFullNameMap)) {
+    if (!(abbreviation in stateAbbreviationToFullNameMap))
+    {
         throw new Error(`Invalid state abbreviation ${abbreviation}`);
     }
     return stateAbbreviationToFullNameMap[abbreviation];
@@ -470,7 +510,8 @@ const stateAbbreviationToFullName = (abbreviation) => {
  * @returns {string[]} The normalized search query (akin to a list of "tags").
  * @author Anthony Webster
  */
-const normalizeSearchQuery = (query) => {
+const normalizeSearchQuery = (query) =>
+{
     // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
     // State abbreviations could be written as "N.Y." instead of "NY"
     const qs = query
@@ -479,12 +520,16 @@ const normalizeSearchQuery = (query) => {
         .replaceAll(/\s+/g, " ")
         .split(/\s+/)
         .filter((s) => s.length > 0)
-        .flatMap((p) => {
+        .flatMap((p) =>
+        {
             // The abbreviation converter will throw an exception if not given an abbreviation.
             // We'll have both the abbreviation and the full name for good measure.
-            try {
+            try
+            {
                 return [p, stateAbbreviationToFullName(p).split(" ")];
-            } catch (e) {
+            }
+            catch (e)
+            {
                 return [p];
             }
         });
@@ -492,11 +537,13 @@ const normalizeSearchQuery = (query) => {
     return removeDuplicates(qs);
 };
 
-const computeSearchMatchScore = async (normalizedQuery, placeData) => {
+const computeSearchMatchScore = async (normalizedQuery, placeData) =>
+{
     // Display names have expanded state names
     let totalMatches = 0;
 
-    for (let against of [placeData.location.address, placeData.name, placeData.description]) {
+    for (let against of [placeData.location.address, placeData.name, placeData.description])
+    {
         against = normalizeSearchQuery(against);
         totalMatches += normalizedQuery.reduce((acc, e) => (against.some((p) => p.indexOf(e) >= 0) ? 1 : 0), 0);
     }
@@ -513,7 +560,8 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) => {
  *
  * @author Anthony Webster
  */
-export const search = async (query) => {
+export const search = async (query) =>
+{
     const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
     const places = await Place.find({}, ["_id", "location"], null).exec();
 
@@ -532,7 +580,8 @@ export const search = async (query) => {
  * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the places that match the search query.
  * @author Anthony Webster
  */
-export const genericSearch = async (query) => {
+export const genericSearch = async (query) =>
+{
     return (await search(query)).map((r) => r.location._id.toString());
 };
 
@@ -546,7 +595,9 @@ export const genericSearch = async (query) => {
  * @returns {Promise<string[]>} A list of {@linkcode ObjectId}s of the search results.
  * @author Anthony Webster
  */
-export const searchNear = async (query, latitude, longitude, radius) => {
+export const searchNear = async (query, latitude, longitude, radius) =>
+{
+    query = parseNonEmptyString(query, "Search query");
     latitude = parseLatitude(latitude);
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
@@ -557,4 +608,19 @@ export const searchNear = async (query, latitude, longitude, radius) => {
             (r) => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius
         )
         .map((r) => r._id.toString());
+};
+
+export const findAllNear = async (latitude, longitude, radius) =>
+{
+    latitude = parseLatitude(latitude);
+    longitude = normalizeLongitude(longitude);
+    radius = parseSearchRadius(radius);
+
+    const places = await Place.find({}, ["_id", "location"], null).exec();
+    return Enumerable.from(places)
+        .select(p => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
+        .where(p => p[0] <= radius)
+        .orderByDescending(p => p[0])
+        .select(p => p[1])
+        .toArray();
 };
