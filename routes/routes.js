@@ -222,7 +222,7 @@ router.route("/api/search").get(async (req, res) => {
     }
 });
 
-router.route('/api/nominatimSearch').get(async (req, res) => {
+router.route("/api/nominatimSearch").get(async (req, res) => {
     let errors = [];
     let searchResults = undefined;
 
@@ -498,7 +498,6 @@ router.route("/api/review/:id/dislike").post(async (req, res) => {
 
 //This route handles place comment likes
 router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res) => {
-    //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
@@ -514,7 +513,6 @@ router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res
 
 //This route handles place comment dislikes
 router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, res) => {
-    //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
@@ -531,7 +529,6 @@ router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, 
 //Routes for review comment likes and dislikes
 
 router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
-    //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.reviewId = parseObjectId(reviewId, "review id");
@@ -569,6 +566,5 @@ router.route("/api/review/:reviewId/comment/:id/reply").post(async (req, res) =>
 router.route("/about").get(async (req, res) => {
     return res.render("about", { title: "About", user: req.session ? req.session.user : undefined });
 });
-
 
 export default router;
