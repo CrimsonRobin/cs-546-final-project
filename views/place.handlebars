@@ -28,14 +28,20 @@
                         <form action="/places/{{_id}}/addReview">
                             <textarea name="review" placeholder="Add a review"></textarea><br />
                             <div>
+                                <input type="checkbox" id="Physical" name="Physical" checked/>
+                                <label for="Physical">Physical</label>
                                 <input type="range" id="physcialRating" name="physcialRating" min="1" max="5" />
                                 <label for="physcialRating">Physical accessibility</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="Sensory" name="Sensory"/>
+                                <label for="Sensory">Sensory</label>
                                 <input type="range" id="sensoryRating" name="sensoryRating" min="1" max="5" />
                                 <label for="sensoryRating">Sensory accessibility</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="Neurodivergency" name="Neurodivergency"/>
+                                <label for="Neurodivergency">Neurodivergency</label>
                                 <input type="range" id="neurodivergentRating" name="neurodivergentRating" min="1" max="5" />
                                 <label for="neurodivergentRating">Neurodivergent accessibility</label>
                             </div>     
