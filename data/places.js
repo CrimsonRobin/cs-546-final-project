@@ -61,7 +61,7 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     });
 
     await document.save();
-    return document;
+    return document.toObject();
 };
 
 /**
@@ -80,7 +80,7 @@ export const getPlace = async (placeId) => {
 };
 
 export const getAllPlaces = async () => {
-    return await Place.find({}).exec();
+    return (await Place.find({}).exec()).map((place) => place.toObject());
 };
 
 //review functions:
@@ -112,7 +112,7 @@ export const addReview = async (placeId, author, content, categories) => {
     if (!review) {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
-    return review;
+    return review.toObject();
 };
 //get specific review
 export const getReview = async (reviewId) => {
@@ -129,7 +129,7 @@ export const getReview = async (reviewId) => {
     if (results.length !== 1) {
         throw new Error(`Review with id ${reviewId} does not exist`);
     }
-    return results[0];
+    return results[0].toObject();
 };
 //get all from specific place
 
@@ -141,10 +141,13 @@ export const getReview = async (reviewId) => {
 export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
     return (
-        await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
-            .select("reviews")
-            .exec()
-    ).reviews;
+        (
+            await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
+                .select("reviews")
+                .exec()
+        ).reviews,
+        map((review) => review.toObject())
+    );
 };
 
 //update review
@@ -164,7 +167,7 @@ export const updateReview = async (reviewId, content, categories) => {
     throwIfNullOrUndefined(updateReview);
     //recompute average
     getAverageCategoryRatings(updatedPlace._id);
-    return searchedReview;
+    return searchedReview.toObject();
 };
 //delete review
 export const deleteReview = async (reviewId) => {
@@ -177,7 +180,7 @@ export const deleteReview = async (reviewId) => {
     if (!updateResult) {
         throw new Error(`Failed to delete review with id ${reviewId}`);
     }
-    return placeReviewed;
+    return placeReviewed.toObject();
 };
 
 /**
@@ -237,7 +240,7 @@ export const getAverageCategoryRatings = async (placeId) => {
     };
 };
 //for place average ratings
-export const mapAvgRatingsToLetters = async (avgRatings) => {
+export const mapAvgRatingsToLetters = (avgRatings) => {
     const letterRatings = {
         overall: ratingToLetter(avgRatings.overall),
         byCategory: Object.fromEntries(Object.entries(avgRatings).map((p) => [p[0], ratingToLetter(p[1])])),
@@ -245,7 +248,7 @@ export const mapAvgRatingsToLetters = async (avgRatings) => {
     return letterRatings;
 };
 
-export const ratingToLetter = async (rating) => {
+export const ratingToLetter = (rating) => {
     if (isNullOrUndefined(rating) || rating < 1) {
         return "N/A";
     } else if (rating >= 1 && rating < 1.5) {
@@ -291,7 +294,7 @@ export const addPlaceComment = async (placeId, author, content) => {
         throw new Error(`Could not insert comment in place with id ${placeId}`);
     }
 
-    return comment;
+    return comment.toObject();
 };
 
 //create review comment
@@ -322,16 +325,16 @@ export const addReviewComment = async (reviewId, author, content) => {
         throw new Error(`Could not insert comment in place with id ${reviewId}`);
     }
 
-    return comment;
+    return comment.toObject();
 };
 
 //get all comments from place/review
 export const getAllCommentsFromPlace = async (placeId) => {
-    return (await getPlace(parseObjectId(placeId))).comments;
+    return (await getPlace(parseObjectId(placeId))).comments.map((comment) => comment.toObject());
 };
 
 export const getAllCommentsFromReview = async (reviewId) => {
-    return (await getReview(parseObjectId(reviewId))).comments;
+    return (await getReview(parseObjectId(reviewId))).comments.map((comment) => comment.toObject());
 };
 
 //get specific comment
@@ -343,7 +346,7 @@ export const getCommentFromPlace = async (placeId, commentId) => {
 
     for (const comment of comments) {
         if (comment._id.toString() === commentId) {
-            return comment;
+            return comment.toObject();
         }
     }
     throw new Error("No such comment found");
@@ -358,7 +361,7 @@ export const getCommentFromReview = async (reviewId, commentId) => {
 
     for (const comment of comments) {
         if (comment._id.toString() === commentId) {
-            return comment;
+            return comment.toObject();
         }
     }
     throw new Error("No such comment found");
