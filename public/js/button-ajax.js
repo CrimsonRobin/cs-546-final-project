@@ -1,10 +1,12 @@
 (function () {
     const addReviewButton = document.getElementById("add-review");
+    const addReviewDialog = document.getElementById("add-review-dialog");
     if (addReviewButton) {
         addReviewButton.addEventListener("click", (event) => {
-
+            addReviewDialog.showModal();
         })
     }
+    // const replyButtons = document.getElementsByClassName("reply");
 
     const likeDislikeButtons = document.getElementsByClassName("like-dislike");
     likeDislikeButtons.map((div) => {

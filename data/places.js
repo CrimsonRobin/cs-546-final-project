@@ -117,14 +117,19 @@ export const addReview = async (placeId, author, content, categories) => {
 //get specific review
 export const getReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review Id");
-    const searchedReview = await Place.findOne(
-        { "reviews._id": new ObjectId(reviewId) },
-        { projection: { "reviews.$": true, _id: false } }
-    ).exec();
-    if (searchedReview === null) {
-        throw new Error(`Review with that id could not be found!`);
+
+    const objectId = ObjectId.createFromHexString(reviewId);
+    const results = await Place.aggregate([
+        { $match: { "reviews._id": objectId } },
+        { $unwind: "$reviews" },
+        { $match: { "reviews._id": objectId } },
+        { $project: { _id: false, reviews: true } }
+    ]).exec();
+
+    if (results.length !== 1) {
+        throw new Error(`Review with id ${reviewId} does not exist`);
     }
-    return searchedReview;
+    return results[0];
 };
 //get all from specific place
 

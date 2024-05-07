@@ -17,7 +17,7 @@ import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searc
     addPlaceCommentReply,
     addReviewCommentReply, 
 } from "../data/places.js";
-import {createUser, getUser, loginUser} from "../data/user.js";
+import { createUser, getUser, loginUser } from "../data/user.js";
 
 const router = express.Router();
   
@@ -250,18 +250,19 @@ router.route('/review/:id/addComment')
 
 router.route('/review/:id/like')
     .post(async (req, res) => {
-        try {
-            req.params.id = parseObjectId(req.params.id, "Review Id");
-
-
-        } catch (error) {
-            
+        let errors = [];
+    
+        req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+        if(errors.length > 0) {
+            return res.status(400).render("error", {title: "Add Review Comment Failed", errors: errors});
         }
-    });
-
-router.route('/review/:id/like')
-    .post(async (req, res) => {
-
+        try {
+            await likeReview(req.params.id, req.body.author);
+            return res.redirect(`/review/${review._id.toString()}`);
+        } catch (error) {
+            return res.render("error", {title: "Add Review Comment Failed", error: error.message, user: req.session ? req.session.user : undefined})
+        }
     });
 
 router.route('/comment/:id/reply')
@@ -292,5 +293,16 @@ router.route('/about')
     .get(async (req, res) => {
         return res.render("about", {title: "About", user: req.session ? req.session.user : undefined});
     });
-
+ 
+router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+    req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+    try{
+    req.params.commentId = parseObjectId(commentId, "comment id");
+    req.params.placeId = parseObjectId(placeId, "place id");}
+    catch(e){
+        return res.render("error")
+    }
+    addPlaceCommentLike();
+})
 export default router;
