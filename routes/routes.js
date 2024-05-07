@@ -38,6 +38,8 @@ import {
     addPlaceCommentReply,
     addReviewCommentReply,
     getAverageCategoryRatings,
+    togglePlaceCommentDislike,
+    toggleReviewCommentDislike,
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
 import { parseSearchRadius } from "../data/geolocation.js";
@@ -385,17 +387,87 @@ router.route("/review/:id/like").post(async (req, res) => {
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
     req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
     if (errors.length > 0) {
-        return res.status(400).render("error", { title: "Add Review Comment Failed", errors: errors });
+        return res.status(400).render("error", { title: "Like Review Comment Failed", errors: errors });
     }
     try {
-        await likeReview(req.params.id, req.body.author);
+        await toggleReviewLike(req.params.id, req.body.author);
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
         return res.render("error", {
-            title: "Add Review Comment Failed",
+            title: "Liking Review Comment Failed",
             error: error.message,
             user: req.session ? req.session.user : undefined,
         });
+    }
+});
+
+//This route adds a dislike to a Review
+router.route("/review/:id/dislike").post(async (req, res) => {
+    let errors = [];
+
+    req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+    if (errors.length > 0) {
+        return res.status(400).render("error", { title: "Dislike Review Comment Failed", errors: errors });
+    }
+    try {
+        await toggleReviewDislike(req.params.id, req.body.author);
+        return res.redirect(`/review/${review._id.toString()}`);
+    } catch (error) {
+        return res.render("error", {
+            title: "Disliking Review Comment Failed",
+            error: error.message,
+            user: req.session ? req.session.user : undefined,
+        });
+    }
+});
+
+//This route handles place comment likes
+router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+    //TODO figure out what to do with errors
+    try {
+        req.params.commentId = parseObjectId(commentId, "comment id");
+        req.params.placeId = parseObjectId(placeId, "place id");
+    } catch (e) {
+        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+    }
+    try {
+        const likedPlace = togglePlaceCommentLike(req.params.commentId, req.params.placeId);
+    } catch (e) {
+        //return res.render("error", { title: "" });
+    }
+});
+
+//This route handles place comment dislikes
+router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+    //TODO figure out what to do with errors
+    try {
+        req.params.commentId = parseObjectId(commentId, "comment id");
+        req.params.placeId = parseObjectId(placeId, "place id");
+    } catch (e) {
+        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+    }
+    try {
+        const dislikedPlace = togglePlaceCommentDislike(req.params.commentId, req.params.placeId);
+    } catch (e) {
+        //return res.render("error", { title: "" });
+    }
+});
+
+//Routes for review comment likes and dislikes
+
+router.route("/review/:reviewId/comment/:commentId").post(async (req, res) => {
+    //TODO figure out what to do with errors
+    try {
+        req.params.commentId = parseObjectId(commentId, "comment id");
+        req.params.reviewId = parseObjectId(reviewId, "review id");
+    } catch (e) {
+        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+    }
+    try {
+        const dislikedReview = toggleReviewCommentDislike(req.params.commentId, req.params.reviewId);
+    } catch (e) {
+        //return res.render("error", { title: "" });
     }
 });
 
@@ -424,19 +496,5 @@ router.route("/about").get(async (req, res) => {
     return res.render("about", { title: "About", user: req.session ? req.session.user : undefined });
 });
 
-//handle comment likes
-router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
-    //TODO figure out what to do with errors
-    try {
-        req.params.commentId = parseObjectId(commentId, "comment id");
-        req.params.placeId = parseObjectId(placeId, "place id");
-    } catch (e) {
-        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
-    }
-    try {
-        const likedPlace = addPlaceCommentLike(req.params.commentId, req.params.placeId);
-    } catch (e) {
-        //return res.render("error", { title: "" });
-    }
-});
+
 export default router;
