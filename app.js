@@ -1,6 +1,3 @@
-// import express from "express";
-// import configRoutes from "./routes/index.js";
-
 import express from "express";
 import express_handlebars from "express-handlebars";
 import configRoutes from "./routes/index.js";
@@ -8,6 +5,7 @@ import { connectToDatabase } from "./config/mongoConnection.js";
 import exphbs from "express-handlebars";
 import session from "express-session";
 import { configDotenv } from "dotenv";
+import path from "path";
 
 // Load environment as early as possible
 configDotenv({ path: "./.env" });
@@ -57,13 +55,11 @@ app.use("/", (req, res, next) => {
     console.log("Request Method: " + req.method);
     console.log("Request Route: " + req.originalUrl);
     let authUser = false;
-    if (req.session.user) {
+    if (req.session.user !== undefined && req.session.user !== null) {
         authUser = true;
     }
     console.log("Authenticated User: " + authUser);
-    if (req.originalUrl !== "/") {
-        next();
-    }
+    next();
 });
 
 app.use("/login", redirectHome);

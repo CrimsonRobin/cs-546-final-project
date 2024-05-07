@@ -10,10 +10,10 @@
 */
 
 import express from "express";
-import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, parseCategories, parseNonEmptyString} from "../helpers.js";
-import {getPlace, getReview, addReview, addPlaceComment, addReviewComment} from "../data/places.js";
+import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, 
+    parseCategories, parseNonEmptyString, parseLatitude, normalizeLongitude, parseNumber} from "../helpers.js";
+import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces} from "../data/places.js";
 import {createUser, getUser, loginUser} from "../data/user.js";
-import e from "express";
 
 const router = express.Router();
   
@@ -62,8 +62,8 @@ router.route('/login')
     .post(async (req, res) => {
         let errors = [];
 
-        req.username = tryCatchChain(errors, () => parseStringWithLengthBounds(req.username, 3, 25, true, "Username"));
-        req.password = tryCatchChain(errors, () => parsePassword(req.password));
+        req.body.username = tryCatchChain(errors, () => parseStringWithLengthBounds(req.body.username, 3, 25, true, "Username"));
+        req.body.password = tryCatchChain(errors, () => parsePassword(req.body.password));
 
         if(errors.length > 0) {
             return res.status(400).render("login", {title: "Log In", errors: errors});
@@ -87,7 +87,7 @@ router.route('/logout')
         return res.render("logout", {title: "Logged Out"});
     });
 
-//TODO: For the rest of these functions, if req.session.user exists, pass it as the "user"
+//For the rest of these functions, if req.session.user exists, pass it as the "user"
 router.route('/')
     .get(async (req, res) => {
         return res.render("home", {title: "Home", user: req.session ? req.session.user : undefined});
@@ -95,7 +95,41 @@ router.route('/')
 
 router.route('/api/search')
     .get(async (req, res) => {
-        //TODO: Ajax Calls
+        //latitude, longitude, radius <- should be numbers
+        let errors = [];
+        const searchResults = undefined;
+
+        if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm === undefined) {
+            searchResults = await getAllPlaces();
+            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            user: req.session ? req.session.user : undefined});
+        }
+
+        if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm) {
+            searchResults = await search(req.query.searchTerm);
+            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            user: req.session ? req.session.user : undefined});
+        }
+
+        req.query.latitude = tryCatchChain(errors, () => parseLatitude(req.query.latitude));
+        req.query.longitude = tryCatchChain(errors, () => normalizeLongitude(req.query.longitude));
+        req.query.radius = tryCatchChain(errors, () => parseNumber(req.query.radius));
+
+        if(errors.length > 0) {
+            return res.render('partial/searchResults', {title: "Search Results", message: errors, 
+            user: req.session ? req.session.user : undefined});
+        }
+
+        if(req.query.searchTerm) {
+            searchResults = await searchNear(req.query.searchTerm, req.query.latitude, req.query.longitude, req.query.radius);
+            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            user: req.session ? req.session.user : undefined});
+        }
+        else {
+            searchResults = await findAllNear(req.query.latitude, req.query.longitude, req.query.radius);
+            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            user: req.session ? req.session.user : undefined});
+        }
     });
 
 /* router.route('/api/changePassword')
@@ -109,7 +143,7 @@ router.route('/api/search')
 
 router.route('/user/:id')
     .get(async (req, res) => {
-        //TODO: Get User Object and pass it (including title)
+        //Get User Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "User Id");
             const user = await getUser(req.params.id);
@@ -122,7 +156,7 @@ router.route('/user/:id')
 
 router.route('/place/:id')
     .get(async (req, res) => {
-        //TODO: Get Place Object and pass it (including title)
+        //Get Place Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "Place Id");
             const place = await getPlace(req.params.id);
@@ -138,9 +172,9 @@ router.route('/place/:id/addReview')
         let errors = [];
 
         req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
-        req.body.author = tryCatchChain(errors, parseNonEmptyString(req.body.author, "Name of author"));
-        req.body.content = tryCatchChain(errors, parseNonEmptyString(req.body.content, "Content of review"));
-        req.body.categories = tryCatchChain(errors, parseCategories(req.body.categories));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+        req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
+        req.body.categories = tryCatchChain(errors, () => parseCategories(req.body.categories));
 
         if(errors.length > 0) {
             return res.status(400).render("error", {title: "Add Review Failed", errors: errors});
@@ -157,12 +191,28 @@ router.route('/place/:id/addReview')
 
 router.route('/place/:id/AddComment')
     .post(async (req, res) => {
-        
-    });
+        let errors = [];
+    
+        req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+        req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
+    
+        if(errors.length > 0) {
+            return res.status(400).render("error", {title: "Add Place Comment Failed", errors: errors});
+        }
+    
+        try {
+            const review = await addPlaceComment(req.params.id, req.body.author, req.body.content);
+    
+            return res.redirect(`/review/${review._id.toString()}`);
+        } catch (error) { //Internal Error
+            return res.render("error", {title: "Add Place Comment Failed", error: error.message, user: req.session ? req.session.user : undefined})
+        }
+});
 
 router.route('/review/:id')
     .get(async (req, res) => {
-        //TODO: Get Review Object and pass it (including title)
+        //Get Review Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "Review Id");
             const review = getReview(req.params.id);
@@ -172,6 +222,27 @@ router.route('/review/:id')
             return res.status(404).render("error", {title: "Review Not Found", error: error.message, user: req.session ? req.session.user : undefined});
         }
     });
+
+router.route('/review/:id/AddComment')
+    .post(async (req, res) => {
+        let errors = [];
+    
+        req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+        req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of Comment"));
+    
+        if(errors.length > 0) {
+            return res.status(400).render("error", {title: "Add Review Comment Failed", errors: errors});
+        }
+    
+        try {
+            const review = await addReviewComment(req.params.id, req.body.author, req.body.content);
+    
+            return res.redirect(`/review/${review._id.toString()}`);
+        } catch (error) { //Internal Error
+            return res.render("error", {title: "Add Review Comment Failed", error: error.message, user: req.session ? req.session.user : undefined})
+        }
+});
 
 router.route('/about')
     .get(async (req, res) => {

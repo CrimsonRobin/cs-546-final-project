@@ -3,17 +3,18 @@
 <main>
     {{#with review}}
         <h2 class="{{ratings.averageRating}}">{{ratings.averageRating}}</h2>
+        <p>Ask for Accessibility: {{#if ask}}Yes{{else}}No{{/if}}</p>
         <div class="individual-ratings">
             <p><span class="material-symbols-outlined" aria-hidden="true">accessible_forward</span>Physical
-                <span class="individual-rating {{ratings.physicalRating}}">{{ratings.physicalRating}}</span></p>
+                <span>{{ratings.physicalRating}}</span></p>
             <p><span class="material-symbols-outlined" aria-hidden="true">blind</span>Sensory
-                <span class="individual-rating {{ratings.sensoryRating}}">{{ratings.sensoryRating}}</span></p>
+                <span>{{ratings.sensoryRating}}</span></p>
             <p><span class="material-symbols-outlined" aria-hidden="true">neurology</span>Neurodivergent
-                <span class="individual-rating {{ratings.neurodivergentRating}}">{{ratings.neurodivergentRating}}</span>
+                <span>{{ratings.neurodivergentRating}}</span>
             </p>
         </div>
         <p>{{date}}</p>
         <p>{{content}}</p>
-        {{> likeDislike user=../user type=review _id=_id }}
+        {{> likeDislike user=../user type="review" _id=_id }}
     {{/with}}
 </main>

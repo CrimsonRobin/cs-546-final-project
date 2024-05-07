@@ -1,15 +1,8 @@
-import {
-    parseNonEmptyString,
-    parseObjectId,
-    parsePassword,
-    parseQualifications,
-    parseUsername,
-    removeDuplicates,
-} from "../helpers.js";
+import { parseNonEmptyString, parseObjectId, parsePassword, parseQualifications, parseUsername, } from "../helpers.js";
 import { Place, User } from "../config/database.js";
 import { ObjectId } from "mongodb";
 import { DateTime } from "luxon";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 /**
  * The number of salt rounds to use when hashing user passwords.
@@ -17,9 +10,27 @@ import bcrypt from 'bcryptjs';
  */
 export const BCRYPT_SALT_ROUNDS = 12;
 
+/**
+ * Tests if the given username has already been used by any user.
+ * @param {string} username
+ * @returns {Promise<boolean>} True if the username has already been used, false otherwise.
+ * @author Anthony Webster
+ */
+export const isUsernameTaken = async (username) =>
+{
+    username = parseUsername(username);
+    return await User.exists({ username: username }).exec() !== null;
+};
+
 // Create User
 export const createUser = async (firstname, lastname, username, password, qualifications) =>
 {
+    username = parseUsername(username);
+    if (await isUsernameTaken(username))
+    {
+        throw new Error(`A user with the username ${username} already exists`);
+    }
+
     const document = new User({
         _id: new ObjectId(),
         firstname: parseNonEmptyString(firstname, "First name"),
@@ -28,19 +39,6 @@ export const createUser = async (firstname, lastname, username, password, qualif
         hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
         qualifications: parseQualifications(qualifications),
-    });
-};
-
-export const createUser = async (firstname, lastname, username, password, qualifications) => {
-    const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
-    const document = new User({
-        _id: ObjectId,
-        firstname: firstname,
-        lastname: lastname,
-        username: username,
-        hashedPassword: await bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
-        createdAt: DateTime.now().toBSON(),
-        qualifications: removeDuplicates(qualifications),
     });
 
     await document.save();
@@ -68,7 +66,7 @@ export const getUser = async (userId) =>
  */
 export const getUsers = async () =>
 {
-    return (await User.find({}, null, null).exec());
+    return await User.find({}, null, null).exec();
 };
 
 // Get expertise
@@ -97,7 +95,7 @@ export const loginUser = async (username, password) =>
         throw new Error("Either the username or password is invalid");
     }
 
-    if (!await bcrypt.compare(password, existingUser.hashedPassword))
+    if (!(await bcrypt.compare(password, existingUser.hashedPassword)))
     {
         throw new Error("Either the username or password is invalid");
     }
@@ -122,13 +120,11 @@ export const loginUser = async (username, password) =>
 export const getUserReviews = async (userId) =>
 {
     const parsedId = parseObjectId(userId, "user id");
-    const reviews = await Place
-        .aggregate([
-            { $match: { "reviews.author": parsedId } },
-            { $project: { "_id": true, "reviews": true } },
-            { $unwind: "$reviews" }
-        ])
-        .exec();
+    const reviews = await Place.aggregate([
+        { $match: { "reviews.author": parsedId } },
+        { $project: { _id: true, reviews: true } },
+        { $unwind: "$reviews" },
+    ]).exec();
 
     for (const review of reviews)
     {
@@ -149,13 +145,13 @@ export const getUserReviews = async (userId) =>
  */
 export const getUserAverageRatings = async (userId) =>
 {
-    const userReviews = (await getUserReviews(userId)).flatMap(u => u.reviews).flatMap(r => r.categories);
+    const userReviews = (await getUserReviews(userId)).flatMap((u) => u.reviews).flatMap((r) => r.categories);
     let overallTotal = 0;
     let overallCount = 0;
     const aggregates = {
         DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
-        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 }
+        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
     };
 
     for (const { categoryName, rating } of userReviews)
@@ -177,6 +173,6 @@ export const getUserAverageRatings = async (userId) =>
     }
     return {
         overall: overallCount === 0 ? null : overallTotal / overallCount,
-        byCategory: averages
+        byCategory: averages,
     };
 };

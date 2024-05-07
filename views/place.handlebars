@@ -5,31 +5,57 @@
         <h1>{{name}}</h1>
         <p>{{description}}</p>
         <h2>Average Rating</h2>
-        <p>{{ratings.averageRating}}</p>
+        <p>{{averageRatings.overallRating}}</p>
         <section>
             <h3>Physical accessibility:</h3>
-            <p>{{ratings.physicalRating}}</p>
+            <p>{{averageRatings.physicalRating}}</p>
             <h3>Sensory accessibility:</h3>
-            <p>{{ratings.sensoryRating}}</p>
+            <p>{{averageRatings.sensoryRating}}</p>
             <h3>Neurodivergent accessibility:</h3>
-            <p>{{ratings.neurodivergentRating}}</p>
+            <p>{{averageRatings.neurodivergentRating}}</p>
         </section>
 
         <div class="two-pane">
             <section>
-                <h2>Reviews</h2>
+                <h2>Reviews: {{reviews.length}}</h2>
                 {{#unless reviews.length}}
                     <p class="empty-section">No reviews yet!</p>
                 {{/unless}}
                 {{#if ../user}}
-                    <button><span class="material-symbols-outlined">plus</span>Add Review</button>
+                    {{#unless ../hasReview}}
+                    <button id="add-review"><span class="material-symbols-outlined">plus</span>Add Review</button>
+                    <dialog>
+                        <form action="/places/{{_id}}/addReview">
+                            <textarea name="review" placeholder="Add a review"></textarea><br />
+                            <div>
+                                <input type="checkbox" id="Physical" name="Physical" checked/>
+                                <label for="Physical">Physical</label>
+                                <input type="range" id="physcialRating" name="physcialRating" min="1" max="5" />
+                                <label for="physcialRating">Physical accessibility</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="Sensory" name="Sensory"/>
+                                <label for="Sensory">Sensory</label>
+                                <input type="range" id="sensoryRating" name="sensoryRating" min="1" max="5" />
+                                <label for="sensoryRating">Sensory accessibility</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="Neurodivergency" name="Neurodivergency"/>
+                                <label for="Neurodivergency">Neurodivergency</label>
+                                <input type="range" id="neurodivergentRating" name="neurodivergentRating" min="1" max="5" />
+                                <label for="neurodivergentRating">Neurodivergent accessibility</label>
+                            </div>     
+                            <button type="submit">Submit Review</button>
+                        </form>
+                    </dialog>
+                    {{/unless}}
                 {{/if}}
                 {{#each reviews}}
-                    {{> reviewCard this }}
+                    {{> reviewCard review=this user=../user }}
                 {{/each}}
             </section>
             <section>
-                <h2>Comments</h2>
+                <h2>Comments: {{comments.length}}</h2>
                 {{#unless comments.length}}
                     <p class="empty-section">No comments yet!</p>
                 {{/unless}}
