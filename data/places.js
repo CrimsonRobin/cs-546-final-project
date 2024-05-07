@@ -832,3 +832,34 @@ export const getLikedItems = async (userId) => {
         likedReviews: likedReviews
     };
 };
+
+export const getDislikedItems = async (userId) => {
+    userId = parseObjectId(userId, "user id");
+    const allReviews = (await Place.aggregate([
+        {$unwind: "$reviews"},
+        {$project: {_id: false, reviews: true}}
+    ]).exec()).map(r => r.toObject());
+
+    const dislikedReviews = allReviews
+        .filter(r => r.dislikes.includes(userId))
+        .map(r => r._id.toString());
+
+    const dislikedReviewComments = allReviews
+        .map(r => r.comments)
+        .filter(r => r.dislikes.includes(userId))
+        .map(r => r._id.toString());
+
+    const allPlaceComments = (await Place.aggregate([
+        {$unwind: "$comments"},
+        {$project: {_id: false, comments: true}}
+    ]).exec()).map(r => r.toObject());
+    const dislikedPlaceComments = allPlaceComments
+        .filter(c => c.dislikes.includes(userId))
+        .map(c => c._id.toString());
+
+    return {
+        dislikedReviewComments: dislikedReviewComments,
+        dislikedPlaceComments: dislikedPlaceComments,
+        dislikedReviews: dislikedReviews
+    };
+};
