@@ -17,7 +17,7 @@
 
         <div class="two-pane">
             <section>
-                <h2>Reviews</h2>
+                <h2>Reviews: {{reviews.length}}</h2>
                 {{#unless reviews.length}}
                     <p class="empty-section">No reviews yet!</p>
                 {{/unless}}
@@ -55,7 +55,7 @@
                 {{/each}}
             </section>
             <section>
-                <h2>Comments</h2>
+                <h2>Comments: {{comments.length}}</h2>
                 {{#unless comments.length}}
                     <p class="empty-section">No comments yet!</p>
                 {{/unless}}
