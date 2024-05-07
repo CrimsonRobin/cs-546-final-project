@@ -1,12 +1,17 @@
 {{> navbar }}
 
 <main>
-    <h1>Establishments near you</h1>
+    <h1>Welcome{{#if user}}, {{user.username}}{{/if}}!</h1>
     <form action="/" id="search">
-        <input type="text" name="search-query" id="search-box" placeholder="Search places..." aria-label="Search">
-        <button type="submit"><span class="material-symbols-outlined" aria-hidden="true">search</span>Search</button>
-        <input type="checkbox" name="advanced" id="advanced">
-        <label for="advanced">Advanced search</label>
+        <div id="searchDiv">
+            <input type="text" name="search-query" id="search-box" placeholder="Search places..." aria-label="Search">
+            <button type="submit"><span class="material-symbols-outlined" aria-hidden="true">search</span>Search
+            </button>
+        </div>
+        <div id="checkboxDiv">
+            <input type="checkbox" name="advanced" id="advanced">
+            <label for="advanced">Advanced search</label>
+        </div>
         <div id="advanced-settings" hidden>
             <label for="radius">Radius:</label>
             <input type="range" name="radius" id="radius" max="500" min="0">

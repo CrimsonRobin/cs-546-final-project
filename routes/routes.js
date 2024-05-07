@@ -38,11 +38,12 @@ import {
     addPlaceCommentReply,
     addReviewCommentReply,
     getAverageCategoryRatings,
+    mapAvgRatingsToLetters,
     togglePlaceCommentDislike,
     toggleReviewCommentDislike,
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
-import { parseSearchRadius } from "../data/geolocation.js";
+import { parseSearchRadius, nominatimSearch, nominatimSearchWithin } from "../data/geolocation.js";
 
 const router = express.Router();
 
@@ -117,7 +118,7 @@ router
         }
 
         try {
-            const user = await loginUser(req.username, req.password);
+            const user = await loginUser(req.body.username, req.body.password);
 
             req.session.user = {
                 _id: user._id,
@@ -221,6 +222,81 @@ router.route("/api/search").get(async (req, res) => {
     }
 });
 
+router.route('/api/nominatimSearch').get(async (req, res) => {
+    let errors = [];
+    let searchResults = undefined;
+
+    if (
+        req.query.latitude === undefined &&
+        req.query.longitude === undefined &&
+        req.query.radius === undefined &&
+        req.query.searchTerm === undefined
+    ) {
+        searchResults = await getAllPlaces();
+        return res.render("searchResults", {
+            title: "Search Results",
+            layout: false,
+            message: searchResults,
+            user: req.session ? req.session.user : undefined,
+        });
+    }
+
+    if (
+        req.query.latitude === undefined &&
+        req.query.longitude === undefined &&
+        req.query.radius === undefined &&
+        req.query.searchTerm
+    ) {
+        searchResults = await nominatimSearch(req.query.searchTerm);
+        return res.render("searchResults", {
+            title: "Search Results",
+            layout: false,
+            message: searchResults,
+            user: req.session ? req.session.user : undefined,
+        });
+    }
+
+    req.query.latitude = tryCatchChain(errors, () => parseLatitude(parseNumber(req.query.latitude)));
+    req.query.longitude = tryCatchChain(errors, () => normalizeLongitude(parseNumber(req.query.longitude)));
+    if (req.query.radius === undefined) {
+        req.query.radius = 5;
+    }
+    req.query.radius = tryCatchChain(errors, () => parseSearchRadius(parseNumber(req.query.radius)));
+
+    if (errors.length > 0) {
+        return res.render("searchResults", {
+            title: "Search Results",
+            layout: false,
+            errors: errors,
+            user: req.session ? req.session.user : undefined,
+        });
+    }
+
+    if (req.query.searchTerm) {
+        searchResults = await nominatimSearchWithin(
+            req.query.searchTerm,
+            req.query.latitude,
+            req.query.longitude,
+            req.query.radius
+        );
+        return res.render("searchResults", {
+            title: "Search Results",
+            layout: false,
+            message: `Places matching ${req.query.searchTerm}`,
+            results: searchResults,
+            user: req.session ? req.session.user : undefined,
+        });
+    } else {
+        return res.render("searchResults", {
+            title: "Search Results",
+            layout: false,
+            message: `Places near you`,
+            errors: ["No Search Term provided."],
+            user: req.session ? req.session.user : undefined,
+        });
+    }
+});
+
 /* router.route('/api/changePassword')
     .get(async (req, res) => {
         //AJAX Calls
@@ -257,13 +333,14 @@ router.route("/place/:id").get(async (req, res) => {
         req.params.id = parseObjectId(req.params.id, "Place Id");
         const place = await getPlace(req.params.id);
 
-        const { overall, byCategory } = await getAverageCategoryRatings(req.params.id);
+        const avgRatings = await getAverageCategoryRatings(req.params.id);
+        const letterRatings = await mapAvgRatingsToLetters(avgRatings);
 
         place.averageRatings = {
-            overallRating: overall,
-            physicalRating: byCategory.DISABILITY_CATEGORY_PHYSICAL,
-            sensoryRating: byCategory.DISABILITY_CATEGORY_SENSORY,
-            neurodivergentRating: byCategory.DISABILITY_CATEGORY_NEURODIVERGENT,
+            overallRating: letterRatings.overall,
+            physicalRating: letterRatings.byCategory.DISABILITY_CATEGORY_PHYSICAL,
+            sensoryRating: letterRatings.byCategory.DISABILITY_CATEGORY_SENSORY,
+            neurodivergentRating: letterRatings.byCategory.DISABILITY_CATEGORY_NEURODIVERGENT,
         };
 
         return res.render("place", {
@@ -281,11 +358,10 @@ router.route("/place/:id").get(async (req, res) => {
 });
 
 //This Route adds a Review to a place
-router.route("/place/:id/addReview").post(async (req, res) => {
+router.route("/api/place/:id/addReview").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
-    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
     req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
     req.body.categories = tryCatchChain(errors, () => parseCategories(req.body.categories));
 
@@ -294,7 +370,7 @@ router.route("/place/:id/addReview").post(async (req, res) => {
     }
 
     try {
-        const review = await addReview(req.params.id, req.body.author, req.body.content, req.body.categories);
+        const review = await addReview(req.params.id, req.session.user._id, req.body.content, req.body.categories);
 
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
@@ -308,11 +384,10 @@ router.route("/place/:id/addReview").post(async (req, res) => {
 });
 
 //This Route adds a comment to a place
-router.route("/place/:id/addComment").post(async (req, res) => {
+router.route("/api/place/:id/addComment").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
-    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
     req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
 
     if (errors.length > 0) {
@@ -320,7 +395,7 @@ router.route("/place/:id/addComment").post(async (req, res) => {
     }
 
     try {
-        const review = await addPlaceComment(req.params.id, req.body.author, req.body.content);
+        const review = await addPlaceComment(req.params.id, req.session.user._id, req.body.content);
 
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
@@ -355,11 +430,10 @@ router.route("/review/:id").get(async (req, res) => {
 });
 
 //This Route adds a comment to a Review
-router.route("/review/:id/addComment").post(async (req, res) => {
+router.route("/api/review/:id/addComment").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
-    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
     req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of Comment"));
 
     if (errors.length > 0) {
@@ -367,7 +441,7 @@ router.route("/review/:id/addComment").post(async (req, res) => {
     }
 
     try {
-        const review = await addReviewComment(req.params.id, req.body.author, req.body.content);
+        const review = await addReviewComment(req.params.id, req.session.user._id, req.body.content);
 
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
@@ -381,16 +455,16 @@ router.route("/review/:id/addComment").post(async (req, res) => {
 });
 
 //This Route adds a like to a Review
-router.route("/review/:id/like").post(async (req, res) => {
+router.route("/api/review/:id/like").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
-    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+
     if (errors.length > 0) {
         return res.status(400).render("error", { title: "Like Review Comment Failed", errors: errors });
     }
     try {
-        await toggleReviewLike(req.params.id, req.body.author);
+        await toggleReviewLike(req.params.id, req.session.user._id);
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
         return res.render("error", {
@@ -402,16 +476,16 @@ router.route("/review/:id/like").post(async (req, res) => {
 });
 
 //This route adds a dislike to a Review
-router.route("/review/:id/dislike").post(async (req, res) => {
+router.route("/api/review/:id/dislike").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
-    req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+
     if (errors.length > 0) {
         return res.status(400).render("error", { title: "Dislike Review Comment Failed", errors: errors });
     }
     try {
-        await toggleReviewDislike(req.params.id, req.body.author);
+        await toggleReviewDislike(req.params.id, req.session.user._id);
         return res.redirect(`/review/${review._id.toString()}`);
     } catch (error) {
         return res.render("error", {
@@ -423,7 +497,7 @@ router.route("/review/:id/dislike").post(async (req, res) => {
 });
 
 //This route handles place comment likes
-router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -432,14 +506,14 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
         //return res.render("error", { title: "Invalid Comment Id or Place Id" });
     }
     try {
-        const likedPlace = togglePlaceCommentLike(req.params.commentId, req.params.placeId);
+        const likedPlace = togglePlaceCommentLike(req.params.placeId, req.params.commentId, req.session.user._id);
     } catch (e) {
         //return res.render("error", { title: "" });
     }
 });
 
 //This route handles place comment dislikes
-router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -448,7 +522,7 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
         //return res.render("error", { title: "Invalid Comment Id or Place Id" });
     }
     try {
-        const dislikedPlace = togglePlaceCommentDislike(req.params.commentId, req.params.placeId);
+        const dislikedPlace = togglePlaceCommentDislike(req.params.placeId, req.params.commentId, req.session.user._id);
     } catch (e) {
         //return res.render("error", { title: "" });
     }
@@ -456,7 +530,7 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
 
 //Routes for review comment likes and dislikes
 
-router.route("/review/:reviewId/comment/:commentId").post(async (req, res) => {
+router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -472,7 +546,7 @@ router.route("/review/:reviewId/comment/:commentId").post(async (req, res) => {
 });
 
 //This route adds a reply to a comment on a place
-router.route("/comment/:id/reply").post(async (req, res) => {
+router.route("/api/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
@@ -482,7 +556,7 @@ router.route("/comment/:id/reply").post(async (req, res) => {
 });
 
 //This route adds a reply to a commment on a review
-router.route("/review/:reviewId/comment/:id/reply").post(async (req, res) => {
+router.route("/api/review/:reviewId/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
