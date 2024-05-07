@@ -22,7 +22,14 @@
                     <p class="empty-section">No reviews yet!</p>
                 {{/unless}}
                 {{#if ../user}}
-                    <button><span class="material-symbols-outlined">plus</span>Add Review</button>
+                    {{#unless ../hasReview}}
+                    <button id="add-review"><span class="material-symbols-outlined">plus</span>Add Review</button>
+                    <dialog>
+                        <form action="/places/{{_id}}/createReview">
+
+                        </form>
+                    </dialog>
+                    {{/unless}}
                 {{/if}}
                 {{#each reviews}}
                     {{> reviewCard review=this user=../user }}

@@ -1,4 +1,8 @@
 (function () {
+    const addReviewButton = document.getElementById("add-review");
+    if (addReviewButton) {
+        addReviewButton.addEventListener("click", )
+    }
     const likeDislikeButtons = document.getElementsByClassName("like-dislike");
     likeDislikeButtons.map((div) => {
         const like = div.getElementsByClassName("like")[0];

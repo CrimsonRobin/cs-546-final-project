@@ -2,6 +2,7 @@
     <a href="/reviews/{{_id}}">
         <div class="card review">
             <h2 class="{{ratings.averageRating}}">{{ratings.averageRating}}</h2>
+            <p>Ask for Accessibility: {{#if ask}}Yes{{else}}No{{/if}}</p>
             <div class="individual-ratings">
                 <p><span class="material-symbols-outlined" aria-hidden="true">accessible_forward</span>Physical
                     <span class="individual-rating {{ratings.physicalRating}}">{{ratings.physicalRating}}</span></p>

@@ -3,11 +3,9 @@
 <main>
     <h1>Establishments near you</h1>
     <form action="/" id="search">
-        <input type="text" name="search-query" placeholder="Search establishments..." aria-label="Search">
-        <button type="submit">Search</button>
+        <input type="text" name="search-query" placeholder="Search places..." aria-label="Search">
+        <button type="submit"><span class="material-symbols-outlined" aria-hidden="true">search</span>Search</button>
     </form>
 
-    <div id="results">
-        {{> searchResults }}
-    </div>
+    <div id="results"></div>
 </main>

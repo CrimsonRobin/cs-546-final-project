@@ -81,3 +81,7 @@ button {
     filter: drop-shadow(0 8px #202020);
     border-radius: 12px;
 }
+
+.highlight {
+    font-weight: bold;
+}
