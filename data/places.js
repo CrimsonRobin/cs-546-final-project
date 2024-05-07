@@ -316,77 +316,81 @@ export const getComment = async (reviewId, commentId) => {
     throw new Error("No such comment found");
 };
 
-//Increase Review Likes
-export const increaseReviewLikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    review.likes.append(name);
+/**
+ * Mark that a user has liked the specified review.
+ * @param {string} reviewId The ID of the review.
+ * @param {string} userId The ID of the user that has liked the review.
+ * @returns {Promise<void>}
+ */
+export const addReviewLike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
+        {$push: {reviews: {likes: userId}}}).exec();
 };
-//Decrease Review Likes
-export const decreaseReviewLikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    const index = review.likes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        review.likes.splice(index, 1);
-    }
+
+/**
+ * Remove a user from the list of users that have liked a review.
+ *
+ * If the user has not liked the review, nothing special happens.
+ *
+ * @param {string} reviewId The ID of the review.
+ * @param {string} userId The ID of the user to remove.
+ * @returns {Promise<void>}
+ */
+export const removeReviewLike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
+        {$pull: {reviews: {likes: userId}}}).exec();
 };
-//Increase Comment Likes
-export const increaseCommentLikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    comment.likes.append(name);
+
+export const addReviewDislike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
+        {$push: {reviews: {dislikes: userId}}}).exec();
 };
-//Decrease Comment Likes
-export const decreaseCommentLikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    const index = comment.likes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        comment.likes.splice(index, 1);
-    }
+
+export const removeReviewDislike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))},
+        {$pull: {reviews: {dislikes: userId}}}).exec();
 };
-//Increase Review Dislikes
-export const increaseReviewDislikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    review.dislikes.append(name);
+
+/**
+ * Mark that a user has liked the specified comment.
+ * @param {string} commentId The ID of the comment.
+ * @param {string} userId The ID of the user that has liked the review.
+ * @returns {Promise<void>}
+ */
+export const addPlaceCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
+        {$push: {comments: {likes: userId}}}).exec();
 };
-//Decrease Review Dislikes
-export const decreaseReviewDislikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    const index = review.dislikes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        review.dislikes.splice(index, 1);
-    }
+
+export const removePlaceCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
+        {$pull: {comments: {likes: userId}}}).exec();
 };
-//Increase Comment Dislikes
-export const increaseCommentDisikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    comment.dislikes.append(name);
+
+export const addPlaceCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
+        {$push: {comments: {dislikes: userId}}}).exec();
 };
-//Decrease Comment Dislikes
-export const decreaseCommentDislikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    const index = comment.dislikes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        comment.dislikes.splice(index, 1);
-    }
+
+export const removePlaceCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        {"comments._id": ObjectId.createFromHexString(parseObjectId(commentId))},
+        {$pull: {comments: {dislikes: userId}}}).exec();
 };
 
 //search
