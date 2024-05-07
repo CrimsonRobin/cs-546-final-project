@@ -349,23 +349,6 @@ export const getComment = async (reviewId, commentId) => {
     throw new Error("No such comment found");
 };
 
-export const toggleReviewLike = async (reviewId, userId) => {
-    reviewId = parseObjectId(reviewId);
-    userId = parseObjectId(userId);
-    const place = await Place.findOne({"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))}).exec().toObject();
-
-    if(place.reviews.likes.some((id) => id === userId)) {
-        await removeReviewLike(reviewId, userId);
-    }
-    else if (place.reviews.dislikes.some((id) => id === userId)) {
-        await removeReviewDislike(reviewId, userId);
-        await addReviewLike(reviewId, userId);
-    }
-    else {
-        await addReviewLike(reviewId, userId);
-    }
-};
-
 /**
  * Mark that a user has liked the specified review.
  * @param {string} reviewId The ID of the review.
@@ -395,6 +378,23 @@ const removeReviewLike = async (reviewId, userId) => {
         { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
         { $pull: { reviews: { likes: userId } } }
     ).exec();
+};
+
+export const toggleReviewLike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
+    userId = parseObjectId(userId);
+    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+        .exec()
+        .toObject();
+
+    if (place.reviews.likes.some((id) => id === userId)) {
+        await removeReviewLike(reviewId, userId);
+    } else if (place.reviews.dislikes.some((id) => id === userId)) {
+        await removeReviewDislike(reviewId, userId);
+        await addReviewLike(reviewId, userId);
+    } else {
+        await addReviewLike(reviewId, userId);
+    }
 };
 
 export const toggleReviewDislike = async (reviewId, userId) => {
@@ -503,6 +503,40 @@ const removePlaceCommentDislike = async (commentId, userId) => {
         { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
         { $pull: { comments: { dislikes: userId } } }
     ).exec();
+};
+
+export const toggleReviewCommentLike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
+    userId = parseObjectId(userId);
+    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+        .exec()
+        .toObject();
+
+    if (place.reviews.comments.likes.some((id) => id === userId)) {
+        await removeReviewCommentLike(reviewId, userId);
+    } else if (place.reviews.comments.dislikes.some((id) => id === userId)) {
+        await removeReviewCommentDislike(reviewId, userId);
+        await addReviewCommentLike(reviewId, userId);
+    } else {
+        await addReviewCommentLike(reviewId, userId);
+    }
+};
+
+export const toggleReviewCommentDislike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
+    userId = parseObjectId(userId);
+    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+        .exec()
+        .toObject();
+
+    if (place.reviews.comments.dislikes.some((id) => id === userId)) {
+        await removeReviewCommentDislike(reviewId, userId);
+    } else if (place.reviews.comments.likes.some((id) => id === userId)) {
+        await removeReviewCommentLike(reviewId, userId);
+        await addReviewCommentDislike(reviewId, userId);
+    } else {
+        await addReviewCommentDislike(reviewId, userId);
+    }
 };
 
 export const addReviewCommentLike = async (commentId, userId) => {
