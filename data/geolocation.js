@@ -88,6 +88,38 @@ export const OSM_TYPE_WAY = "W";
 export const OSM_TYPE_RELATION = "R";
 
 /**
+ * The number of miles in one degree of latitude.
+ *
+ * Unlike longitude, degrees of latitude are always the same distance apart (or are close enough to the same
+ * distance apart that it's more than irrelevant).
+ *
+ * @type {!number}
+ * @author Anthony Webster
+ */
+export const MILES_PER_DEGREE_OF_LATITUDE = 69.0;
+
+/**
+ * The number of degrees of latitude per mile.
+ * @type {!number}
+ * @see MILES_PER_DEGREE_OF_LATITUDE
+ * @author Anthony Webster
+ */
+export const DEGREES_OF_LATITUDE_PER_MILE = 1.0 / MILES_PER_DEGREE_OF_LATITUDE;
+
+/**
+ * The maximum latitude that can be used when searching near a point.
+ *
+ * This number was chosen based on the maximum search radius. Without this cutoff, the search box
+ * could exceed 90 degrees latitude, which is undesirable.
+ *
+ * @type {!number}
+ * @author Anthony Webster
+ */
+// The northernmost latitude in the US is about 71.5 degrees north (which is in Alaska).
+// Cranking this up to 82 is more than sensible for the maximum.
+export const MAXIMUM_SEARCH_CENTER_LATITUDE = 82;
+
+/**
  * Parses the given OSM type.
  *
  * Accepts both the "full names" for the OSM types (such as "node" instead of "N") and
@@ -425,7 +457,6 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     searchRadius /= 2.0;
 
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
-    const milesPerDegreeOfLatitude = 69.0; // mi/deg
     const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude); // mi/deg
 
     // Compute how many degrees we need to move
@@ -435,18 +466,17 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
     // Have miles and current location (in deg)
     // Have miles/deg
     const longitudeDegPerMile = 1 / milesPerLongitude;
-    const latitudeDegPerMile = 1 / milesPerDegreeOfLatitude;
 
     const longitudeDiff = longitudeDegPerMile * searchRadius;
 
     // TODO: Wrap on overflow
     return {
         // Pair 1 will be the top left corner
-        x1: currentLatitude + latitudeDegPerMile * searchRadius,
-        y1: currentLongitude < 0 ? currentLongitude - longitudeDiff : currentLongitude + longitudeDiff,
+        x1: currentLatitude + DEGREES_OF_LATITUDE_PER_MILE * searchRadius,
+        y1: normalizeLongitude(currentLongitude < 0 ? currentLongitude - longitudeDiff : currentLongitude + longitudeDiff),
         // Pair 2 will be the bottom right corner
-        x2: currentLatitude - latitudeDegPerMile * searchRadius,
-        y2: currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff,
+        x2: currentLatitude - DEGREES_OF_LATITUDE_PER_MILE * searchRadius,
+        y2: normalizeLongitude(currentLongitude < 0 ? currentLongitude + longitudeDiff : currentLongitude - longitudeDiff),
     };
 };
 
@@ -527,6 +557,15 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
     query = parseNonEmptyString(query, "Search query");
 
     currentLatitude = parseLatitude(currentLatitude);
+    if (currentLatitude < -MAXIMUM_SEARCH_CENTER_LATITUDE || currentLatitude > MAXIMUM_SEARCH_CENTER_LATITUDE)
+    {
+        // Couple of reasons for this.
+        // First, the math of wrapping longitude back around is annoying.
+        // Second (and more reasonable reason), if anyone is searching this far north on Earth, there will
+        // probably be no results anyway.
+        throw new Error(`Search latitude must be between -${MAXIMUM_SEARCH_CENTER_LATITUDE} and ${MAXIMUM_SEARCH_CENTER_LATITUDE} degrees`);
+    }
+
     currentLongitude = normalizeLongitude(currentLongitude);
     searchRadius = parseSearchRadius(searchRadius);
 
