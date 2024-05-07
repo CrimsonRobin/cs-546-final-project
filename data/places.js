@@ -349,13 +349,30 @@ export const getComment = async (reviewId, commentId) => {
     throw new Error("No such comment found");
 };
 
+export const toggleReviewLike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
+    userId = parseObjectId(userId);
+    const place = await Place.findOne({"reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId))}).exec().toObject();
+
+    if(place.reviews.likes.some((id) => id === userId)) {
+        await removeReviewLike(reviewId, userId);
+    }
+    else if (place.reviews.dislikes.some((id) => id === userId)) {
+        await removeReviewDislike(reviewId, userId);
+        await addReviewLike(reviewId, userId);
+    }
+    else {
+        await addReviewLike(reviewId, userId);
+    }
+};
+
 /**
  * Mark that a user has liked the specified review.
  * @param {string} reviewId The ID of the review.
  * @param {string} userId The ID of the user that has liked the review.
  * @returns {Promise<void>}
  */
-export const addReviewLike = async (reviewId, userId) => {
+const addReviewLike = async (reviewId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
@@ -372,7 +389,7 @@ export const addReviewLike = async (reviewId, userId) => {
  * @param {string} userId The ID of the user to remove.
  * @returns {Promise<void>}
  */
-export const removeReviewLike = async (reviewId, userId) => {
+const removeReviewLike = async (reviewId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
@@ -380,7 +397,8 @@ export const removeReviewLike = async (reviewId, userId) => {
     ).exec();
 };
 
-export const ToggleReviewDislike = async (reviewId, userId) => {
+export const toggleReviewDislike = async (reviewId, userId) => {
+    reviewId = parseObjectId(reviewId);
     userId = parseObjectId(userId);
     const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
         .exec()
