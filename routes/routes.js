@@ -12,7 +12,9 @@
 import express from "express";
 import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, 
     parseCategories, parseNonEmptyString, parseLatitude, normalizeLongitude, parseNumber} from "../helpers.js";
-import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces} from "../data/places.js";
+import {getPlace, getReview, addReview, addPlaceComment, addReviewComment, searchNear, findAllNear, search, getAllPlaces,
+    addPlaceCommentDislike, addPlaceCommentLike, addReviewCommentLike, addReviewLike, addReviewDislike, addPlaceCommentDislike, 
+} from "../data/places.js";
 import {createUser, getUser, loginUser} from "../data/user.js";
 
 const router = express.Router();
@@ -246,7 +248,13 @@ router.route('/review/:id/addComment')
 
 router.route('/review/:id/like')
     .post(async (req, res) => {
+        try {
+            req.params.id = parseObjectId(req.params.id, "Review Id");
 
+
+        } catch (error) {
+            
+        }
     });
 
 router.route('/review/:id/like')
