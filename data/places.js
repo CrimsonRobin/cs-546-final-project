@@ -1,11 +1,12 @@
 import {
+    isNullOrUndefined,
+    normalizeLongitude,
     parseCategories,
+    parseLatitude,
     parseNonEmptyString,
     parseObjectId,
-    normalizeLongitude,
-    parseLatitude,
     removeDuplicates,
-    throwIfNullOrUndefined, roundTo,
+    throwIfNullOrUndefined,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -63,23 +64,31 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     return document;
 };
 
+/**
+ *
+ * @param placeId
+ * @returns {Promise<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown extends any[] ? Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>[] : Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>>}
+ */
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
-    const result = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
-    if (!result) {
+    const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
+    if (!foundPlace) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    return result;
+    foundPlace.avgRatings = await getAverageCategoryRatings(placeId);
+    return foundPlace;
 };
 
-//delete places?
+export const getAllPlaces = async () => {
+    return await Place.find({}).exec();
+};
 
 //review functions:
 
 //create
 export const addReview = async (placeId, author, content, categories) => {
-    placeId = parseObjectId(placeId, "Place id");
-    author = parseNonEmptyString(author, "Name of author");
+    placeId = parseObjectId(placeId, "Place Id");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of review");
     categories = parseCategories(categories);
     const placeReviewed = await getPlace(placeId);
@@ -103,13 +112,11 @@ export const addReview = async (placeId, author, content, categories) => {
     if (!review) {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
-    //TODO: recompute average rating of place
-
     return review;
 };
 //get specific review
 export const getReview = async (reviewId) => {
-    reviewId = parseObjectId(reviewId, "Review id");
+    reviewId = parseObjectId(reviewId, "Review Id");
     const searchedReview = await Place.findOne(
         { "reviews._id": new ObjectId(reviewId) },
         { projection: { "reviews.$": true, _id: false } }
@@ -120,10 +127,19 @@ export const getReview = async (reviewId) => {
     return searchedReview;
 };
 //get all from specific place
+
+/**
+ *
+ * @param placeId
+ * @returns {Promise<*>}
+ */
 export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
-    const placeReviewed = await getPlace(placeId);
-    return placeReviewed.reviews;
+    return (
+        await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
+            .select("reviews")
+            .exec()
+    ).reviews;
 };
 
 //update review
@@ -136,75 +152,115 @@ export const updateReview = async (reviewId, content, categories) => {
     if (content === searchedReview.content && categories === searchedReview.categories) {
         return;
     }
-    const updatedReview = await Place.updateOne(
+    const updatedPlace = await Place.findOneAndUpdate(
         { "reviews._id": new ObjectId(reviewId) },
         { $set: { "reviews.content": content, "reviews.categories": categories } }
     ).exec();
     throwIfNullOrUndefined(updateReview);
-    //TODO: recompute average
-    return updatedReview;
+    //recompute average
+    getAverageCategoryRatings(updatedPlace._id);
+    return searchedReview;
 };
 //delete review
 export const deleteReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review Id");
-    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) });
-    const updateResult = await collection.updateOne(
-        { "reviews._id": reviewIdObject },
-        { $pull: { reviews: { _id: reviewIdObject } } }
-    );
+    const placeReviewed = await Place.findOne({ "reviews._id": new ObjectId(reviewId) }).exec();
+    const updateResult = await Place.updateOne(
+        { "reviews._id": new ObjectId(reviewId) },
+        { $pull: { reviews: { _id: new ObjectId(reviewId) } } }
+    ).exec();
     if (!updateResult) {
         throw new Error(`Failed to delete review with id ${reviewId}`);
     }
-    //TODO recompute average
     return placeReviewed;
+};
+
+/**
+ * Tests if the given user has a review for the given place.
+ * @param {string} placeId
+ * @param {string} userId
+ * @returns {Promise<boolean>} True if the user has already reviewed this place, false otherwise.
+ * @author Anthony Webster
+ */
+export const userHasReviewForPlace = async (placeId, userId) => {
+    placeId = parseObjectId(placeId);
+    userId = parseObjectId(userId);
+    const placeReviews = await getAllReviewsFromPlace(placeId);
+    return placeReviews.some((r) => parseObjectId(r.author) === userId);
 };
 
 /**
  * Computes the average ratings for each disability category for a place.
  *
  * @param {string} placeId The ID of the place to calculate the average for.
- * @returns {Promise<{DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
- * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}>} An object
- * containing the average ratings by category. If a place does not have ratings for a given category, then
- * that category's average rating is `null`.
+ * @returns {Promise<{overall: (number|null), byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}}>} An object
+ * containing the overall average rating and average ratings by category. If a place does not have ratings
+ * for a given category, then that category's average rating is `null`.
  * @author Anthony Webster
  */
-export const getAverageCategoryRatings = async (placeId) =>
-{
+export const getAverageCategoryRatings = async (placeId) => {
     // Let's take the easy way out and do this in JS instead.
     const place = await getPlace(placeId);
+    let overallTotal = 0;
+    let overallCount = 0;
     const ratings = {
         DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
         DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
         DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
     };
-    for (const categories of place.reviews.map(r => r.categories))
-    {
-        for (const { categoryName, rating } of categories)
-        {
-            if (ratings[categoryName] === undefined)
-            {
+    for (const categories of place.reviews.map((r) => r.categories)) {
+        for (const { categoryName, rating } of categories) {
+            if (ratings[categoryName] === undefined) {
                 ratings[categoryName] = { count: 0, total: 0 };
             }
             ratings[categoryName].count++;
             ratings[categoryName].total += rating;
+            overallTotal += rating;
+            overallCount++;
         }
     }
 
     const averaged = {};
-    for (const [category, { count, total }] in Object.entries(ratings))
-    {
+    for (const [category, { count, total }] in Object.entries(ratings)) {
         averaged[category] = count === 0 ? null : total / count;
     }
 
-    return averaged;
+    return {
+        overall: overallCount === 0 ? null : overallTotal / overallCount,
+        byCategory: averaged,
+    };
+};
+//for place average ratings
+export const mapAvgRatingsToLetters = async (avgRatings) => {
+    const letterRatings = {
+        overall: ratingToLetter(avgRatings.overall),
+        byCategory: Object.fromEntries(Object.entries(avgRatings).map((p) => [p[0], ratingToLetter(p[1])])),
+    };
+    return letterRatings;
+};
+
+export const ratingToLetter = async (rating) => {
+    if (isNullOrUndefined(rating) || rating < 1) {
+        return "N/A";
+    } else if (rating >= 1 && rating < 1.5) {
+        return "F";
+    } else if (rating >= 1.5 && rating < 2.5) {
+        return "D";
+    } else if (rating >= 2.5 && rating < 3.5) {
+        return "C";
+    } else if (rating >= 3.5 && rating < 4.5) {
+        return "B";
+    } else {
+        return "A";
+    }
 };
 
 //comment functions:
 
 //create place comment
 export const addPlaceComment = async (placeId, author, content) => {
-    author = parseNonEmptyString(author, "Name of author");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     placeId = parseObjectId(placeId, "Place Id");
 
@@ -220,6 +276,7 @@ export const addPlaceComment = async (placeId, author, content) => {
                     createdAt: new Date(),
                     likes: [],
                     dislikes: [],
+                    replies: []
                 },
             },
         }
@@ -234,7 +291,7 @@ export const addPlaceComment = async (placeId, author, content) => {
 
 //create review comment
 export const addReviewComment = async (reviewId, author, content) => {
-    author = parseNonEmptyString(author, "Name of author");
+    author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of comment");
     reviewId = parseObjectId(reviewId, "Review Id");
 
@@ -250,6 +307,7 @@ export const addReviewComment = async (reviewId, author, content) => {
                     createdAt: new Date(),
                     likes: [],
                     dislikes: [],
+                    replies: []
                 },
             },
         }
@@ -263,18 +321,13 @@ export const addReviewComment = async (reviewId, author, content) => {
 };
 
 //get all comments from place/review
-export const getAllCommentsFromPlace = async (placeId) => {
-    placeId = parseObjectId(placeId);
-    const place = await getPlace(placeId);
-
-    return place.comments;
+export const getAllCommentsFromPlace = async (placeId) =>
+{
+    return (await getPlace(parseObjectId(placeId))).comments;
 };
 
 export const getAllCommentsFromReview = async (reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    const review = await getReview(reviewId);
-
-    return review.comments;
+    return (await getReview(parseObjectId(reviewId))).comments;
 };
 
 //get specific comment
@@ -284,85 +337,171 @@ export const getComment = async (reviewId, commentId) => {
 
     const comments = await getAllCommentsFromReview(reviewId);
 
-    for (let i = 0; i < comments.length; i++) {
-        if (String(comments[i]._id) === String(commentId)) {
-            return comments[i];
+    for (const comment of comments) {
+        if (comment._id.toString() === commentId) {
+            return comment;
         }
     }
     throw new Error("No such comment found");
 };
 
-//Increase Review Likes
-export const increaseReviewLikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    review.likes.append(name);
+/**
+ * Mark that a user has liked the specified review.
+ * @param {string} reviewId The ID of the review.
+ * @param {string} userId The ID of the user that has liked the review.
+ * @returns {Promise<void>}
+ */
+export const addReviewLike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $push: { reviews: { likes: userId } } }
+    ).exec();
 };
-//Decrease Review Likes
-export const decreaseReviewLikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    const index = review.likes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        review.likes.splice(index, 1);
-    }
+
+/**
+ * Remove a user from the list of users that have liked a review.
+ *
+ * If the user has not liked the review, nothing special happens.
+ *
+ * @param {string} reviewId The ID of the review.
+ * @param {string} userId The ID of the user to remove.
+ * @returns {Promise<void>}
+ */
+export const removeReviewLike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $pull: { reviews: { likes: userId } } }
+    ).exec();
 };
-//Increase Comment Likes
-export const increaseCommentLikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    comment.likes.append(name);
+
+export const addReviewDislike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $push: { reviews: { dislikes: userId } } }
+    ).exec();
 };
-//Decrease Comment Likes
-export const decreaseCommentLikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    const index = comment.likes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        comment.likes.splice(index, 1);
-    }
+
+export const removeReviewDislike = async (reviewId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) },
+        { $pull: { reviews: { dislikes: userId } } }
+    ).exec();
 };
-//Increase Review Dislikes
-export const increaseReviewDislikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    review.dislikes.append(name);
+
+/**
+ * Mark that a user has liked the specified comment.
+ * @param {string} commentId The ID of the comment.
+ * @param {string} userId The ID of the user that has liked the review.
+ * @returns {Promise<void>}
+ */
+export const addPlaceCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { comments: { likes: userId } } }
+    ).exec();
 };
-//Decrease Review Dislikes
-export const decreaseReviewDislikes = async (name, reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    let review = await getReview(reviewId);
-    const index = review.dislikes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        review.dislikes.splice(index, 1);
-    }
+
+export const removePlaceCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { comments: { likes: userId } } }
+    ).exec();
 };
-//Increase Comment Dislikes
-export const increaseCommentDisikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    comment.dislikes.append(name);
+
+export const addPlaceCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { comments: { dislikes: userId } } }
+    ).exec();
 };
-//Decrease Comment Dislikes
-export const decreaseCommentDislikes = async (name, reviewId, commentId) => {
-    reviewId = parseObjectId(reviewId);
-    commentId = parseObjectId(commentId);
-    let comment = await getComment(reviewId, commentId);
-    const index = comment.dislikes.indexOf(name);
-    if (index === -1) {
-        throw new error("User has already removed their like");
-    } else {
-        comment.dislikes.splice(index, 1);
-    }
+
+export const removePlaceCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { comments: { dislikes: userId } } }
+    ).exec();
+};
+
+export const addReviewCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "reviews.comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { reviews: { comments: { likes: userId } } } }
+    ).exec();
+};
+
+export const removeReviewCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { reviews: { comments: { likes: userId } } } }
+    ).exec();
+};
+
+export const addReviewCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $push: { reviews: { comments: { dislikes: userId } } } }
+    ).exec();
+};
+
+export const removeReviewCommentDislike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
+        { $pull: { reviews: { comments: { dislikes: userId } } } }
+    ).exec();
+};
+
+export const addPlaceCommentReply = async (commentId, authorId, content) => {
+    commentId = parseObjectId(commentId, "comment id");
+    authorId = parseObjectId(authorId, "author id");
+    content = parseNonEmptyString(content, "reply content");
+    await Place.updateOne(
+        { "comments._id": ObjectId.createFromHexString(commentId) },
+        {
+            $push: {
+                comments: {
+                    replies: {
+                        _id: new ObjectId(),
+                        author: authorId,
+                        content: content,
+                    },
+                },
+            },
+        }
+    ).exec();
+};
+
+export const addReviewCommentReply = async (commentId, authorId, content) => {
+    commentId = parseObjectId(commentId, "comment id");
+    authorId = parseObjectId(authorId, "author id");
+    content = parseNonEmptyString(content, "reply content");
+    await Place.updateOne(
+        { "reviews.comments._id": ObjectId.createFromHexString(commentId) },
+        {
+            $push: {
+                reviews: {
+                    comments: {
+                        replies: {
+                            _id: new ObjectId(),
+                            author: authorId,
+                            content: content,
+                        },
+                    },
+                },
+            },
+        }
+    ).exec();
 };
 
 //search
@@ -515,6 +654,7 @@ export const genericSearch = async (query) => {
  * @author Anthony Webster
  */
 export const searchNear = async (query, latitude, longitude, radius) => {
+    query = parseNonEmptyString(query, "Search query");
     latitude = parseLatitude(latitude);
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
@@ -525,4 +665,18 @@ export const searchNear = async (query, latitude, longitude, radius) => {
             (r) => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius
         )
         .map((r) => r._id.toString());
+};
+
+export const findAllNear = async (latitude, longitude, radius) => {
+    latitude = parseLatitude(latitude);
+    longitude = normalizeLongitude(longitude);
+    radius = parseSearchRadius(radius);
+
+    const places = await Place.find({}, ["_id", "location"], null).exec();
+    return Enumerable.from(places)
+        .select((p) => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
+        .where((p) => p[0] <= radius)
+        .orderByDescending((p) => p[0])
+        .select((p) => p[1])
+        .toArray();
 };

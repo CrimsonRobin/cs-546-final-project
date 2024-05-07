@@ -669,5 +669,37 @@ export const parseQualifications = (qualifications) => {
             throw new Error(`Invalid qualification "${qualification}"`);
         }
     }
-    return qualifications;
+    return removeDuplicates(qualifications);
+};
+
+/**
+ * The minimum length of a username.
+ * @type {!number}
+ * @author Anthony Webster
+ */
+export const USERNAME_MINIMUM_LENGTH = 3;
+
+/**
+ * The maximum length of a username.
+ * @type {!number}
+ * @author Anthony Webster
+ */
+export const USERNAME_MAXIMUM_LENGTH = 25;
+
+/**
+ * Parses a username.
+ * @param {string} username
+ * @returns {string} Parses a username.
+ * @author Anthony Webster
+ */
+export const parseUsername = (username) =>
+{
+    username = parseStringWithLengthBounds(username, USERNAME_MINIMUM_LENGTH, USERNAME_MAXIMUM_LENGTH, true, "username");
+
+    if (!(/^[a-z0-9]$/ig.test(username)))
+    {
+        throw new Error("Username can only contain alphanumeric characters");
+    }
+
+    return username;
 };
