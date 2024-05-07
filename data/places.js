@@ -71,7 +71,7 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
  */
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
-    const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
+    const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
     if (!foundPlace) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
@@ -140,14 +140,9 @@ export const getReview = async (reviewId) => {
  */
 export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
-    return (
-        (
-            await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
-                .select("reviews")
-                .exec()
-        ).reviews,
-        map((review) => review.toObject())
-    );
+    return (await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
+        .select("reviews")
+        .exec()).reviews.map((review) => review.toObject());
 };
 
 //delete review
@@ -211,7 +206,7 @@ export const getAverageCategoryRatings = async (placeId) => {
     }
 
     const averaged = {};
-    for (const [category, { count, total }] in Object.entries(ratings)) {
+    for (const [category, { count, total }] of Object.entries(ratings)) {
         averaged[category] = count === 0 ? null : total / count;
     }
 
