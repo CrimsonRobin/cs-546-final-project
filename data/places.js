@@ -71,12 +71,23 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
  */
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
-    const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
-    if (!foundPlace) {
+    const place = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
+    if (!place) {
         throw new Error(`Failed to find place with id ${placeId}`);
     }
-    //foundPlace.avgRatings = await getAverageCategoryRatings(placeId);
-    return foundPlace;
+    //place.avgRatings = await getAverageCategoryRatings(placeId);
+
+    const avgRatings = await getAverageCategoryRatings(placeId);
+    const letterRatings = mapAvgRatingsToLetters(avgRatings);
+
+    place.averageRatings = {
+        overallRating: letterRatings.overall,
+        physicalRating: letterRatings.byCategory[DISABILITY_CATEGORY_PHYSICAL],
+        sensoryRating: letterRatings.byCategory[DISABILITY_CATEGORY_SENSORY],
+        neurodivergentRating: letterRatings.byCategory[DISABILITY_CATEGORY_NEURODIVERGENT],
+    };
+
+    return place;
 };
 
 export const getAllPlaces = async () => {
@@ -185,7 +196,12 @@ export const userHasReviewForPlace = async (placeId, userId) => {
  */
 export const getAverageCategoryRatings = async (placeId) => {
     // Let's take the easy way out and do this in JS instead.
-    const place = await getPlace(placeId);
+    //const place = await getPlace(placeId);
+    const place = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null).exec();
+    if (!place) {
+        throw new Error(`Failed to find place with id ${placeId}`);
+    }
+
     let overallTotal = 0;
     let overallCount = 0;
     const ratings = {};
