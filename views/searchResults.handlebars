@@ -1,11 +1,12 @@
 {{#if errors}}
+    <h1>Error!</h1>
     <ul class="error">
         {{#each errors}}
             <li>{{this}}</li>
         {{/each}}
     </ul>
 {{else}}
-    <p>{{message}}</p>
+    <h1>{{message}}</h1>
     {{#each results}}
         {{> placeCard place=this user=user }}
     {{/each}}

@@ -93,11 +93,11 @@
                         params.append("latitude", latitude);
                         params.append("longitude", longitude);
                         const query = params.toString();
-                        await doRequest(`${REQUEST_URL}$${query}`);
+                        await doRequest(`${REQUEST_URL}?${query}`);
                     },
                     async (error) => {
                         const query = params.toString();
-                        await doRequest(`${REQUEST_URL}$${query}`);
+                        await doRequest(`${REQUEST_URL}?${query}`);
                     }
                 );
             }
