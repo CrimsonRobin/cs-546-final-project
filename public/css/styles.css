@@ -30,8 +30,9 @@
     --fg: #121212;
     --accent-bg: #A51D2D;
     --accent-fg: #ffffff;
+    --accent-active: #B33F4D;
     --bg-on: #ffffff;
-    --shadow: #808080;
+    --shadow: #40404040;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +49,7 @@
         --fg: #f0f0f0;
         --accent-bg: #E9818D;
         --accent-fg: #000000;
+        --accent-active: #F3BDC4;
         --bg-on: #303030;
         --shadow: #121212;
     }
@@ -158,4 +160,17 @@ header img, header div {
     display: flex;
     gap: 8px;
     align-items: end;
+}
+
+a, button {
+    transition: all ease-in-out 100ms;
+}
+
+a:hover {
+    color: var(--accent-active);
+}
+
+button:hover, a.button-link:hover {
+    color: var(--accent-fg);
+    background-color: var(--accent-active);
 }
