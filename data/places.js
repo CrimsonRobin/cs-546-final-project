@@ -1,12 +1,11 @@
 import {
+    normalizeLongitude,
     parseCategories,
+    parseLatitude,
     parseNonEmptyString,
     parseObjectId,
-    normalizeLongitude,
-    parseLatitude,
     removeDuplicates,
     throwIfNullOrUndefined,
-    roundTo,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -64,6 +63,11 @@ export const createPlace = async (name, description, osmType, osmId, address, lo
     return document;
 };
 
+/**
+ *
+ * @param placeId
+ * @returns {Promise<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown extends any[] ? Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>[] : Require_id<FlattenMaps<module:mongoose.Schema<any, Model<RawDocType, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, ApplySchemaOptions<ObtainDocumentType<any, RawDocType, ResolveSchemaOptions<TSchemaOptions>>, ResolveSchemaOptions<TSchemaOptions>>, HydratedDocument<FlatRecord<DocType>, TVirtuals & TInstanceMethods>> extends Schema<infer EnforcedDocType, infer M, infer TInstanceMethods, infer TQueryHelpers, infer TVirtuals, infer TStaticMethods, infer TSchemaOptions, infer DocType> ? DocType : unknown>>>}
+ */
 export const getPlace = async (placeId) => {
     placeId = parseObjectId(placeId, "Place id");
     const foundPlace = await Place.findOne({ _id: ObjectId.createFromHexString(placeId) }).exec();
@@ -118,10 +122,18 @@ export const getReview = async (reviewId) => {
     return searchedReview;
 };
 //get all from specific place
+
+/**
+ *
+ * @param placeId
+ * @returns {Promise<*>}
+ */
 export const getAllReviewsFromPlace = async (placeId) => {
     placeId = parseObjectId(placeId);
-    const placeReviewed = await getPlace(placeId);
-    return placeReviewed.reviews;
+    return (await Place
+        .findOne({ _id: ObjectId.createFromHexString(placeId) }, null, null)
+        .select("reviews")
+        .exec()).reviews;
 };
 
 //update review
@@ -155,6 +167,21 @@ export const deleteReview = async (reviewId) => {
         throw new Error(`Failed to delete review with id ${reviewId}`);
     }
     return placeReviewed;
+};
+
+/**
+ * Tests if the given user has a review for the given place.
+ * @param {string} placeId
+ * @param {string} userId
+ * @returns {Promise<boolean>} True if the user has already reviewed this place, false otherwise.
+ * @author Anthony Webster
+ */
+export const userHasReviewForPlace = async (placeId, userId) =>
+{
+    placeId = parseObjectId(placeId);
+    userId = parseObjectId(userId);
+    const placeReviews = await getAllReviewsFromPlace(placeId);
+    return placeReviews.some(r => parseObjectId(r.author) === userId);
 };
 
 /**
