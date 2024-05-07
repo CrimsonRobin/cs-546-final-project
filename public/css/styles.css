@@ -85,3 +85,8 @@ button {
 .highlight {
     font-weight: bold;
 }
+
+main {
+    max-width: 1300px;
+    width:75%;
+}
