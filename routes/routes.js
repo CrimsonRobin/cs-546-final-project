@@ -358,7 +358,7 @@ router.route("/place/:id").get(async (req, res) => {
 });
 
 //This Route adds a Review to a place
-router.route("/place/:id/addReview").post(async (req, res) => {
+router.route("/api/place/:id/addReview").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
@@ -384,7 +384,7 @@ router.route("/place/:id/addReview").post(async (req, res) => {
 });
 
 //This Route adds a comment to a place
-router.route("/place/:id/addComment").post(async (req, res) => {
+router.route("/api/place/:id/addComment").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
@@ -430,7 +430,7 @@ router.route("/review/:id").get(async (req, res) => {
 });
 
 //This Route adds a comment to a Review
-router.route("/review/:id/addComment").post(async (req, res) => {
+router.route("/api/review/:id/addComment").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
@@ -455,7 +455,7 @@ router.route("/review/:id/addComment").post(async (req, res) => {
 });
 
 //This Route adds a like to a Review
-router.route("/review/:id/like").post(async (req, res) => {
+router.route("/api/review/:id/like").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
@@ -476,7 +476,7 @@ router.route("/review/:id/like").post(async (req, res) => {
 });
 
 //This route adds a dislike to a Review
-router.route("/review/:id/dislike").post(async (req, res) => {
+router.route("/api/review/:id/dislike").post(async (req, res) => {
     let errors = [];
 
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
@@ -497,7 +497,7 @@ router.route("/review/:id/dislike").post(async (req, res) => {
 });
 
 //This route handles place comment likes
-router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -513,7 +513,7 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
 });
 
 //This route handles place comment dislikes
-router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -530,7 +530,7 @@ router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
 
 //Routes for review comment likes and dislikes
 
-router.route("/review/:reviewId/comment/:commentId").post(async (req, res) => {
+router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
     //TODO figure out what to do with errors
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
@@ -546,7 +546,7 @@ router.route("/review/:reviewId/comment/:commentId").post(async (req, res) => {
 });
 
 //This route adds a reply to a comment on a place
-router.route("/comment/:id/reply").post(async (req, res) => {
+router.route("/api/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
@@ -556,7 +556,7 @@ router.route("/comment/:id/reply").post(async (req, res) => {
 });
 
 //This route adds a reply to a commment on a review
-router.route("/review/:reviewId/comment/:id/reply").post(async (req, res) => {
+router.route("/api/review/:reviewId/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
