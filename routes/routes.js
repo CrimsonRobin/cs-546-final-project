@@ -230,6 +230,7 @@ router.route("/api/search").get(async (req, res) => {
     });
 */
 
+//Gets a User's Profile
 router.route("/user/:id").get(async (req, res) => {
     //Get User Object and pass it (including title)
     try {
@@ -249,6 +250,7 @@ router.route("/user/:id").get(async (req, res) => {
     }
 });
 
+//Gets a Place and renders it
 router.route("/place/:id").get(async (req, res) => {
     //Get Place Object and pass it (including title)
     try {
@@ -278,6 +280,7 @@ router.route("/place/:id").get(async (req, res) => {
     }
 });
 
+//This Route adds a Review to a place
 router.route("/place/:id/addReview").post(async (req, res) => {
     let errors = [];
 
@@ -304,6 +307,7 @@ router.route("/place/:id/addReview").post(async (req, res) => {
     }
 });
 
+//This Route adds a comment to a place
 router.route("/place/:id/addComment").post(async (req, res) => {
     let errors = [];
 
@@ -329,6 +333,7 @@ router.route("/place/:id/addComment").post(async (req, res) => {
     }
 });
 
+//This gets a review (could be used to update and delete a review)
 router.route("/review/:id").get(async (req, res) => {
     //Get Review Object and pass it (including title)
     try {
@@ -349,6 +354,7 @@ router.route("/review/:id").get(async (req, res) => {
     }
 });
 
+//This Route adds a comment to a Review
 router.route("/review/:id/addComment").post(async (req, res) => {
     let errors = [];
 
@@ -374,6 +380,7 @@ router.route("/review/:id/addComment").post(async (req, res) => {
     }
 });
 
+//This Route adds a like to a Review
 router.route("/review/:id/like").post(async (req, res) => {
     let errors = [];
 
@@ -394,6 +401,7 @@ router.route("/review/:id/like").post(async (req, res) => {
     }
 });
 
+//This route adds a reply to a comment on a place
 router.route("/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
@@ -403,6 +411,7 @@ router.route("/comment/:id/reply").post(async (req, res) => {
     } catch (error) {}
 });
 
+//This route adds a reply to a commment on a review
 router.route("/review/:reviewId/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
@@ -412,6 +421,7 @@ router.route("/review/:reviewId/comment/:id/reply").post(async (req, res) => {
     } catch (error) {}
 });
 
+//This route is our about page
 router.route("/about").get(async (req, res) => {
     return res.render("about", { title: "About", user: req.session ? req.session.user : undefined });
 });
