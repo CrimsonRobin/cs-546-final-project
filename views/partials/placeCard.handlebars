@@ -1,13 +1,13 @@
 {{#with place}}
-    <a href="/places/{{_id}}">
+    <a href="/place/{{_id}}">
         <div class="card place">
             <div class="overall-rating {{ratings.averageRating}}">
                 <p>{{ratings.averageRating}}</p>
             </div>
             <div class="main">
                 <h2>{{name}}</h2>
-                <p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>{{address}}</p>
-                <p><span class="material-symbols-outlined" aria-hidden="true">star</span>{{ratings.length}}</p>
+                <p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>{{location.address}}</p>
+                <p><span class="material-symbols-outlined" aria-hidden="true">star</span>{{reviews.length}}</p>
                 <p><span class="material-symbols-outlined" aria-hidden="true">comment</span>{{comments.length}}</p>
             </div>
             <div class="individual-ratings">
