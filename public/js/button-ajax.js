@@ -9,7 +9,7 @@
     // const replyButtons = document.getElementsByClassName("reply");
 
     const likeDislikeButtons = document.getElementsByClassName("like-dislike");
-    likeDislikeButtons.map((div) => {
+    [...likeDislikeButtons].map((div) => {
         const like = div.getElementsByClassName("like")[0];
         const dislike = div.getElementsByClassName("dislike")[0];
         const score = div.getElementsByClassName("score")[0];
