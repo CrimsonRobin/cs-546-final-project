@@ -39,7 +39,9 @@ import {
     addReviewCommentReply,
     getAverageCategoryRatings,
     mapAvgRatingsToLetters,
+    togglePlaceCommentLike,
     togglePlaceCommentDislike,
+    toggleReviewCommentLike,
     toggleReviewCommentDislike,
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
@@ -395,9 +397,9 @@ router.route("/api/place/:id/addComment").post(async (req, res) => {
     }
 
     try {
-        const review = await addPlaceComment(req.params.id, req.session.user._id, req.body.content);
-
-        return res.redirect(`/review/${review._id.toString()}`);
+        const place = await addPlaceComment(req.params.id, req.session.user._id, req.body.content);
+        //TODO: not sure what to send for comments?
+        return res.redirect(`/place/${place._id.toString()}`);
     } catch (error) {
         //Internal Error
         return res.render("error", {
@@ -437,7 +439,7 @@ router.route("/api/review/:id/addComment").post(async (req, res) => {
     req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of Comment"));
 
     if (errors.length > 0) {
-        return res.status(400).render("error", { title: "Add Review Comment Failed", errors: errors });
+        return res.json({error: errors});
     }
 
     try {
@@ -461,7 +463,7 @@ router.route("/api/review/:id/like").post(async (req, res) => {
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
 
     if (errors.length > 0) {
-        return res.status(400).render("error", { title: "Like Review Comment Failed", errors: errors });
+        return res.json({error: errors});
     }
     try {
         const review = await toggleReviewLike(req.params.id, req.session.user._id);
@@ -478,17 +480,13 @@ router.route("/api/review/:id/dislike").post(async (req, res) => {
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
 
     if (errors.length > 0) {
-        return res.status(400).render("error", { title: "Dislike Review Comment Failed", errors: errors });
+        return res.json({error: errors});
     }
     try {
-        await toggleReviewDislike(req.params.id, req.session.user._id);
-        return res.redirect(`/review/${review._id.toString()}`);
+        const review = await toggleReviewDislike(req.params.id, req.session.user._id);
+        return res.json({dislikes: review.dislikes});
     } catch (error) {
-        return res.render("error", {
-            title: "Disliking Review Comment Failed",
-            error: error.message,
-            user: req.session ? req.session.user : undefined,
-        });
+        return res.json({error: error.message});
     }
 });
 
@@ -498,12 +496,13 @@ router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
     } catch (e) {
-        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+        return res.json({error: e.message});
     }
     try {
         const likedPlace = await togglePlaceCommentLike(req.params.placeId, req.params.commentId, req.session.user._id);
+        return res.json({likes: likedPlace.likes});
     } catch (e) {
-        //return res.render("error", { title: "" });
+        return res.json({error: e.message});
     }
 });
 
@@ -513,12 +512,13 @@ router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, 
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
     } catch (e) {
-        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+        return res.json({error: e.message});
     }
     try {
         const dislikedPlace = await togglePlaceCommentDislike(req.params.placeId, req.params.commentId, req.session.user._id);
+        return res.json({dislikes: dislikedPlace.dislikes});
     } catch (e) {
-        //return res.render("error", { title: "" });
+        return res.json({error: e.message});
     }
 });
 
@@ -529,12 +529,28 @@ router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.reviewId = parseObjectId(reviewId, "review id");
     } catch (e) {
-        //return res.render("error", { title: "Invalid Comment Id or Place Id" });
+        return res.json({error: e.message});
+    }
+    try {
+        const likedReview = await toggleReviewCommentLike(req.params.commentId, req.params.reviewId);
+        return res.json({likes: likedReview.likes});
+    } catch (e) {
+        return res.json({error: e.message});
+    }
+});
+
+router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
+    try {
+        req.params.commentId = parseObjectId(commentId, "comment id");
+        req.params.reviewId = parseObjectId(reviewId, "review id");
+    } catch (e) {
+        return res.json({error: e.message});
     }
     try {
         const dislikedReview = await toggleReviewCommentDislike(req.params.commentId, req.params.reviewId);
+        return res.json({dislikes: dislikedReview.dislikes});
     } catch (e) {
-        //return res.render("error", { title: "" });
+        return res.json({error: e.message});
     }
 });
 
@@ -543,9 +559,11 @@ router.route("/api/comment/:id/reply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
-
+        //TODO send reply through JSON??
         await addPlaceCommentReply(req.params.id, req.session.user._id, req.body.content);
-    } catch (error) {}
+    } catch (error) {
+        return res.json({error: e.message});
+    }
 });
 
 //This route adds a reply to a commment on a review
@@ -553,9 +571,11 @@ router.route("/api/review/:reviewId/comment/:id/reply").post(async (req, res) =>
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
-
+        //TODO send reply through JSON??
         await addReviewCommentReply(req.params.id, req.session.user._id, req.body.content);
-    } catch (error) {}
+    } catch (error) {
+        return res.json({error: e.message});
+    }
 });
 
 //This route is our about page
