@@ -28,7 +28,7 @@ export const createUser = async (firstname, lastname, username, password, qualif
         hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
         qualifications: parseQualifications(qualifications),
-    };
+    });
 };
 
 export const createUser = async (firstname, lastname, username, password, qualifications) => {
