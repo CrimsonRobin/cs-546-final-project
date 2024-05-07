@@ -548,7 +548,7 @@ export const toggleReviewCommentDislike = async (reviewId, commentId, userId) =>
     } else {
         await addReviewCommentDislike(reviewId, userId);
     }
-    await getCommentFromReview(reviewId, commentId);
+    return await getCommentFromReview(reviewId, commentId);
 };
 
 export const addReviewCommentLike = async (commentId, userId) => {
