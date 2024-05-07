@@ -11,14 +11,13 @@ import {
     parseNumber,
     roundTo,
     sleep,
-    throwIfNotString,
 } from "../helpers.js";
 import Enumerable from "linq";
 
 /**
  * The base URL for the Nominatim API.
  * @type {string}
- @author Anthony Webster
+ * @author Anthony Webster
  */
 const NOMINATIM_API_BASE_URL = "https://nominatim.openstreetmap.org/";
 
@@ -134,7 +133,7 @@ export const parseOsmType = (osmType) =>
     // The OSM type can either be node (N), way (W), or relation (R)
     osmType = parseNonEmptyString(osmType, "OSM type").toLowerCase();
 
-    switch (osmType.toLowerCase())
+    switch (osmType)
     {
         case "n":
         case "node":
@@ -173,15 +172,12 @@ export const parseOsmId = (osmId) =>
 {
     if (typeof osmId === "number")
     {
+        assertIsNotNaN(osmId, "OSM ID");
+        assertIsNotInfinity(osmId, "OSM ID");
         return osmId.toString();
     }
 
-    throwIfNotString(osmId, "OSM ID");
-    if (osmId.length === 0)
-    {
-        throw new Error("OSM ID cannot be an empty string");
-    }
-    return osmId;
+    return parseNonEmptyString(osmId, "OSM ID");
 };
 
 /**
@@ -311,7 +307,7 @@ const nominatimLookupMany = async (typeIdPairs) =>
         }
 
         const params = [
-            ["osm_ids", waypoints.map((p) => encodeURIComponent(`${parseOsmType(p[0])}${parseOsmId(p[1])}`)).join(",")],
+            ["osm_ids", waypoints.map((p) => `${parseOsmType(p[0])}${parseOsmId(p[1])}`).join(",")],
             // Need results in JSON format
             ["format", "jsonv2"],
             // include a full list of names for the result. These may include language variants,
@@ -341,6 +337,8 @@ const nominatimLookupMany = async (typeIdPairs) =>
  */
 export const nominatimLookup = async (osmType, osmId) =>
 {
+    osmType = parseOsmType(osmType);
+    osmId = parseOsmId(osmId);
     return exactlyOneElement(await nominatimLookupMany([[osmType, osmId]]), "nominatim lookup");
 };
 
@@ -453,9 +451,6 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
         searchRadius += 0.02; // About 150 feet
     }
 
-    // const halfRadius = searchRadius / 2.0;  // miles
-    searchRadius /= 2.0;
-
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
     const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude); // mi/deg
 
@@ -552,8 +547,6 @@ export const distanceBetweenPointsMiles = (lat1, lon1, lat2, lon2) =>
  */
 export const nominatimSearchWithin = async (query, currentLatitude, currentLongitude, searchRadius) =>
 {
-    // TODO: Check that latitude and longitude fall within an acceptable range.
-
     query = parseNonEmptyString(query, "Search query");
 
     currentLatitude = parseLatitude(currentLatitude);
@@ -609,7 +602,7 @@ export const nominatimSearchWithin = async (query, currentLatitude, currentLongi
 
         if (placeIdsToExclude.length > 0)
         {
-            url.searchParams.append("exclude_place_ids", placeIdsToExclude.map((i) => encodeURIComponent(i)).join(","));
+            url.searchParams.append("exclude_place_ids", placeIdsToExclude.join(","));
         }
 
         const data = await makeNominatimApiRequest(url);
