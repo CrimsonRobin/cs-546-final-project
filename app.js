@@ -57,7 +57,7 @@ app.use("/", (req, res, next) => {
     console.log("Request Method: " + req.method);
     console.log("Request Route: " + req.originalUrl);
     let authUser = false;
-    if (req.session.user) {
+    if (req.session.user !== undefined && req.session.user !== null) {
         authUser = true;
     }
     console.log("Authenticated User: " + authUser);
