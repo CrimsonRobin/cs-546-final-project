@@ -298,10 +298,7 @@ export const getAllCommentsFromPlace = async (placeId) => {
 };
 
 export const getAllCommentsFromReview = async (reviewId) => {
-    reviewId = parseObjectId(reviewId);
-    const review = await getReview(reviewId);
-
-    return review.comments;
+    return (await getReview(parseObjectId(reviewId))).comments;
 };
 
 //get specific comment
@@ -311,9 +308,9 @@ export const getComment = async (reviewId, commentId) => {
 
     const comments = await getAllCommentsFromReview(reviewId);
 
-    for (let i = 0; i < comments.length; i++) {
-        if (String(comments[i]._id) === String(commentId)) {
-            return comments[i];
+    for (const comment of comments) {
+        if (comment._id.toString() === commentId) {
+            return comment;
         }
     }
     throw new Error("No such comment found");
