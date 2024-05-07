@@ -93,7 +93,7 @@
                     },
                     async (error) => {
                         const query = params.toString();
-                        await doRequest(`${REQUEST_URL}}$${query}`);
+                        await doRequest(`${REQUEST_URL}$${query}`);
                     }
                 );
             }
