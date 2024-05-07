@@ -402,7 +402,24 @@ export const removeReviewDislike = async (reviewId, userId) => {
  * @param {string} userId The ID of the user that has liked the review.
  * @returns {Promise<void>}
  */
-export const addPlaceCommentLike = async (commentId, userId) => {
+
+export const togglePlaceCommentLike = async (commentId, userId) => {
+    userId = parseObjectId(userId);
+    let place = await Place.findOne({
+        "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)),
+    }).exec();
+    place = place.toObject();
+    if (place.comments.likes.some((c) => c === userId)) {
+        await removePlaceCommentLike(commentId, userId);
+    } else if (place.comments.dislikes.some((c) => c === userId)) {
+        await removePlaceCommentDislike(commentId, userId);
+        await addPlaceCommentLike(commentId, userId);
+    } else {
+        await addPlaceCommentLike(commentId, userId);
+    }
+};
+
+const addPlaceCommentLike = async (commentId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
@@ -410,7 +427,7 @@ export const addPlaceCommentLike = async (commentId, userId) => {
     ).exec();
 };
 
-export const removePlaceCommentLike = async (commentId, userId) => {
+const removePlaceCommentLike = async (commentId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
@@ -418,7 +435,7 @@ export const removePlaceCommentLike = async (commentId, userId) => {
     ).exec();
 };
 
-export const addPlaceCommentDislike = async (commentId, userId) => {
+const addPlaceCommentDislike = async (commentId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
@@ -426,7 +443,7 @@ export const addPlaceCommentDislike = async (commentId, userId) => {
     ).exec();
 };
 
-export const removePlaceCommentDislike = async (commentId, userId) => {
+const removePlaceCommentDislike = async (commentId, userId) => {
     userId = parseObjectId(userId);
     await Place.updateOne(
         { "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) },
