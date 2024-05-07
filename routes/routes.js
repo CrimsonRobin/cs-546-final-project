@@ -116,7 +116,7 @@ router.route('/api/search')
         req.query.radius = tryCatchChain(errors, () => parseNumber(req.query.radius));
 
         if(errors.length > 0) {
-            return res.render('partial/searchResults', {title: "Search Results", message: errors, 
+            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: errors, 
             user: req.session ? req.session.user : undefined});
         }
 
