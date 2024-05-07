@@ -270,8 +270,11 @@ export const addPlaceComment = async (placeId, author, content) =>
                     author: author,
                     content: content,
                     createdAt: new Date(),
+                    createdAt: new Date(),
+                    createdAt: new Date(),
                     likes: [],
                     dislikes: [],
+                    replies: []
                 },
             },
         }
@@ -304,6 +307,7 @@ export const addReviewComment = async (reviewId, author, content) =>
                     createdAt: new Date(),
                     likes: [],
                     dislikes: [],
+                    replies: []
                 },
             },
         }
