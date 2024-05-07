@@ -266,5 +266,16 @@ router.route('/about')
     .get(async (req, res) => {
         return res.render("about", {title: "About", user: req.session ? req.session.user : undefined});
     });
-
+ 
+router.route("/place/:placeId/comment/:commentId").post(async (req, res) => {
+    req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
+        req.body.author = tryCatchChain(errors, () => parseObjectId(req.body.author, "Author Id"));
+    try{
+    req.params.commentId = parseObjectId(commentId, "comment id");
+    req.params.placeId = parseObjectId(placeId, "place id");}
+    catch(e){
+        return res.render("error")
+    }
+    addPlaceCommentLike();
+})
 export default router;
