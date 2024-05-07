@@ -3,7 +3,7 @@
         <h2>{{name}}</h2>
         <p>{{date}}</p>
         <p>{{content}}</p>
-        {{> likeDislike user=../user type=comment _id=_id }}
+        {{> likeDislike user=../user type="comment" _id=_id }}
         {{#if ../reply}}
             {{#if ../user}}
                 <button><span class="material-symbols-outlined">plus</span>Reply</button>

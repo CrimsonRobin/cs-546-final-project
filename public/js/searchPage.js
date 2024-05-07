@@ -1,5 +1,6 @@
 (async function () {
     const results = document.getElementById("results");
+    const searchForm = document.getElementById("search");
     const REQUEST_URL = "/api/search";
 
     const error = (message) => {
@@ -30,6 +31,14 @@
                 await doRequest(`${REQUEST_URL}}`);
             }
         );
-    };
+    }
+
+    if (searchForm) {
+        searchForm.on("submit", (event) => {
+            event.preventDefault();
+
+        })
+    }
+
 
 })();

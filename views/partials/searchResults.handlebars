@@ -1,3 +1,12 @@
-{{#each result}}
-    {{> placeCard this }}
-{{/each}}
+{{#if errors}}
+    <ul class="error">
+        {{#each errors}}
+            <li>{{this}}</li>
+        {{/each}}
+    </ul>
+{{else}}
+    <p>{{message}}</p>
+    {{#each results}}
+        {{> placeCard this }}
+    {{/each}}
+{{/if}}
