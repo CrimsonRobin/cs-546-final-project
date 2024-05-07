@@ -1,4 +1,5 @@
 import {
+    isNullOrUndefined,
     normalizeLongitude,
     parseCategories,
     parseLatitude,
@@ -229,6 +230,30 @@ export const getAverageCategoryRatings = async (placeId) => {
         overall: overallCount === 0 ? null : overallTotal / overallCount,
         byCategory: averaged,
     };
+};
+//for place average ratings
+export const mapAvgRatingsToLetters = async (avgRatings) => {
+    const letterRatings = {
+        overall: ratingToLetter(avgRatings.overall),
+        byCategory: Object.fromEntries(Object.entries(avgRatings).map((p) => [p[0], ratingToLetter(p[1])])),
+    };
+    return letterRatings;
+};
+
+export const ratingToLetter = async (rating) => {
+    if (isNullOrUndefined(rating) || rating < 1) {
+        return "N/A";
+    } else if (rating >= 1 && rating < 1.5) {
+        return "F";
+    } else if (rating >= 1.5 && rating < 2.5) {
+        return "D";
+    } else if (rating >= 2.5 && rating < 3.5) {
+        return "C";
+    } else if (rating >= 3.5 && rating < 4.5) {
+        return "B";
+    } else {
+        return "A";
+    }
 };
 
 //comment functions:
