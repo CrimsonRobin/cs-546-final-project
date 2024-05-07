@@ -39,6 +39,7 @@ import {
     addPlaceCommentDislike,
     addPlaceCommentReply,
     addReviewCommentReply,
+    getAverageCategoryRatings,
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
 import { parseSearchRadius } from "../data/geolocation.js";
@@ -253,6 +254,15 @@ router.route("/place/:id").get(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Place Id");
         const place = await getPlace(req.params.id);
+
+        const { overall, byCategory } = await getAverageCategoryRatings(req.params.id);
+
+        place.averageRatings = {
+            overallRating: overall,
+            physicalRating: byCategory.DISABILITY_CATEGORY_PHYSICAL,
+            sensoryRating: byCategory.DISABILITY_CATEGORY_SENSORY,
+            neurodivergentRating: byCategory.DISABILITY_CATEGORY_NEURODIVERGENT,
+        };
 
         return res.render("place", {
             title: "Place",
