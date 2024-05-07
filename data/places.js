@@ -150,25 +150,6 @@ export const getAllReviewsFromPlace = async (placeId) => {
     );
 };
 
-//update review
-export const updateReview = async (reviewId, content, categories) => {
-    reviewId = parseObjectId(reviewId, "Review Id");
-    content = parseNonEmptyString(content, "Review content");
-    categories = parseCategories(categories);
-    const searchedReview = getReview(reviewId);
-    //if no changes were actually made, end early
-    if (content === searchedReview.content && categories === searchedReview.categories) {
-        return;
-    }
-    const updatedPlace = await Place.findOneAndUpdate(
-        { "reviews._id": new ObjectId(reviewId) },
-        { $set: { "reviews.content": content, "reviews.categories": categories } }
-    ).exec();
-    throwIfNullOrUndefined(updateReview);
-    //recompute average
-    getAverageCategoryRatings(updatedPlace._id);
-    return searchedReview.toObject();
-};
 //delete review
 export const deleteReview = async (reviewId) => {
     reviewId = parseObjectId(reviewId, "Review Id");
