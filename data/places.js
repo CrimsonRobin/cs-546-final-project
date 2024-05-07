@@ -398,13 +398,10 @@ const removeReviewLike = async (reviewId, userId) => {
 export const toggleReviewLike = async (reviewId, userId) => {
     reviewId = parseObjectId(reviewId);
     userId = parseObjectId(userId);
-    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
-        .exec()
-        .toObject();
-
-    if (place.reviews.likes.some((id) => id === userId)) {
+    const review = await getReview(reviewId);
+    if (review.likes.some((id) => id === userId)) {
         await removeReviewLike(reviewId, userId);
-    } else if (place.reviews.dislikes.some((id) => id === userId)) {
+    } else if (review.dislikes.some((id) => id === userId)) {
         await removeReviewDislike(reviewId, userId);
         await addReviewLike(reviewId, userId);
     } else {
@@ -415,13 +412,10 @@ export const toggleReviewLike = async (reviewId, userId) => {
 export const toggleReviewDislike = async (reviewId, userId) => {
     reviewId = parseObjectId(reviewId);
     userId = parseObjectId(userId);
-    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
-        .exec()
-        .toObject();
-
-    if (place.reviews.dislikes.some((id) => id === userId)) {
+    const review = await getReview(reviewId);
+    if (review.dislikes.some((id) => id === userId)) {
         await removeReviewDislike(reviewId, userId);
-    } else if (place.reviews.likes.some((id) => id === userId)) {
+    } else if (review.likes.some((id) => id === userId)) {
         await removeReviewLike(reviewId, userId);
         await addReviewDislike(reviewId, userId);
     } else {
@@ -458,11 +452,9 @@ const removeReviewDislike = async (reviewId, userId) => {
 
 export const togglePlaceCommentLike = async (commentId, userId) => {
     userId = parseObjectId(userId);
-    let place = await Place.findOne({
-        "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)),
-    }).exec();
-    place = place.toObject();
-    if (place.comments.likes.some((c) => c === userId)) {
+    commentId = parseObjectId(commentId);
+    const comment = getCommentFromPlace(commentId);
+    if (comment.likes.some((c) => c === userId)) {
         await removePlaceCommentLike(commentId, userId);
     } else if (place.comments.dislikes.some((c) => c === userId)) {
         await removePlaceCommentDislike(commentId, userId);
@@ -520,13 +512,11 @@ const removePlaceCommentDislike = async (commentId, userId) => {
     ).exec();
 };
 
-export const toggleReviewCommentLike = async (reviewId, userId) => {
-    reviewId = parseObjectId(reviewId);
+export const toggleReviewCommentLike = async (commentId, userId) => {
     userId = parseObjectId(userId);
-    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+    const place = await Place.findOne({ "comments._id": ObjectId.createFromHexString(parseObjectId(commentId)) })
         .exec()
         .toObject();
-
     if (place.reviews.comments.likes.some((id) => id === userId)) {
         await removeReviewCommentLike(reviewId, userId);
     } else if (place.reviews.comments.dislikes.some((id) => id === userId)) {
@@ -537,10 +527,9 @@ export const toggleReviewCommentLike = async (reviewId, userId) => {
     }
 };
 
-export const toggleReviewCommentDislike = async (reviewId, userId) => {
-    reviewId = parseObjectId(reviewId);
+export const toggleReviewCommentDislike = async (commentId, userId) => {
     userId = parseObjectId(userId);
-    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(reviewId)) })
+    const place = await Place.findOne({ "reviews._id": ObjectId.createFromHexString(parseObjectId(commentId)) })
         .exec()
         .toObject();
 
