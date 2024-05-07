@@ -10,6 +10,9 @@
 
     const REQUEST_URL = "/api/search";
 
+    const searching = document.createElement("p");
+    searching.innerText = "Searching...";
+
     const error = (message) => {
         const error = document.createElement("p");
         error.className = "error";
@@ -18,8 +21,8 @@
     }
 
     const doRequest = async (url) => {
-        const searching = document.createElement("p");
-        searching.innerText = "Searching...";
+        // const searching = document.createElement("p");
+        // searching.innerText = "Searching...";
         results.replaceChildren(searching);
         const request = await fetch(url);
         if (request) {
@@ -29,7 +32,13 @@
         }
     }
 
+    if (advancedCheckbox) {
+        advancedCheckbox.checked = false;
+        advancedCheckbox.addEventListener("click", () => advancedSettings.toggleAttribute("hidden"));
+    }
+
     if (results) {
+        results.replaceChildren(searching);
         navigator.geolocation.getCurrentPosition(
             async (success) => {
                 const latitude = success.coords.latitude;
@@ -42,14 +51,10 @@
         );
     }
 
-    if (advancedCheckbox) {
-        advancedCheckbox.checked = false;
-        advancedCheckbox.addEventListener("click", () => advancedSettings.toggleAttribute("hidden"));
-    }
-
     if (searchForm) {
         searchForm.addEventListener("submit", async (event) => {
             event.preventDefault();
+            results.replaceChildren(searching);
             let searchQuery;
             try {
                 searchQuery = parseNonEmptyString(searchBox.value, "Search term");
