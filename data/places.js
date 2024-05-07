@@ -693,6 +693,7 @@ const stateAbbreviationToFullName = (abbreviation) => {
 const normalizeSearchQuery = (query) => {
     // TODO: Replacing non-alphanumeric with spaces breaks state abbreviations
     // State abbreviations could be written as "N.Y." instead of "NY"
+    query = parseNonEmptyString(query, "search query");
     const qs = query
         .toLowerCase()
         .replaceAll(/[^a-zA-Z0-9]+/g, " ")
