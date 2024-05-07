@@ -552,13 +552,13 @@ export const parsePassword = (password) => {
         "Password"
     );
 
-    if (/[a-z]/.test(password)) {
+    if (!/[a-z]/.test(password)) {
         throw new Error("Password requires at least one lowercase character");
     }
-    if (/[A-Z]/.test(password)) {
+    if (!/[A-Z]/.test(password)) {
         throw new Error("Password requires at least one uppercase character");
     }
-    if (/[0-9]/.test(password)) {
+    if (!/[0-9]/.test(password)) {
         throw new Error("Password requires at least one number");
     }
     if (/[^a-zA-Z0-9]/.test(password)) {
