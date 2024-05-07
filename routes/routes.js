@@ -32,7 +32,6 @@ import {
     findAllNear,
     search,
     getAllPlaces,
-    togglePlaceCommentLike,
     toggleReviewDislike,
     toggleReviewLike,
     addPlaceCommentReply,
