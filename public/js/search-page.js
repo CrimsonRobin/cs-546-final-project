@@ -76,16 +76,24 @@
                     params.append("searchTerm", searchQuery);
                 }
                 const query = params.toString();
-                await doRequest(`${REQUEST_URL}${query}`);
+                await doRequest(`${REQUEST_URL}$${query}`);
             } else {
+                const params = new URLSearchParams();
+                if (searchQuery) {
+                    params.append("searchTerm", searchQuery);
+                }
                 navigator.geolocation.getCurrentPosition(
                     async (success) => {
                         const latitude = success.coords.latitude;
                         const longitude = success.coords.longitude;
-                        await doRequest(`${REQUEST_URL}?latitude=${latitude}&longitude=${longitude}`);
+                        params.append("latitude", latitude);
+                        params.append("longitude", longitude);
+                        const query = params.toString();
+                        await doRequest(`${REQUEST_URL}$${query}`);
                     },
                     async (error) => {
-                        await doRequest(`${REQUEST_URL}}`);
+                        const query = params.toString();
+                        await doRequest(`${REQUEST_URL}}$${query}`);
                     }
                 );
             }
