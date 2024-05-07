@@ -13,7 +13,6 @@ import express from "express";
 import {parseStringWithLengthBounds, tryCatchChain, parsePassword, validCheckbox, parseObjectId, parseCategories, parseNonEmptyString} from "../helpers.js";
 import {getPlace, getReview, addReview, addPlaceComment, addReviewComment} from "../data/places.js";
 import {createUser, getUser, loginUser} from "../data/user.js";
-import e from "express";
 
 const router = express.Router();
   
@@ -138,9 +137,9 @@ router.route('/place/:id/addReview')
         let errors = [];
 
         req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Place Id"));
-        req.body.author = tryCatchChain(errors, parseNonEmptyString(req.body.author, "Name of author"));
-        req.body.content = tryCatchChain(errors, parseNonEmptyString(req.body.content, "Content of review"));
-        req.body.categories = tryCatchChain(errors, parseCategories(req.body.categories));
+        req.body.author = tryCatchChain(errors, () => parseNonEmptyString(req.body.author, "Name of author"));
+        req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
+        req.body.categories = tryCatchChain(errors, () => parseCategories(req.body.categories));
 
         if(errors.length > 0) {
             return res.status(400).render("error", {title: "Add Review Failed", errors: errors});
