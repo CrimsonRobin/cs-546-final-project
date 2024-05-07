@@ -786,13 +786,20 @@ export const findAllNear = async (latitude, longitude, radius) => {
     radius = parseSearchRadius(radius);
 
     const places = await Place.find({}, null, null).exec();
-    return Enumerable.from(places)
+    const placesNear = Enumerable.from(places)
         .select(p => p.toObject())
         .select((p) => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
         .where((p) => p[0] <= radius)
         .orderByDescending((p) => p[0])
-        .select((p) => p[1])
+        .select((p) => p[1]._id.toString())
         .toArray();
+
+    const get = [];
+    for (const placeId of placesNear) {
+        get.push(await getPlace(placeId));
+    }
+
+    return get;
 };
 
 export const getLikedItems = async (userId) => {
