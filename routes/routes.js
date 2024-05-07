@@ -87,7 +87,7 @@ router.route('/logout')
         return res.render("logout", {title: "Logged Out"});
     });
 
-//TODO: For the rest of these functions, if req.session.user exists, pass it as the "user"
+//For the rest of these functions, if req.session.user exists, pass it as the "user"
 router.route('/')
     .get(async (req, res) => {
         return res.render("home", {title: "Home", user: req.session ? req.session.user : undefined});
@@ -95,7 +95,6 @@ router.route('/')
 
 router.route('/api/search')
     .get(async (req, res) => {
-        //TODO: Ajax Calls
         //latitude, longitude, radius <- should be numbers
         let errors = [];
         const searchResults = undefined;
@@ -144,7 +143,7 @@ router.route('/api/search')
 
 router.route('/user/:id')
     .get(async (req, res) => {
-        //TODO: Get User Object and pass it (including title)
+        //Get User Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "User Id");
             const user = await getUser(req.params.id);
@@ -157,7 +156,7 @@ router.route('/user/:id')
 
 router.route('/place/:id')
     .get(async (req, res) => {
-        //TODO: Get Place Object and pass it (including title)
+        //Get Place Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "Place Id");
             const place = await getPlace(req.params.id);
@@ -213,7 +212,7 @@ router.route('/place/:id/AddComment')
 
 router.route('/review/:id')
     .get(async (req, res) => {
-        //TODO: Get Review Object and pass it (including title)
+        //Get Review Object and pass it (including title)
         try {
             req.params.id = parseObjectId(req.params.id, "Review Id");
             const review = getReview(req.params.id);
