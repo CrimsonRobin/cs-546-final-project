@@ -451,9 +451,6 @@ const computeBoundingBox = (currentLatitude, currentLongitude, searchRadius) =>
         searchRadius += 0.02; // About 150 feet
     }
 
-    // const halfRadius = searchRadius / 2.0;  // miles
-    searchRadius /= 2.0;
-
     // Unlike longitude, latitude lines are parallel and are (essentially) always the same distance apart.
     const milesPerLongitude = milesBetweenDegreeOfLongitudeAtLatitude(currentLatitude); // mi/deg
 
