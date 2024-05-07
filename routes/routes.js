@@ -60,12 +60,6 @@ router
         //need to validate first name, last name, username, password, confirm password
         let errors = [];
 
-        req.body.firstName = tryCatchChain(errors, () =>
-            parseStringWithLengthBounds(req.body.firstName, 1, 100, true, "First Name")
-        );
-        req.body.lastName = tryCatchChain(errors, () =>
-            parseStringWithLengthBounds(req.body.lastName, 1, 100, true, "Last Name")
-        );
         req.body.username = tryCatchChain(errors, () =>
             parseStringWithLengthBounds(req.body.username, 3, 25, true, "Username")
         );
@@ -84,8 +78,6 @@ router
 
         try {
             const userMade = await createUser(
-                req.body.firstName,
-                req.body.lastName,
                 req.body.username,
                 req.body.password,
                 req.body.physical,
