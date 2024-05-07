@@ -989,7 +989,8 @@ const places = {
                             users.katherine._id.toString(),
                             users.christian._id.toString(),
                             users.rachel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.aaron._id.toString(),
@@ -1013,7 +1014,8 @@ const places = {
                             users.joan._id.toString(),
                             users.steven._id.toString(),
                             users.christian._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.samuel._id.toString(),
@@ -1026,7 +1028,8 @@ const places = {
                         dislikes: [
                             users.janet._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1088,7 +1091,8 @@ const places = {
                         dislikes: [
                             users.christian._id.toString(),
                             users.douglas._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.steven._id.toString(),
@@ -1103,7 +1107,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.katherine._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.william._id.toString(),
@@ -1118,7 +1123,8 @@ const places = {
                             users.mildred._id.toString(),
                             users.lawrence._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     }
                 ]
             },
@@ -1159,7 +1165,8 @@ const places = {
                     users.paul._id.toString(),
                     users.christian._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.christian._id.toString(),
@@ -1182,7 +1189,8 @@ const places = {
                     users.gregory._id.toString(),
                     users.lawrence._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.katherine._id.toString(),
@@ -1205,7 +1213,8 @@ const places = {
                     users.katherine._id.toString(),
                     users.christian._id.toString(),
                     users.rachel._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.roger._id.toString(),
@@ -1223,7 +1232,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.steven._id.toString(),
                     users.christian._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -1297,7 +1307,8 @@ const places = {
                             users.paul._id.toString(),
                             users.lawrence._id.toString(),
                             users.logan._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.rachel._id.toString(),
@@ -1316,7 +1327,8 @@ const places = {
                             users.rose._id.toString(),
                             users.aaron._id.toString(),
                             users.steven._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1392,7 +1404,8 @@ const places = {
                         users.rachel._id.toString(),
                         users.douglas._id.toString(),
                         users.steven._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             }
         ],
@@ -1416,7 +1429,8 @@ const places = {
                 users.gregory._id.toString(),
                 users.william._id.toString(),
                 users.steven._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     kingsHoboken: {
@@ -1478,7 +1492,8 @@ const places = {
                         users.steven._id.toString(),
                         users.christian._id.toString(),
                         users.rachel._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             },
             {
@@ -1512,7 +1527,8 @@ const places = {
                             users.lawrence._id.toString(),
                             users.steven._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.katherine._id.toString(),
@@ -1526,7 +1542,8 @@ const places = {
                         dislikes: [
                             users.sean._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -1551,7 +1568,8 @@ const places = {
                     users.joan._id.toString(),
                     users.paul._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.timothy._id.toString(),
@@ -1569,7 +1587,8 @@ const places = {
                     users.timothy._id.toString(),
                     users.william._id.toString(),
                     users.kyle._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.samuel._id.toString(),
@@ -1592,7 +1611,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.joan._id.toString(),
                     users.william._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.mildred._id.toString(),
@@ -1609,7 +1629,8 @@ const places = {
                     users.janet._id.toString(),
                     users.mildred._id.toString(),
                     users.linda._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -1667,7 +1688,8 @@ const places = {
                             users.kyle._id.toString(),
                             users.logan._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.rose._id.toString(),
@@ -1688,7 +1710,8 @@ const places = {
                             users.steven._id.toString(),
                             users.christian._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1725,7 +1748,8 @@ const places = {
             dislikes: [
                 users.joan._id.toString(),
                 users.gregory._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     sinatraParkHoboken: {
@@ -1775,7 +1799,8 @@ const places = {
                             users.mildred._id.toString(),
                             users.rachel._id.toString()
                         ],
-                        dislikes: [users.katherine._id.toString()]
+                        dislikes: [users.katherine._id.toString()],
+                        replies: []
                     },
                     {
                         author: users.janet._id.toString(),
@@ -1792,7 +1817,8 @@ const places = {
                             users.kyle._id.toString(),
                             users.rachel._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.rose._id.toString(),
@@ -1812,7 +1838,8 @@ const places = {
                             users.joan._id.toString(),
                             users.kyle._id.toString(),
                             users.lawrence._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -1846,7 +1873,8 @@ const places = {
                             users.janet._id.toString(),
                             users.gregory._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.logan._id.toString(),
@@ -1875,7 +1903,8 @@ const places = {
                             users.lawrence._id.toString(),
                             users.logan._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.kyle._id.toString(),
@@ -1894,7 +1923,8 @@ const places = {
                             users.logan._id.toString(),
                             users.paul._id.toString(),
                             users.christian._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -1915,7 +1945,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.mildred._id.toString(),
                     users.janet._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.rachel._id.toString(),
@@ -1927,7 +1958,8 @@ const places = {
                     users.katherine._id.toString(),
                     users.gregory._id.toString(),
                     users.steven._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     },
@@ -1994,7 +2026,8 @@ const places = {
                         users.douglas._id.toString(),
                         users.kyle._id.toString(),
                         users.christian._id.toString()
-                    ]
+                    ],
+                    replies: []
                 }]
             },
             {
@@ -2066,7 +2099,8 @@ const places = {
                             users.christian._id.toString(),
                             users.janet._id.toString(),
                             users.rachel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.william._id.toString(),
@@ -2089,7 +2123,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.timothy._id.toString(),
                             users.gregory._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2109,7 +2144,8 @@ const places = {
                 users.william._id.toString(),
                 users.paul._id.toString(),
                 users.janet._id.toString()
-            ]
+            ],
+            replies: []
         }]
     },
     pierAParkHoboken: {
@@ -2221,7 +2257,8 @@ const places = {
                             users.douglas._id.toString(),
                             users.logan._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.steven._id.toString(),
@@ -2239,7 +2276,8 @@ const places = {
                             users.rachel._id.toString(),
                             users.timothy._id.toString(),
                             users.janet._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.christian._id.toString(),
@@ -2257,7 +2295,8 @@ const places = {
                             users.paul._id.toString(),
                             users.christian._id.toString()
                         ],
-                        dislikes: []
+                        dislikes: [],
+                        replies: []
                     },
                     {
                         author: users.paul._id.toString(),
@@ -2276,7 +2315,8 @@ const places = {
                             users.linda._id.toString(),
                             users.sean._id.toString(),
                             users.timothy._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             },
@@ -2311,7 +2351,8 @@ const places = {
                             users.joan._id.toString(),
                             users.roger._id.toString(),
                             users.linda._id.toString()
-                        ]
+                        ],
+                        replies: []
                     },
                     {
                         author: users.lawrence._id.toString(),
@@ -2328,7 +2369,8 @@ const places = {
                             users.linda._id.toString(),
                             users.douglas._id.toString(),
                             users.samuel._id.toString()
-                        ]
+                        ],
+                        replies: []
                     }
                 ]
             }
@@ -2349,7 +2391,8 @@ const places = {
                     users.sean._id.toString(),
                     users.logan._id.toString(),
                     users.timothy._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.douglas._id.toString(),
@@ -2371,7 +2414,8 @@ const places = {
                     users.kyle._id.toString(),
                     users.steven._id.toString(),
                     users.janet._id.toString()
-                ]
+                ],
+                replies: []
             },
             {
                 author: users.paul._id.toString(),
@@ -2387,7 +2431,8 @@ const places = {
                     users.paul._id.toString(),
                     users.lawrence._id.toString(),
                     users.christian._id.toString()
-                ]
+                ],
+                replies: []
             }
         ]
     }
