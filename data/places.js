@@ -129,7 +129,7 @@ export const getReview = async (reviewId) => {
     if (results.length !== 1) {
         throw new Error(`Review with id ${reviewId} does not exist`);
     }
-    return results[0].toObject();
+    return results[0].reviews;
 };
 //get all from specific place
 

@@ -3,14 +3,23 @@
         <img class="light" src="/public/assets/logo-light.svg" alt="a11y logo">
         <img class="dark" src="/public/assets/logo-dark.svg" alt="a11y logo">
     </a>
-    <div>
+    <div class="right-buttons">
         {{#if user}}
-            <a href="/user?id={{user._id}}" >
-            <span class="material-symbols-outlined" aria-label="Account">account_circle</span>
+            <a href="/user/{{user._id}}" class="button-link">
+                <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+                <div>Account</div>
+            </a>
+            <a href="/logout" class="button-link">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                <div>Log Out</div>
             </a>
         {{else}}
-            <a href="/login" class="button-link">Log In</a>
-            <a href="/register" class="button-link">Register</a>
+            <a href="/login" class="button-link"><span class="material-symbols-outlined" aria-hidden="true">login</span>
+                <div>Log In</div>
+            </a>
+            <a href="/register" class="button-link"><span class="material-symbols-outlined">person_add</span>
+                <div>Register</div>
+            </a>
         {{/if}}
     </div>
 </header>
