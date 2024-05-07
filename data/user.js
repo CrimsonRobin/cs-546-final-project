@@ -1,14 +1,8 @@
-import {
-    parseNonEmptyString,
-    parseObjectId,
-    parsePassword,
-    parseQualifications,
-    removeDuplicates,
-} from "../helpers.js";
+import { parseNonEmptyString, parseObjectId, parsePassword, parseQualifications, parseUsername, } from "../helpers.js";
 import { Place, User } from "../config/database.js";
 import { ObjectId } from "mongodb";
 import { DateTime } from "luxon";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 /**
  * The number of salt rounds to use when hashing user passwords.
@@ -16,28 +10,35 @@ import bcrypt from 'bcryptjs';
  */
 export const BCRYPT_SALT_ROUNDS = 12;
 
-// Create User
-export const parseUserFields = (firstname, lastname, username, password, qualifications) => {
-    // If name and description are not strings or are empty strings, the method should throw.
-    return {
-        firstname: parseNonEmptyString(firstname, "Firstname"),
-        lastname: parseNonEmptyString(lastname, "Lastname"),
-        username: parseNonEmptyString(username, "Username"),
-        hashedPassword: parseNonEmptyString(password, "Password"),
-        qualifications: parseQualifications(qualifications),
-    };
+/**
+ * Tests if the given username has already been used by any user.
+ * @param {string} username
+ * @returns {Promise<boolean>} True if the username has already been used, false otherwise.
+ * @author Anthony Webster
+ */
+export const isUsernameTaken = async (username) =>
+{
+    username = parseUsername(username);
+    return await User.exists({ username: username }).exec() !== null;
 };
 
-export const createUser = async (firstname, lastname, username, password, qualifications) => {
-    const parsed = parseUserFields(firstname, lastname, username, hashedPassword, qualifications);
+// Create User
+export const createUser = async (firstname, lastname, username, password, qualifications) =>
+{
+    username = parseUsername(username);
+    if (await isUsernameTaken(username))
+    {
+        throw new Error(`A user with the username ${username} already exists`);
+    }
+
     const document = new User({
-        _id: ObjectId,
-        firstname: firstname,
-        lastname: lastname,
-        username: username,
-        hashedPassword: await bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
+        _id: new ObjectId(),
+        firstname: parseNonEmptyString(firstname, "First name"),
+        lastname: parseNonEmptyString(lastname, "Last name"),
+        username: parseUsername(username),
+        hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),
-        qualifications: removeDuplicates(qualifications),
+        qualifications: parseQualifications(qualifications),
     });
 
     await document.save();
@@ -45,61 +46,60 @@ export const createUser = async (firstname, lastname, username, password, qualif
 };
 
 // Get User
-export const getUser = async (userId) => {
+export const getUser = async (userId) =>
+{
     userId = parseObjectId(userId, "User id");
-    const collection = await User();
-    const result = await collection.findOne({
-        _id: ObjectId.createFromHexString(userId),
-    });
-    if (!result) {
-        throw new Error(`Failed to find product with id ${userId}`);
+    const result = await User.findOne({ _id: ObjectId.createFromHexString(userId) }, null, null).exec();
+    if (!result)
+    {
+        throw new Error(`Failed to find user with id ${userId}`);
     }
     result._id = result._id.toString();
     return result;
 };
+
 // Get All Users
-export const getUsers = async () => {
-    const userCollection = await User();
-    let userList = await userCollection.find({}).toArray();
-    return userList;
+/**
+ * Gets all users from the database.
+ * @returns {Promise<Require_id<FlattenMaps<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>>>[]>}
+ * @author Chris Kang, Anthony Webster
+ */
+export const getUsers = async () =>
+{
+    return await User.find({}, null, null).exec();
 };
-// Update User
-export const updateUser = async (userId) => {};
-// Get Average Rating
-export const getAvgRating = (userId) => {
-    let allReviews = getUserReviews(userId).reviews;
-    let sum = allReviews.reduce((total, currVal) => total + Number(currVal.rating), 0);
-    let avg = sum / allReviews.length;
-    return avg;
-};
-// Get amount of reviews
-export const getNumReview = (userId) => {
-    let allReviews = getUserReviews(userId).reviews;
-    return allReviews.length;
-};
+
 // Get expertise
-export const getExpertise = (userId) => {
-    return getUser(userId).qualifications;
+export const getQualifications = async (userId) =>
+{
+    return (await getUser(userId)).qualifications;
 };
 
-export const loginUser = async (username, password) => {
-
-    username = parseStringWithLengthBounds(username, 3, 25);
+/**
+ * Logs in a user.
+ *
+ * @param {string} username The username.
+ * @param {string} password The password to log in with.
+ * @returns {Promise<{createdAt: FlattenProperty<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>["createdAt"]>, qualifications: FlattenProperty<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>["qualifications"]>, firstname: FlattenProperty<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>["firstname"]>, lastname: FlattenProperty<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>["lastname"]>, username: FlattenProperty<InferSchemaType<module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, {}, {}, DefaultSchemaOptions, {createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}, HydratedDocument<FlatRecord<{createdAt: DateConstructor, qualifications: StringConstructor[], firstname: StringConstructor, hashedPassword: StringConstructor, _id: ObjectId, lastname: StringConstructor, username: StringConstructor}>, {}>>>["username"]>}>}
+ * @author Chris Kang, Anthony Webster
+ */
+export const loginUser = async (username, password) =>
+{
+    username = parseUsername(username);
     password = parsePassword(password);
-  
-    const userCollection = await User();
-    const existingUser = await userCollection.findOne({ username: username });
-  
-    if (!existingUser) {
-      throw "Either the username or password is invalid";
+
+    const existingUser = await User.findOne({ username: username }, null, null).exec();
+
+    if (!existingUser)
+    {
+        throw new Error("Either the username or password is invalid");
     }
-  
-    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
-  
-    if (!isPasswordValid) {
-      throw "Either the username or password is invalid";
+
+    if (!(await bcrypt.compare(password, existingUser.hashedPassword)))
+    {
+        throw new Error("Either the username or password is invalid");
     }
-  
+
     return {
         _id: existingUser._id.toString(),
         firstname: existingUser.firstname,
@@ -114,19 +114,17 @@ export const loginUser = async (username, password) => {
  * Gets all reviews for the given user.
  *
  * @param {string} userId The ID of the user.
- * @returns {Promise<{_id: string, reviews: any[]}>} The reviews that the user has posted across all places.
+ * @returns {Promise<{_id: string, reviews: any[]}[]>} The reviews that the user has posted across all places.
  * @author Anthony Webster
  */
 export const getUserReviews = async (userId) =>
 {
-    const parsedId = ObjectId.createFromHexString(parseObjectId(userId, "user id"));
-    const reviews = await Place
-        .aggregate([
-            { $match: { "reviews.author": parsedId } },
-            { $project: { "_id": true, "reviews": true } },
-            { $unwind: "$reviews" }
-        ])
-        .exec();
+    const parsedId = parseObjectId(userId, "user id");
+    const reviews = await Place.aggregate([
+        { $match: { "reviews.author": parsedId } },
+        { $project: { _id: true, reviews: true } },
+        { $unwind: "$reviews" },
+    ]).exec();
 
     for (const review of reviews)
     {
@@ -134,4 +132,47 @@ export const getUserReviews = async (userId) =>
     }
 
     return reviews;
+};
+
+/**
+ * Computes the average ratings by category for a user across all reviews that the given user has posted.
+ * @param {string} userId The ID of the user to compute averages for.
+ * @returns {Promise<{overall: (number|null), byCategory: {DISABILITY_CATEGORY_NEURODIVERGENT: (number|null),
+ * DISABILITY_CATEGORY_PHYSICAL: (number|null), DISABILITY_CATEGORY_SENSORY: (number|null)}}>} An object
+ * containing the overall average rating and average ratings by category. If a place does not have ratings
+ * for a given category, then that category's average rating is `null`.
+ * @author Anthony Webster
+ */
+export const getUserAverageRatings = async (userId) =>
+{
+    const userReviews = (await getUserReviews(userId)).flatMap((u) => u.reviews).flatMap((r) => r.categories);
+    let overallTotal = 0;
+    let overallCount = 0;
+    const aggregates = {
+        DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
+        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
+    };
+
+    for (const { categoryName, rating } of userReviews)
+    {
+        if (aggregates[categoryName] === undefined)
+        {
+            aggregates[categoryName] = { count: 0, total: 0 };
+        }
+        aggregates[categoryName].count++;
+        aggregates[categoryName].total += rating;
+        overallTotal += rating;
+        overallCount++;
+    }
+
+    const averages = {};
+    for (const [categoryName, { count, total }] of Object.entries(aggregates))
+    {
+        averages[categoryName] = count === 0 ? null : total / count;
+    }
+    return {
+        overall: overallCount === 0 ? null : overallTotal / overallCount,
+        byCategory: averages,
+    };
 };
