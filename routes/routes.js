@@ -101,13 +101,13 @@ router.route('/api/search')
 
         if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm === undefined) {
             searchResults = await getAllPlaces();
-            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
 
         if(req.query.latitude === undefined && req.query.longitude === undefined && req.query.radius === undefined && req.query.searchTerm) {
             searchResults = await search(req.query.searchTerm);
-            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
 
@@ -116,18 +116,18 @@ router.route('/api/search')
         req.query.radius = tryCatchChain(errors, () => parseNumber(req.query.radius));
 
         if(errors.length > 0) {
-            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: errors, 
+            return res.render('/searchResults', {title: "Search Results", layout: false, message: errors, 
             user: req.session ? req.session.user : undefined});
         }
 
         if(req.query.searchTerm) {
             searchResults = await searchNear(req.query.searchTerm, req.query.latitude, req.query.longitude, req.query.radius);
-            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
         else {
             searchResults = await findAllNear(req.query.latitude, req.query.longitude, req.query.radius);
-            return res.render('partial/searchResults', {title: "Search Results", layout: false, message: searchResults, 
+            return res.render('/searchResults', {title: "Search Results", layout: false, message: searchResults, 
             user: req.session ? req.session.user : undefined});
         }
     });
@@ -189,7 +189,7 @@ router.route('/place/:id/addReview')
         }
     });
 
-router.route('/place/:id/AddComment')
+router.route('/place/:id/addComment')
     .post(async (req, res) => {
         let errors = [];
     
@@ -223,7 +223,7 @@ router.route('/review/:id')
         }
     });
 
-router.route('/review/:id/AddComment')
+router.route('/review/:id/addComment')
     .post(async (req, res) => {
         let errors = [];
     
@@ -243,6 +243,16 @@ router.route('/review/:id/AddComment')
             return res.render("error", {title: "Add Review Comment Failed", error: error.message, user: req.session ? req.session.user : undefined})
         }
 });
+
+router.route('/review/:id/like')
+    .post(async (req, res) => {
+
+    });
+
+router.route('/review/:id/like')
+    .post(async (req, res) => {
+
+    });
 
 router.route('/about')
     .get(async (req, res) => {
