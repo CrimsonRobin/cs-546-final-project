@@ -118,7 +118,7 @@ router
         }
 
         try {
-            const user = await loginUser(req.username, req.password);
+            const user = await loginUser(req.body.username, req.body.password);
 
             req.session.user = {
                 _id: user._id,
