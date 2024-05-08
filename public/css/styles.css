@@ -206,7 +206,7 @@ input[type="text"], input[type="password"] {
     align-items: center;
 }
 
-.A, .B, .C, .D, .E {
+.A, .B, .C, .D, .E, .N\/A {
     padding: 1rem;
     border-radius: 8px;
     color: black;

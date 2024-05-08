@@ -204,11 +204,11 @@ export const getAverageCategoryRatings = async (placeId) => {
 
     let overallTotal = 0;
     let overallCount = 0;
-    const ratings = {
-        DISABILITY_CATEGORY_NEURODIVERGENT: { count: 0, total: 0 },
-        DISABILITY_CATEGORY_PHYSICAL: { count: 0, total: 0 },
-        DISABILITY_CATEGORY_SENSORY: { count: 0, total: 0 },
-    };
+    const ratings = {};
+    ratings[DISABILITY_CATEGORY_NEURODIVERGENT] = { count: 0, total: 0 };
+    ratings[DISABILITY_CATEGORY_PHYSICAL] = { count: 0, total: 0 };
+    ratings[DISABILITY_CATEGORY_SENSORY] = { count: 0, total: 0 };
+
     for (const categories of place.reviews.map((r) => r.categories)) {
         for (const { categoryName, rating } of categories) {
             if (ratings[categoryName] === undefined) {
