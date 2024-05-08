@@ -101,8 +101,8 @@ export const addReview = async (placeId, author, content, categories) => {
     author = parseObjectId(author, "Author Id");
     content = parseNonEmptyString(content, "Content of review");
     categories = parseCategories(categories);
-    const placeReviewed = await getPlace(placeId);
-    const review = await Place.updateOne(
+    await getPlace(placeId);
+    await Place.updateOne(
         { _id: placeId },
         {
             $push: {
@@ -119,10 +119,12 @@ export const addReview = async (placeId, author, content, categories) => {
             },
         }
     ).exec();
-    if (!review) {
+
+    const place = await getPlace(placeId);
+    if (!place) {
         throw new Error(`Could not insert review in place with id ${placeId}`);
     }
-    return review.toObject();
+    return place;
 };
 //get specific review
 export const getReview = async (reviewId) => {

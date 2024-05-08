@@ -425,13 +425,13 @@ router.route("/place/:id/addReview").post(async (req, res) => {
     req.body.content = tryCatchChain(errors, () => parseNonEmptyString(req.body.content, "Content of review"));
     let categories = [];
     if (tryCatchChain(errors, () => validCheckbox(req.body.physical))) {
-        categories[DISABILITY_CATEGORY_PHYSICAL] = tryCatchChain(errors, () => parseNumber(req.body.physicalRating));
+        categories.push({categoryName: DISABILITY_CATEGORY_PHYSICAL, rating: tryCatchChain(errors, () => parseNumber(req.body.physicalRating))});
     }
     if (tryCatchChain(errors, () => validCheckbox(req.body.sensory))) {
-        categories[DISABILITY_CATEGORY_SENSORY] = tryCatchChain(errors, () => parseNumber(req.body.sensoryRating));
+        categories.push({categoryName: DISABILITY_CATEGORY_SENSORY, rating: tryCatchChain(errors, () => parseNumber(req.body.sensoryRating))});
     }
     if (tryCatchChain(errors, () => validCheckbox(req.body.neurodivergency))) {
-        categories[DISABILITY_CATEGORY_NEURODIVERGENT] = tryCatchChain(errors, () => parseNumber(req.body.neurodivergentRating));
+        categories.push({categoryName: DISABILITY_CATEGORY_NEURODIVERGENT, rating: tryCatchChain(errors, () => parseNumber(req.body.neurodivergentRating))});
     }
     categories = tryCatchChain(errors, () => parseCategories(categories));
 
@@ -440,9 +440,9 @@ router.route("/place/:id/addReview").post(async (req, res) => {
     }
 
     try {
-        const review = await addReview(req.params.id, req.session.user._id, req.body.content, req.body.categories);
+        const place = await addReview(req.params.id, req.session.user._id, req.body.content, categories);
 
-        return res.redirect(`/review/${review._id.toString()}`);
+        return res.redirect(`/place/${place._id.toString()}`);
     } catch (error) {
         //Internal Error
         return res.render("error", {

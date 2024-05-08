@@ -11,7 +11,6 @@
         {{> placeCard place=this user=user }}
     {{/each}}
     {{#unless results}}
-        <p>No results found. <a href="/api/nominatimSearch"></a></p>
-        <button id="addPlace" onclick="addPlace()">Add</button>
+        <p>No results found.</p>
     {{/unless}}
 {{/if}}
