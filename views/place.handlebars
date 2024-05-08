@@ -23,27 +23,27 @@
                 {{/unless}}
                 {{#if ../user}}
                     {{#unless ../hasReview}}
-                    <button id="add-review"><span class="material-symbols-outlined">plus</span>Add Review</button>
-                    <dialog>
+                    <button id="add-review"><span class="material-symbols-outlined">add</span>Add Review</button>
+                    <dialog id="add-review-dialog">
                         <h1>Add a Review</h1>
-                        <form action="/places/{{_id}}/addReview">
+                        <form action="/place/{{_id}}/addReview" method="POST">
                             <label for="reviewText">Review:</label>
-                            <textarea name="review" id="reviewText" placeholder="Type review here..."></textarea>
+                            <textarea name="content" id="reviewText" placeholder="Type review here..."></textarea>
                             <div>
-                                <input type="checkbox" id="Physical" name="Physical" checked/>
-                                <label for="Physical">Physical</label>
-                                <input type="range" id="physicalRating" name="physcialRating" min="1" max="5" />
+                                <input type="checkbox" id="physical" name="physical" checked/>
+                                <label for="physical">Physical</label>
+                                <input type="range" id="physicalRating" name="physicalRating" min="1" max="5" />
                                 <label for="physicalRating">Physical accessibility</label>
                             </div>
                             <div>
-                                <input type="checkbox" id="Sensory" name="Sensory"/>
-                                <label for="Sensory">Sensory</label>
+                                <input type="checkbox" id="sensory" name="sensory"/>
+                                <label for="sensory">Sensory</label>
                                 <input type="range" id="sensoryRating" name="sensoryRating" min="1" max="5" />
                                 <label for="sensoryRating">Sensory accessibility</label>
                             </div>
                             <div>
-                                <input type="checkbox" id="Neurodivergency" name="Neurodivergency"/>
-                                <label for="Neurodivergency">Neurodivergency</label>
+                                <input type="checkbox" id="neurodivergent" name="neurodivergent"/>
+                                <label for="neurodivergent">Neurodivergent</label>
                                 <input type="range" id="neurodivergentRating" name="neurodivergentRating" min="1" max="5" />
                                 <label for="neurodivergentRating">Neurodivergent accessibility</label>
                             </div>     
