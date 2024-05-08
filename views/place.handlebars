@@ -25,13 +25,15 @@
                     {{#unless ../hasReview}}
                     <button id="add-review"><span class="material-symbols-outlined">plus</span>Add Review</button>
                     <dialog>
+                        <h1>Add a Review</h1>
                         <form action="/places/{{_id}}/addReview">
-                            <textarea name="review" placeholder="Add a review"></textarea><br />
+                            <label for="reviewText">Review:</label>
+                            <textarea name="review" id="reviewText" placeholder="Type review here..."></textarea>
                             <div>
                                 <input type="checkbox" id="Physical" name="Physical" checked/>
                                 <label for="Physical">Physical</label>
-                                <input type="range" id="physcialRating" name="physcialRating" min="1" max="5" />
-                                <label for="physcialRating">Physical accessibility</label>
+                                <input type="range" id="physicalRating" name="physcialRating" min="1" max="5" />
+                                <label for="physicalRating">Physical accessibility</label>
                             </div>
                             <div>
                                 <input type="checkbox" id="Sensory" name="Sensory"/>

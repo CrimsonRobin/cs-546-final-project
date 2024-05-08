@@ -5,18 +5,21 @@
         <p>{{content}}</p>
         {{#if ../user}}
             {{> likeDislike user=../user type="comment" _id=_id }}
-            <button class="reply" data-id="{{_id}}"><span class="material-symbols-outlined">plus</span>Reply</button>
-            <dialog>
-                <form action="/comment/{{_id}}/reply" method="POST">
-                    <label for="content">Message</label>
-                    <textarea name="content" id="content" cols="30" rows="5"></textarea>
-                    <button type="submit">Reply</button>
-                </form>
-            </dialog>
+            <div class="reply-div">
+                <button class="reply" data-id="{{_id}}"><span class="material-symbols-outlined">plus</span>Reply
+                </button>
+                <dialog class="reply-dialog">
+                    <form action="/comment/{{_id}}/reply" method="POST">
+                        <label for="content">Message</label>
+                        <textarea name="content" id="content" cols="30" rows="5"></textarea>
+                        <button type="submit">Reply</button>
+                    </form>
+                </dialog>
+            </div>
         {{/if}}
         <div class="replies">
             {{#each replies}}
-                {{> commentCard comment=this reply=true user=../user}}
+                {{> replyCard reply=this user=../user}}
             {{/each}}
         </div>
     </div>

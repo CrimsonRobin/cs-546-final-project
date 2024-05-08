@@ -45,6 +45,8 @@ import {
     DISABILITY_CATEGORY_PHYSICAL,
     DISABILITY_CATEGORY_SENSORY,
     DISABILITY_CATEGORY_NEURODIVERGENT,
+    getLikedItems,
+    getDislikedItems
 } from "../data/places.js";
 import { createUser, getUser, loginUser } from "../data/user.js";
 import { parseSearchRadius, nominatimSearch, nominatimSearchWithin } from "../data/geolocation.js";
@@ -80,9 +82,7 @@ router
             const userMade = await createUser(
                 req.body.username,
                 req.body.password,
-                req.body.physical,
-                req.body.sensory,
-                req.body.neurodivergent
+                [req.body.physical, req.body.sensory, req.body.neurodivergent]
             );
 
             if (userMade) {
@@ -329,6 +329,29 @@ router.route("/place/:id").get(async (req, res) => {
         req.params.id = parseObjectId(req.params.id, "Place Id");
         const place = await getPlace(req.params.id);
 
+        for(const comment of place.comments) {
+            comment.authorName = await getUser(comment.author);
+        }
+
+        for(const review of place.reviews) {
+            review.authorName = await getUser(review.author);
+        }
+
+        if (req.session.user) {
+            const likedItems = await getLikedItems(req.session.user._id);
+            const disLikedItems = await getDislikedItems(req.session.user._id);
+
+            for(const comment of place.comments) {
+                comment.isLiked = likedItems.likedPlaceComments.includes(comment._id);
+                comment.isDisliked = disLikedItems.dislikedPlaceComments.includes(comment._id);
+            }
+
+            for(const review of place.reviews) {
+                review.isLiked = likedItems.likedReviews.includes(review._id);
+                review.isDisliked = disLikedItems.dislikedReviews.includes(review._id);
+            }
+        }
+
         return res.render("place", {
             title: "Place",
             place: place,
@@ -400,11 +423,23 @@ router.route("/review/:id").get(async (req, res) => {
         req.params.id = parseObjectId(req.params.id, "Review Id");
         const review = await getReview(req.params.id);
 
-        if (req.session.user) {
-            review.liked = review.likes.includes(req.session.user._id);
-            review.disliked = review.dislikes.includes(req.session.user._id);
+        review.authorName = await getUser(review.author);
 
-            //review.comments = review.comments.map(());
+        for(const comment of review.comments) {
+            comment.authorName = await getUser(comment.author);
+        }
+
+        if (req.session.user) {
+            const likedItems = await getLikedItems(req.session.user._id);
+            const disLikedItems = await getDislikedItems(req.session.user._id);
+
+            review.isLiked = likedItems.likedReviews.includes(review._id);
+            review.isDisliked = disLikedItems.dislikedReviews.includes(review._id);
+
+            for(const comment of review.comments) {
+                comment.isLiked = likedItems.likedReviewComments.includes(comment._id);
+                comment.isDisliked = disLikedItems.dislikedReviewComments.includes(comment._id);
+            }
         }
 
         return res.render("review", {
