@@ -70,8 +70,8 @@ router
 
         req.body.physical = tryCatchChain(errors, () => validCheckbox(req.body.physical, "Physical Checkbox"));
         req.body.sensory = tryCatchChain(errors, () => validCheckbox(req.body.sensory, "Sensory Checkbox"));
-        req.body.neurodivergent = tryCatchChain(errors, () =>
-            validCheckbox(req.body.neurodivergent, "Neurodivergent Checkbox")
+        req.body.neurodivergency = tryCatchChain(errors, () =>
+            validCheckbox(req.body.neurodivergency, "Neurodivergent Checkbox")
         );
 
         if (errors.length > 0) {
@@ -85,7 +85,7 @@ router
         if(req.body.sensory) {
             qualification.push(DISABILITY_CATEGORY_SENSORY);
         }
-        if(req.body.neurodivergent) {
+        if(req.body.neurodivergency) {
             qualification.push(DISABILITY_CATEGORY_NEURODIVERGENT);
         }
 
