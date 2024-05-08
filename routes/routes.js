@@ -92,7 +92,7 @@ router
                 return res.status(500).send("Internal Server Error");
             }
         } catch (error) {
-            return res.status(400).render("register", { title: "Register", errors: error.message });
+            return res.status(400).render("register", { title: "Register", errors: [error] });
         }
     });
 
@@ -127,7 +127,7 @@ router
 
             return res.redirect("/");
         } catch (error) {
-            return res.status(400).render("login", { errors: error.message });
+            return res.status(400).render("login", { errors: [error] });
         }
     });
 
@@ -337,7 +337,7 @@ router.route("/place/:id").get(async (req, res) => {
     } catch (error) {
         return res.status(404).render("error", {
             title: "Place Not Found",
-            error: error.message,
+            errors: [error],
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -363,7 +363,7 @@ router.route("/api/place/:id/addReview").post(async (req, res) => {
         //Internal Error
         return res.render("error", {
             title: "Add Review Failed",
-            error: error.message,
+            errors: [error],
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -387,7 +387,7 @@ router.route("/place/:id/addComment").post(async (req, res) => {
         //Internal Error
         return res.render("error", {
             title: "Add Place Comment Failed",
-            error: error.message,
+            errors: [error],
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -415,7 +415,7 @@ router.route("/review/:id").get(async (req, res) => {
     } catch (error) {
         return res.status(404).render("error", {
             title: "Review Not Found",
-            error: error.message,
+            errors: [error],
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -440,7 +440,7 @@ router.route("/review/:id/addComment").post(async (req, res) => {
         //Internal Error
         return res.render("error", {
             title: "Add Review Comment Failed",
-            error: error.message,
+            errors: [error],
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -453,13 +453,13 @@ router.route("/api/review/:id/like").post(async (req, res) => {
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
 
     if (errors.length > 0) {
-        return res.json({ error: errors });
+        return res.json({ errors: errors });
     }
     try {
         const review = await toggleReviewLike(req.params.id, req.session.user._id);
         return res.json({ likes: review.likes });
     } catch (error) {
-        return res.json({ error: error.message });
+        return res.json({ errors: [error] });
     }
 });
 
@@ -470,13 +470,13 @@ router.route("/api/review/:id/dislike").post(async (req, res) => {
     req.params.id = tryCatchChain(errors, () => parseObjectId(req.params.id, "Review Id"));
 
     if (errors.length > 0) {
-        return res.json({ error: errors });
+        return res.json({ errors: errors });
     }
     try {
         const review = await toggleReviewDislike(req.params.id, req.session.user._id);
         return res.json({ dislikes: review.dislikes });
     } catch (error) {
-        return res.json({ error: error.message });
+        return res.json({ errors: [error] });
     }
 });
 
@@ -485,14 +485,14 @@ router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
     try {
         const likedPlace = await togglePlaceCommentLike(req.params.placeId, req.params.commentId, req.session.user._id);
         return res.json({ likes: likedPlace.likes });
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
 });
 
@@ -501,8 +501,8 @@ router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, 
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.placeId = parseObjectId(placeId, "place id");
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
     try {
         const dislikedPlace = await togglePlaceCommentDislike(
@@ -511,8 +511,8 @@ router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, 
             req.session.user._id
         );
         return res.json({ dislikes: dislikedPlace.dislikes });
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
 });
 
@@ -522,14 +522,14 @@ router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.reviewId = parseObjectId(reviewId, "review id");
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
     try {
         const likedReview = await toggleReviewCommentLike(req.params.commentId, req.params.reviewId);
         return res.json({ likes: likedReview.likes });
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
 });
 
@@ -537,14 +537,14 @@ router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req
     try {
         req.params.commentId = parseObjectId(commentId, "comment id");
         req.params.reviewId = parseObjectId(reviewId, "review id");
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
     try {
         const dislikedReview = await toggleReviewCommentDislike(req.params.commentId, req.params.reviewId);
         return res.json({ dislikes: dislikedReview.dislikes });
-    } catch (e) {
-        return res.json({ error: e.message });
+    } catch (error) {
+        return res.json({ errors: [error] });
     }
 });
 
@@ -553,14 +553,19 @@ router.route("/comment/:id/addReply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
-        //TODO send reply through JSON??
     } catch (error) {
         return res.status(400).render("error", { title: "Add Comment Reply Failed", errors: [error] });
     }
     try {
-        const reply = addPlaceCommentReply;
-        return res.redirect(`/review/${review._id.toString()}`);
-    } catch (error) {}
+        const reply = addPlaceCommentReply(req.params.id, req.session.user._id);
+        return res.redirect(`/comment/${comment._id.toString()}`);
+    } catch (error) {
+        return res.render("error", {
+            title: "Add Comment Reply Failed",
+            errors: [error],
+            user: req.session ? req.session.user : undefined,
+        });
+    }
 });
 
 //This route adds a reply to a commment on a review
@@ -568,10 +573,17 @@ router.route("/review/:reviewId/comment/:id/addReply").post(async (req, res) => 
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
         req.body.content = parseNonEmptyString(req.body.content, "Content");
-        //TODO send reply through JSON??
+    } catch (error) {
+        return res.status(400).render("error", { title: "Add Review Comment Reply Failed", errors: [error] });
+    }
+    try {
         await addReviewCommentReply(req.params.id, req.session.user._id, req.body.content);
     } catch (error) {
-        return res.json({ error: e.message });
+        return res.render("error", {
+            title: "Add Reveiew Comment Reply Failed",
+            errors: [error],
+            user: req.session ? req.session.user : undefined,
+        });
     }
 });
 
