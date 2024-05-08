@@ -341,11 +341,11 @@ router.route("/place/:id").get(async (req, res) => {
         const place = await getPlace(req.params.id);
 
         for(const comment of place.comments) {
-            comment.authorName = await getUser(comment.author);
+            comment.authorName = (await getUser(comment.author)).username;
         }
 
         for(const review of place.reviews) {
-            review.authorName = await getUser(review.author);
+            review.authorName = (await getUser(review.author)).username;
         }
 
         if (req.session.user) {
@@ -434,10 +434,10 @@ router.route("/review/:id").get(async (req, res) => {
         req.params.id = parseObjectId(req.params.id, "Review Id");
         const review = await getReview(req.params.id);
 
-        review.authorName = await getUser(review.author);
+        review.authorName = (await getUser(review.author)).username;
 
         for(const comment of review.comments) {
-            comment.authorName = await getUser(comment.author);
+            comment.authorName = (await getUser(comment.author)).username;
         }
 
         if (req.session.user) {
