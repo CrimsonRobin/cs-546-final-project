@@ -67,16 +67,10 @@ app.use("/login", redirectHome);
 app.use("/register", redirectHome);
 
 app.use("/logout", redirectLogin);
-//TODO fix placeholder stuff
+
 app.use("/place/:id/addReview", redirectLogin);
 app.use("/place/:id/addComment", redirectLogin);
 //TODO add like and dislike handling
-
-/*app.use("/review/:id", (req, res, next ) =>{
-    if (req.method === "patch" || req.method === "delete"){
-        //if user is not the same as the author of the review, do not allow
-    }
-})*/
 
 configRoutes(app);
 
