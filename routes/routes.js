@@ -11,6 +11,7 @@
 
 import express from "express";
 import {
+    isNullOrUndefined,
     parseStringWithLengthBounds,
     tryCatchChain,
     parsePassword,
@@ -369,6 +370,37 @@ router.route("/place/:id").get(async (req, res) => {
                 review.isLiked = likedItems.likedReviews.includes(review._id);
                 review.isDisliked = disLikedItems.dislikedReviews.includes(review._id);
             }
+        }
+
+
+        for (const review of place.reviews) {
+            const newCategories = {
+                "physicalRating": "N/A",
+                "sensoryRating": "N/A",
+                "neurodivergentRating": "N/A",
+            };
+            for (const { categoryName, rating } of review.categories) {
+                let cn = "";
+                switch (categoryName) {
+                    case DISABILITY_CATEGORY_PHYSICAL:
+                        cn = "physicalRating";
+                        break;
+                    case DISABILITY_CATEGORY_SENSORY:
+                        cn = "sensoryRating";
+                        break;
+                    case DISABILITY_CATEGORY_NEURODIVERGENT:
+                        cn = "neurodivergentRating";
+                        break;
+                    default:
+                        continue;
+                }
+                newCategories[cn] = isNullOrUndefined(rating) ? "N/A" : rating.toString();
+            }
+            review.categories = newCategories;
+            for (const {cat, rat} of Object.entries(newCategories)) {
+                review[cat] = rat;
+            }
+            review.ratings = newCategories;
         }
 
         return res.render("place", {
