@@ -2,6 +2,13 @@
     <img class="light" src="/public/assets/logo-light.svg" alt="a11y logo">
     <img class="dark" src="/public/assets/logo-dark.svg" alt="a11y logo">
     <form id="signin-form" action="/login" method="post">
+        <ul id="error-list" class="error">
+            {{#if errors}}
+                {{#each errors}}
+                    <li>{{this.message}}</li>
+                {{/each}}
+            {{/if}}
+        </ul>
         <label for="username">Username:
             <input type="text" name="username" id="username" required/>
         </label>

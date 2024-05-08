@@ -1,102 +1,64 @@
-const getLoginForm = () =>
-{
+const getLoginForm = () => {
     return document.getElementById("signin-form");
 };
 
-const getRegisterForm = () =>
-{
+const getRegisterForm = () => {
     return document.getElementById("signup-form");
 };
 
-const onLoginFormSubmit = (event) =>
-{
-    let error = document.getElementById("error");
-    if (error)
-    {
-        error.remove();
-    }
+const onLoginFormSubmit = (event) => {
+    let errorList = document.getElementById("error-list");
+    errorList.replaceChildren();
+
     let usernameElement = document.getElementById("username");
     let passwordElement = document.getElementById("password");
 
-    if (isNullOrUndefined(usernameElement) || isNullOrUndefined(passwordElement))
-    {
+    const errors = [];
+    const username = tryCatchChain(errors, () => parseUsername(usernameElement.value));
 
-    }
-    else
-    {
-        const errors = [];
-        const username = tryCatchChain(errors, () => parseUsername(usernameElement.value));
-        const password = tryCatchChain(errors, () => parsePassword(passwordElement.value));
-
-        if (errors.length > 0)
-        {
-            event.preventDefault();
-            error = document.createElement("p");
-            error.id = "error";
-            error.className = "error";
-            // error.innerHTML = e.message;
-            getLoginForm().appendChild(error);
-        }
+    if (errors.length !== 0) {
+        event.preventDefault();
+        errors.map((e) => {
+            const li = document.createElement("li");
+            li.innerHTML = e.message;
+            errorList.appendChild(li);
+        });
     }
 };
 
-const onRegisterFormSubmit = (event) =>
-{
+const onRegisterFormSubmit = (event) => {
     let errorList = document.getElementById("error-list");
-    if (isNullOrUndefined(errorList))
-    {
-        errorList.remove();
-    }
+    errorList.replaceChildren();
     // TODO: any of these could be a null dereference
     const usernameElement = document.getElementById("username");
     const passwordElement = document.getElementById("password");
     const confirmPasswordElement = document.getElementById("confirmPassword");
 
-    if (isNullOrUndefined(usernameElement)
-        || isNullOrUndefined(passwordElement)
-        || isNullOrUndefined(confirmPasswordElement))
-    {
-        // TODO
+    const errors = [];
+    const username = tryCatchChain(errors, () => parseUsername(usernameElement.value));
+    const password = tryCatchChain(errors, () => parsePassword(passwordElement.value));
+    const confirmPassword = tryCatchChain(errors, () => parseNonEmptyString(confirmPasswordElement.value, "Confirm password"));
+    if (confirmPasswordElement.value !== passwordElement.value) {
+        errors.push(new Error("Passwords do not match!"));
     }
-    else
-    {
-        const errors = [];
-        const username = tryCatchChain(errors, () => parseUsername(usernameElement.value));
-        const password = tryCatchChain(errors, () => parsePassword(passwordElement.value));
-        const confirmPassword = tryCatchChain(errors, () => parseNonEmptyString(confirmPasswordElement.value, "Confirm password"));
-        if (confirmPassword !== password)
-        {
-            errors.push(new Error("Passwords do not match!"));
-        }
-        if (errors.length !== 0)
-        {
-            event.preventDefault();
-            errorList = document.createElement("ul");
-            errorList.id = "error-list";
-            errorList.className = "error";
-            document.body.insertBefore(errorList, getRegisterForm());
-            for (const error of errors)
-            {
-                let li = document.createElement("li");
-                li.innerHTML = error;
-                li.className = "error";
-                errorList.appendChild(li);
-            }
-        }
+    if (errors.length !== 0) {
+        event.preventDefault();
+        errors.map((e) => {
+            const li = document.createElement("li");
+            li.innerHTML = e.message;
+            errorList.appendChild(li);
+        });
     }
 };
 
-(function ()
-{
+(function () {
     const loginForm = getLoginForm();
-    if (!isNullOrUndefined(loginForm))
-    {
+    if (!isNullOrUndefined(loginForm)) {
         loginForm.addEventListener("submit", (event) => onLoginFormSubmit(event));
     }
 
     const registerForm = getRegisterForm();
-    if (!isNullOrUndefined(registerForm))
-    {
+    if (!isNullOrUndefined(registerForm)) {
         registerForm.addEventListener("submit", (event) => onRegisterFormSubmit(event));
     }
 })();

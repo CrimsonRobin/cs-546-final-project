@@ -118,7 +118,11 @@ router
         req.body.username = tryCatchChain(errors, () =>
             parseStringWithLengthBounds(req.body.username, 3, 25, true, "Username")
         );
-        req.body.password = tryCatchChain(errors, () => parsePassword(req.body.password));
+        try {
+            req.body.password = parsePassword(req.body.password);
+        } catch (e) {
+            errors.push(new Error("Invalid password!"));
+        }
 
         if (errors.length > 0) {
             return res.status(400).render("login", { title: "Log In", errors: errors });
