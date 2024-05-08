@@ -751,7 +751,13 @@ export const search = async (query) => {
         r._id = r._id.toString();
         r.location._id = r.location._id.toString();
     }
-    return matchingPlaces;
+
+    const get = [];
+    for (const mp of matchingPlaces) {
+        get.push(await getPlace(mp._id));
+    }
+
+    return get;
 };
 
 /**
