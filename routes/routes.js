@@ -167,7 +167,8 @@ router.route("/api/search").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: "All Places",
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -182,7 +183,8 @@ router.route("/api/search").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: `Search Results based on ${req.query.searchTerm}`,
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -243,7 +245,8 @@ router.route("/api/nominatimSearch").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: "All Places",
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -258,7 +261,8 @@ router.route("/api/nominatimSearch").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: `Places matching ${req.query.searchTerm}`,
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
