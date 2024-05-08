@@ -503,6 +503,34 @@ router.route("/review/:id").get(async (req, res) => {
             }
         }
 
+        const newCategories = {
+            "physicalRating": "N/A",
+            "sensoryRating": "N/A",
+            "neurodivergentRating": "N/A",
+        };
+        for (const { categoryName, rating } of review.categories) {
+            let cn = "";
+            switch (categoryName) {
+                case DISABILITY_CATEGORY_PHYSICAL:
+                    cn = "physicalRating";
+                    break;
+                case DISABILITY_CATEGORY_SENSORY:
+                    cn = "sensoryRating";
+                    break;
+                case DISABILITY_CATEGORY_NEURODIVERGENT:
+                    cn = "neurodivergentRating";
+                    break;
+                default:
+                    continue;
+            }
+            newCategories[cn] = isNullOrUndefined(rating) ? "N/A" : rating.toString();
+        }
+        review.categories = newCategories;
+        for (const {cat, rat} of Object.entries(newCategories)) {
+            review[cat] = rat;
+        }
+        review.ratings = newCategories;
+
         return res.render("review", {
             title: "Review",
             review: review,
