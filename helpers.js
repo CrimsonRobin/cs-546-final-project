@@ -598,7 +598,7 @@ export const parsePassword = (password) => {
  *
  * @author Samuel Miller
  */
-export const validCheckbox = (checkbox, paramName = undefined) => {
+export const validCheckbox = (checkbox, paramName = "checkbox") => {
     if(checkbox === "on") {
         return true;
     }
@@ -626,7 +626,7 @@ export const parseCategories = (categories) => {
     throwIfNullOrUndefined(categories, "categories");
     assertTypeIs(categories, "array", "categories");
     if (categories.length < 1) {
-        throw new Error(`Categories are must have at least 1 entry.`);
+        throw new Error(`Categories must have at least 1 entry.`);
     }
 
     //all entries are strings and all entries in array are valid categories

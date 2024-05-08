@@ -2,13 +2,14 @@
 
 import routes from "./routes.js";
 
-const constructorMethod = (app) =>
-{
+const constructorMethod = (app) => {
     app.use("/", routes);
 
-    app.use('*', (req, res) =>
-    {
-        return res.status(404).render("error", {title: "Not Found", error: "Page Not Found."});
+    app.use('*', (req, res) => {
+        return res.status(404).render("error", {
+            title: "Not Found", error: "Page Not Found.",
+            user: req.session ? req.session.user : undefined
+        });
     });
 };
 
