@@ -49,7 +49,7 @@ import {
     getLikedItems,
     getDislikedItems
 } from "../data/places.js";
-import {createUser, getUser, loginUser} from "../data/user.js";
+import {createUser, getUser, getUserAverageRatings, getUserReviews, loginUser} from "../data/user.js";
 import {parseSearchRadius, nominatimSearch, nominatimSearchWithin} from "../data/geolocation.js";
 
 const router = express.Router();
@@ -328,6 +328,9 @@ router.route("/user/:id").get(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "User Id");
         const user = await getUser(req.params.id);
+
+        user.reviews = await getUserReviews(req.params.id);
+        user.averageRating = await getUserAverageRatings(req.params.id);
 
         return res.render("userProfile", {
             title: "User Profile",
