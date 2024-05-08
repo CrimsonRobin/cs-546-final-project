@@ -115,13 +115,14 @@ export const loginUser = async (username, password) => {
 export const getUserReviews = async (userId) => {
     const parsedId = parseObjectId(userId, "user id");
     const reviews = await Place.aggregate([
+        { $unwind: "$reviews" },
         { $match: { "reviews.author": parsedId } },
         { $project: { _id: true, reviews: true } },
-        { $unwind: "$reviews" },
     ]).exec();
 
     for (const review of reviews) {
         review._id = review._id.toString();
+        review.reviews._id = review.reviews._id.toString();
     }
 
     return reviews;

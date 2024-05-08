@@ -327,9 +327,9 @@ router.route("/user/:id").get(async (req, res) => {
     //Get User Object and pass it (including title)
     try {
         req.params.id = parseObjectId(req.params.id, "User Id");
-        const user = await getUser(req.params.id);
+        const user = (await getUser(req.params.id)); //.toObject();
 
-        user.reviews = await getUserReviews(req.params.id);
+        user.reviews = (await getUserReviews(req.params.id)).map(r => r.reviews);
         user.averageRating = await getUserAverageRatings(req.params.id);
 
         return res.render("userProfile", {
