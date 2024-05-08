@@ -23,7 +23,7 @@ export const isUsernameTaken = async (username) =>
 };
 
 // Create User
-export const createUser = async (firstname, lastname, username, password, qualifications) =>
+export const createUser = async (username, password, qualifications) =>
 {
     username = parseUsername(username);
     if (await isUsernameTaken(username))
@@ -33,8 +33,6 @@ export const createUser = async (firstname, lastname, username, password, qualif
 
     const document = new User({
         _id: new ObjectId(),
-        firstname: parseNonEmptyString(firstname, "First name"),
-        lastname: parseNonEmptyString(lastname, "Last name"),
         username: parseUsername(username),
         hashedPassword: await bcrypt.hash(parsePassword(password), BCRYPT_SALT_ROUNDS),
         createdAt: DateTime.now().toBSON(),

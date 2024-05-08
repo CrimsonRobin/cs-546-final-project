@@ -577,9 +577,13 @@ export const parsePassword = (password) => {
  * @author Samuel Miller
  */
 export const validCheckbox = (checkbox, paramName = undefined) => {
-    if (checkbox === undefined || checkbox === "on") {
-        return checkbox;
-    } else {
+    if(checkbox === "on") {
+        return true;
+    }
+    else if (checkbox === undefined) {
+        return false;
+    }
+    else {
         throw new Error(`Invalid value for checkbox: ${paramName}`);
     }
 };

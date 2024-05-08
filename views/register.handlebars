@@ -5,7 +5,7 @@
         {{#if errors}}
             <ul>
                 {{#each errors}}
-                    <li>{{this}}</li>
+                    <li>{{this.message}}</li>
                 {{/each}}
             </ul>
         {{/if}}
@@ -24,16 +24,16 @@
         <fieldset>
             <legend>What kinds of accessibility are you interested in?</legend>
             <div>
-                <input type="checkbox" id="Physical" name="Physical">
-                <label for="Physical">Physical</label>
+                <input type="checkbox" id="physical" name="physical">
+                <label for="physical">Physical</label>
             </div>
             <div>
-                <input type="checkbox" id="Sensory" name="Sensory">
-                <label for="Sensory">Sensory</label>
+                <input type="checkbox" id="sensory" name="sensory">
+                <label for="sensory">Sensory</label>
             </div>
             <div>
-                <input type="checkbox" id="Neurodivergency" name="Neurodivergency">
-                <label for="Neurodivergency">Neurodivergency</label>
+                <input type="checkbox" id="neurodivergency" name="neurodivergency">
+                <label for="neurodivergency">Neurodivergency</label>
             </div>
         </fieldset>
         <br>

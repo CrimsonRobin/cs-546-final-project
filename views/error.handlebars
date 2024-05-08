@@ -10,7 +10,7 @@
         <p>We're sorry, but some errors occurred.</p>
         <ul class="error error-list">
             {{#each errors}}
-                <li>{{this}}</li>
+                <li>{{this.message}}</li>
             {{/each}}
         </ul>
     {{/if}}
