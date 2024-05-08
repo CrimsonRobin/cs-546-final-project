@@ -17,22 +17,15 @@
         if (like && dislike) {
             const id = div.dataset._id;
             if (id) {
-                like.addEventListener("click", (event) => {
-                    if (like.classList.contains("selected")) {
-                        // undo like
-
-                    } else {
-                        // execute like
-                    }
+                like.addEventListener("click", async (event) => {
+                    const res = await fetch(`/api/review/${id}/like`, {method: "POST" });
+                    like.classList.toggle("selected");
                     // in case the other one was selected
                     dislike.classList.remove("selected");
                 });
-                dislike.addEventListener("click", (event) => {
-                    if (like.classList.contains("selected")) {
-                        // undo dislike
-                    } else {
-                        // execute dislike
-                    }
+                dislike.addEventListener("click", async (event) => {
+                    const res = await fetch(`/api/review/${id}/dislike`, {method: "POST"});
+                    like.classList.toggle("selected");
                     // in case the other one was selected
                     like.classList.remove("selected");
                 });

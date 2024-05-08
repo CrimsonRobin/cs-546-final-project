@@ -150,6 +150,7 @@ header img, header div {
     display: flex;
     align-content: center;
     justify-content: space-between;
+    flex-direction: column;
 }
 
 #search-box {
@@ -258,4 +259,9 @@ main:has(.login-register) {
     display: flex;
     align-items: center;
     flex-direction: column;
+}
+
+#searchDiv {
+    width: 100%;
+    display: flex;
 }
