@@ -441,6 +441,28 @@ export const normalizeLongitude = (longitude) => {
     return longitude * sign;
 };
 
+export const parseSearchRadius = (radius) =>
+    {
+        assertTypeIs(radius, "number", "search radius");
+        assertIsNotNaN(radius, "search radius");
+        assertIsNotInfinity(radius, "search radius");
+    
+        // More than 4 digits of precision really shouldn't be necessary. This also helps with
+        // floating point garbage.
+        radius = roundTo(radius, 4);
+    
+        if (radius < MINIMUM_SEARCH_RADIUS)
+        {
+            throw new Error(`Search radius must be at least ${MINIMUM_SEARCH_RADIUS}`);
+        }
+    
+        if (radius > MAXIMUM_SEARCH_RADIUS)
+        {
+            throw new Error(`Search radius cannot exceed ${radius}`);
+        }
+    
+        return radius;
+    };
 /**
  * Sleep for the given number of milliseconds.
  *

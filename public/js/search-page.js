@@ -24,9 +24,9 @@ const getInputAndGo = async (url) => {
     let rad;
     try {
         if (advancedCheckbox && advancedCheckbox.checked) {
-            lat = parseLatitude(parseNumber(latitude.value, "Latitude"));
-            long = parseLongtitude(parseNumber(longitude.value, "Longitude"));
-            rad = parseSearchRadius(parseNumber(radius.value, "Radius"));
+            lat = parseLatitude(parseNumber(latitude.value));
+            long = normalizeLongitude(parseNumber(longitude.value));
+            rad = parseSearchRadius(parseNumber(radius.value));
         }
         if (lat === undefined ^ long === undefined) {
             error("Invalid search: either latitude or longitude is not given!");
