@@ -2,38 +2,41 @@
     <img class="light" src="/public/assets/logo-light.svg" alt="a11y logo">
     <img class="dark" src="/public/assets/logo-dark.svg" alt="a11y logo">
     <form name="signup-form" id="signup-form" action="/register" method="POST">
+        {{#if errors}}
+            <ul>
+                {{#each errors}}
+                    <li>{{this}}</li>
+                {{/each}}
+            </ul>
+        {{/if}}
         <label for="username">Username:
-            <input type="text" name="username" id="username"/>
+            <input type="text" name="username" id="username">
         </label>
 
         <label for="password">Password:
-            <input type="password" name="password" id="password"/>
+            <input type="password" name="password" id="password">
         </label>
 
         <label for="confirmPassword">Confirm Password:
-            <input type="password" name="confirmPassword" id="confirmPassword"/>
+            <input type="password" name="confirmPassword" id="confirmPassword">
         </label>
 
         <fieldset>
-            <legend>Choose your category:</legend>
-
+            <legend>What kinds of accessibility are you interested in?</legend>
             <div>
-                <input type="checkbox" id="Physical" name="Physical" checked/>
+                <input type="checkbox" id="Physical" name="Physical">
                 <label for="Physical">Physical</label>
             </div>
-
             <div>
-                <input type="checkbox" id="Sensory" name="Sensory"/>
+                <input type="checkbox" id="Sensory" name="Sensory">
                 <label for="Sensory">Sensory</label>
             </div>
-
             <div>
-                <input type="checkbox" id="Neurodivergency" name="Neurodivergency"/>
+                <input type="checkbox" id="Neurodivergency" name="Neurodivergency">
                 <label for="Neurodivergency">Neurodivergency</label>
             </div>
         </fieldset>
-
-        <br/>
+        <br>
         <button name="submitButton" id="submitButton" type="submit">Submit</button>
     </form>
     <p>Already have an account? <a href="/login">Click here to log in</a></p>
