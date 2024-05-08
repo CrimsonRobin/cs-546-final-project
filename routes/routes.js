@@ -82,9 +82,7 @@ router
             const userMade = await createUser(
                 req.body.username,
                 req.body.password,
-                req.body.physical,
-                req.body.sensory,
-                req.body.neurodivergent
+                [req.body.physical, req.body.sensory, req.body.neurodivergent]
             );
 
             if (userMade) {
