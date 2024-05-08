@@ -662,3 +662,51 @@ const parseUsername = (username) => {
 
     return username;
 };
+
+/**
+ * The minimum search radius for searching Nominatim.
+ * @type {number}
+ * @author Anthony Webster
+ */
+const MINIMUM_SEARCH_RADIUS = 0.1;
+
+/**
+ * The maximum search radius for searching Nominatim.
+ * @type {number}
+ * @author Anthony Webster
+ */
+const MAXIMUM_SEARCH_RADIUS = 400;
+
+/**
+ * Parses a search radius.
+ *
+ * Search radii are rounded to 4 digits of precision. Valid radii are between
+ * {@linkcode MINIMUM_SEARCH_RADIUS} and {@linkcode MAXIMUM_SEARCH_RADIUS}. If the radius is
+ * invalid, an exception is thrown.
+ *
+ * @param {number} radius The search radius to parse.
+ * @returns {number} The parsed search radius.
+ * @author Anthony Webster
+ */
+const parseSearchRadius = (radius) =>
+{
+    assertTypeIs(radius, "number", "search radius");
+    assertIsNotNaN(radius, "search radius");
+    assertIsNotInfinity(radius, "search radius");
+
+    // More than 4 digits of precision really shouldn't be necessary. This also helps with
+    // floating point garbage.
+    radius = roundTo(radius, 4);
+
+    if (radius < MINIMUM_SEARCH_RADIUS)
+    {
+        throw new Error(`Search radius must be at least ${MINIMUM_SEARCH_RADIUS}`);
+    }
+
+    if (radius > MAXIMUM_SEARCH_RADIUS)
+    {
+        throw new Error(`Search radius cannot exceed ${radius}`);
+    }
+
+    return radius;
+};
