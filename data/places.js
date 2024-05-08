@@ -6,7 +6,6 @@ import {
     parseNonEmptyString,
     parseObjectId,
     removeDuplicates,
-    throwIfNullOrUndefined,
 } from "../helpers.js";
 import { Place } from "../config/database.js";
 import { distanceBetweenPointsMiles, parseOsmId, parseOsmType, parseSearchRadius } from "./geolocation.js";
@@ -739,14 +738,20 @@ const computeSearchMatchScore = (normalizedQuery, placeData) => {
  */
 export const search = async (query) => {
     const normalizedQuery = normalizeSearchQuery(parseNonEmptyString(query, "search query"));
-    const places = (await Place.find({}, null, null).exec()).map(r => r.toObject());
+    const places = await Place.find({}, null, null).exec();
 
-    return Enumerable.from(places)
+    const matchingPlaces = Enumerable.from(places)
+        .select(r => r.toObject())
         .select((p) => [computeSearchMatchScore(normalizedQuery, p), p])
         .where((p) => p[0] > 0)
         .orderByDescending((p) => p[0])
         .select((p) => p[1])
         .toArray();
+    for (const r of matchingPlaces) {
+        r._id = r._id.toString();
+        r.location._id = r.location._id.toString();
+    }
+    return matchingPlaces;
 };
 
 /**
@@ -776,12 +781,10 @@ export const searchNear = async (query, latitude, longitude, radius) => {
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
 
-    const searchResults = await search(query);
-    return searchResults
+    return (await search(query))
         .filter(
             (r) => distanceBetweenPointsMiles(latitude, longitude, r.location.latitude, r.location.longitude) <= radius
-        )
-        .map((r) => r._id.toString());
+        );
 };
 
 export const findAllNear = async (latitude, longitude, radius) => {
