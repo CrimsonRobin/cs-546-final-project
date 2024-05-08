@@ -48,7 +48,7 @@ export const getUser = async (userId) =>
 {
     userId = parseObjectId(userId, "User id");
     const result = await User.findOne({ _id: ObjectId.createFromHexString(userId) }, null, null).exec();
-    if (!result)
+    if (isNullOrUndefined(result))
     {
         throw new Error(`Failed to find user with id ${userId}`);
     }

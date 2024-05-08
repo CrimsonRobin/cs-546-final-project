@@ -529,8 +529,8 @@ router.route("/api/review/:id/dislike").post(async (req, res) => {
 //This route handles place comment likes
 router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res) => {
     try {
-        req.params.commentId = parseObjectId(commentId, "comment id");
-        req.params.placeId = parseObjectId(placeId, "place id");
+        req.params.commentId = parseObjectId(req.params.commentId, "comment id");
+        req.params.placeId = parseObjectId(req.params.placeId, "place id");
     } catch (error) {
         return res.json({ errors: [error] });
     }
@@ -545,8 +545,8 @@ router.route("/api/place/:placeId/comment/:commentId/like").post(async (req, res
 //This route handles place comment dislikes
 router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, res) => {
     try {
-        req.params.commentId = parseObjectId(commentId, "comment id");
-        req.params.placeId = parseObjectId(placeId, "place id");
+        req.params.commentId = parseObjectId(req.params.commentId, "comment id");
+        req.params.placeId = parseObjectId(req.params.placeId, "place id");
     } catch (error) {
         return res.json({ errors: [error] });
     }
@@ -566,8 +566,8 @@ router.route("/api/place/:placeId/comment/:commentId/dislike").post(async (req, 
 
 router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
     try {
-        req.params.commentId = parseObjectId(commentId, "comment id");
-        req.params.reviewId = parseObjectId(reviewId, "review id");
+        req.params.commentId = parseObjectId(req.params.commentId, "comment id");
+        req.params.reviewId = parseObjectId(req.params.reviewId, "review id");
     } catch (error) {
         return res.json({ errors: [error] });
     }
@@ -581,8 +581,8 @@ router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req
 
 router.route("/api/review/:reviewId/comment/:commentId/dislike").post(async (req, res) => {
     try {
-        req.params.commentId = parseObjectId(commentId, "comment id");
-        req.params.reviewId = parseObjectId(reviewId, "review id");
+        req.params.commentId = parseObjectId(req.params.commentId, "comment id");
+        req.params.reviewId = parseObjectId(req.params.reviewId, "review id");
     } catch (error) {
         return res.json({ errors: [error] });
     }
@@ -603,8 +603,8 @@ router.route("/comment/:id/addReply").post(async (req, res) => {
         return res.status(400).render("error", { title: "Add Comment Reply Failed", errors: [error] });
     }
     try {
-        const reply = addPlaceCommentReply(req.params.id, req.session.user._id);
-        return res.redirect(`/comment/${comment._id.toString()}`);
+        const reply = await addPlaceCommentReply(req.params.id, req.session.user._id);
+        return res.redirect(`/comment/${req.params.id}`);
     } catch (error) {
         return res.render("error", {
             title: "Add Comment Reply Failed",
@@ -614,7 +614,7 @@ router.route("/comment/:id/addReply").post(async (req, res) => {
     }
 });
 
-//This route adds a reply to a commment on a review
+//This route adds a reply to a comment on a review
 router.route("/review/:reviewId/comment/:id/addReply").post(async (req, res) => {
     try {
         req.params.id = parseObjectId(req.params.id, "Comment Id");
@@ -626,7 +626,7 @@ router.route("/review/:reviewId/comment/:id/addReply").post(async (req, res) => 
         await addReviewCommentReply(req.params.id, req.session.user._id, req.body.content);
     } catch (error) {
         return res.render("error", {
-            title: "Add Reveiew Comment Reply Failed",
+            title: "Add Review Comment Reply Failed",
             errors: [error],
             user: req.session ? req.session.user : undefined,
         });
