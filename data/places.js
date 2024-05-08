@@ -789,7 +789,7 @@ export const findAllNear = async (latitude, longitude, radius) => {
     longitude = normalizeLongitude(longitude);
     radius = parseSearchRadius(radius);
 
-    const places = (await Place.find({}, null, null).exec()).map(r => r.toObject());
+    const places = await Place.find({}, null, null).exec();
     const placesNear = Enumerable.from(places)
         .select(p => p.toObject())
         .select((p) => [distanceBetweenPointsMiles(latitude, longitude, p.location.latitude, p.location.longitude), p])
