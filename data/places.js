@@ -811,24 +811,24 @@ export const getLikedItems = async (userId) => {
     const allReviews = (await Place.aggregate([
         {$unwind: "$reviews"},
         {$project: {_id: false, reviews: true}}
-    ]).exec()).map(r => r.toObject());
+    ]).exec());
 
     const likedReviews = allReviews
-        .filter(r => r.likes.includes(userId))
-        .map(r => r._id.toString());
+        .filter(r => r.reviews.likes.some(r => parseObjectId(r) === userId))
+        .map(r => r.reviews._id.toString());
 
     const likedReviewComments = allReviews
-        .map(r => r.comments)
-        .filter(r => r.likes.includes(userId))
+        .flatMap(r => r.reviews.comments)
+        .filter(r => r.likes.some(x => x === userId))
         .map(r => r._id.toString());
 
     const allPlaceComments = (await Place.aggregate([
         {$unwind: "$comments"},
         {$project: {_id: false, comments: true}}
-    ]).exec()).map(r => r.toObject());
+    ]).exec());
     const likedPlaceComments = allPlaceComments
-        .filter(c => c.likes.includes(userId))
-        .map(c => c._id.toString());
+        .filter(r => r.comments.likes.some(r => parseObjectId(r) === userId))
+        .map(c => c.comments._id.toString());
 
     return {
         likedReviewComments: likedReviewComments,
@@ -842,24 +842,24 @@ export const getDislikedItems = async (userId) => {
     const allReviews = (await Place.aggregate([
         {$unwind: "$reviews"},
         {$project: {_id: false, reviews: true}}
-    ]).exec()).map(r => r.toObject());
+    ]).exec());
 
     const dislikedReviews = allReviews
-        .filter(r => r.dislikes.includes(userId))
-        .map(r => r._id.toString());
+        .filter(r => r.reviews.dislikes.some(r => parseObjectId(r) === userId))
+        .map(r => r.reviews._id.toString());
 
     const dislikedReviewComments = allReviews
-        .map(r => r.comments)
-        .filter(r => r.dislikes.includes(userId))
+        .flatMap(r => r.reviews.comments)
+        .filter(r => r.dislikes.some(x => x === userId))
         .map(r => r._id.toString());
 
     const allPlaceComments = (await Place.aggregate([
         {$unwind: "$comments"},
         {$project: {_id: false, comments: true}}
-    ]).exec()).map(r => r.toObject());
+    ]).exec());
     const dislikedPlaceComments = allPlaceComments
-        .filter(c => c.dislikes.includes(userId))
-        .map(c => c._id.toString());
+        .filter(c => c.comments.dislikes.includes(userId))
+        .map(c => c.comments._id.toString());
 
     return {
         dislikedReviewComments: dislikedReviewComments,
