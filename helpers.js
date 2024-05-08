@@ -646,9 +646,9 @@ export const removeDuplicates = (array) => {
 /**
  * Parse a list of categories.
  *
- * @param {({qualification: string})[]} qualifications The list of categories to parse.
- * @returns {({qualification: string})[]} The parsed comments.
- * @author Chris Kang
+ * @param {string[]} qualifications The list of categories to parse.
+ * @returns {string[]} The parsed comments.
+ * @author Chris Kang, Anthony Webster
  */
 export const parseQualifications = (qualifications) => {
     throwIfNullOrUndefined(qualifications, "qualifications");
@@ -657,19 +657,19 @@ export const parseQualifications = (qualifications) => {
         throw new Error(`qualifications are must have at least 1 entry.`);
     }
 
-    //all entries are strings and all entries in array are valid categories
-    let validQualifications = [
-        DISABILITY_CATEGORY_PHYSICAL,
-        DISABILITY_CATEGORY_NEURODIVERGENT,
-        DISABILITY_CATEGORY_SENSORY,
-    ];
-    for (const qualification of qualifications) {
-        parseNonEmptyString(qualification, "qualification");
-        if (!(qualification in validQualifications)) {
-            throw new Error(`Invalid qualification "${qualification}"`);
+    return removeDuplicates(qualifications.map(q => {
+        q = parseNonEmptyString(q, "qualification").toLowerCase();
+        switch (q) {
+            case DISABILITY_CATEGORY_PHYSICAL.toLowerCase():
+                return DISABILITY_CATEGORY_PHYSICAL;
+            case DISABILITY_CATEGORY_NEURODIVERGENT.toLowerCase():
+                return DISABILITY_CATEGORY_NEURODIVERGENT;
+            case DISABILITY_CATEGORY_SENSORY.toLowerCase():
+                return DISABILITY_CATEGORY_SENSORY;
+            default:
+                throw new Error(`Invalid qualification "${q}"`);
         }
-    }
-    return removeDuplicates(qualifications);
+    }));
 };
 
 /**
