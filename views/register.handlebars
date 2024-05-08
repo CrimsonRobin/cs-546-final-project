@@ -2,13 +2,13 @@
     <img class="light" src="/public/assets/logo-light.svg" alt="a11y logo">
     <img class="dark" src="/public/assets/logo-dark.svg" alt="a11y logo">
     <form name="signup-form" id="signup-form" action="/register" method="POST">
-        {{#if errors}}
-            <ul>
+        <ul id="error-list" class="error">
+            {{#if errors}}
                 {{#each errors}}
                     <li>{{this.message}}</li>
                 {{/each}}
-            </ul>
-        {{/if}}
+            {{/if}}
+        </ul>
         <label for="username">Username:
             <input type="text" name="username" id="username">
         </label>

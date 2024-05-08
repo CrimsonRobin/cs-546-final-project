@@ -118,7 +118,11 @@ router
         req.body.username = tryCatchChain(errors, () =>
             parseStringWithLengthBounds(req.body.username, 3, 25, true, "Username")
         );
-        req.body.password = tryCatchChain(errors, () => parsePassword(req.body.password));
+        try {
+            req.body.password = parsePassword(req.body.password);
+        } catch (e) {
+            errors.push(new Error("Invalid password!"));
+        }
 
         if (errors.length > 0) {
             return res.status(400).render("login", { title: "Log In", errors: errors });
@@ -167,7 +171,8 @@ router.route("/api/search").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: "All Places",
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -182,7 +187,8 @@ router.route("/api/search").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: `Search Results based on ${req.query.searchTerm}`,
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -243,7 +249,8 @@ router.route("/api/nominatimSearch").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: "All Places",
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }
@@ -258,7 +265,8 @@ router.route("/api/nominatimSearch").get(async (req, res) => {
         return res.render("searchResults", {
             title: "Search Results",
             layout: false,
-            message: searchResults,
+            message: `Places matching ${req.query.searchTerm}`,
+            results: searchResults,
             user: req.session ? req.session.user : undefined,
         });
     }

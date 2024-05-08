@@ -83,7 +83,7 @@ const doRequest = async (url) => {
 const error = (message) => {
     const error = document.createElement("p");
     error.className = "error";
-    error.innerText = "Something went wrong fetching reviews. Try again?";
+    error.innerText = "Something went wrong fetching results. Try again?";
     results.appendChild(error);
 }
 
