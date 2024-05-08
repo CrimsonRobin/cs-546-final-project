@@ -78,11 +78,22 @@ router
             return res.status(400).render("register", { title: "Register", errors: errors });
         }
 
+        const qualification = [];
+        if(req.body.physical) {
+            qualification.push(DISABILITY_CATEGORY_PHYSICAL);
+        }
+        if(req.body.sensory) {
+            qualification.push(DISABILITY_CATEGORY_SENSORY);
+        }
+        if(req.body.neurodivergent) {
+            qualification.push(DISABILITY_CATEGORY_NEURODIVERGENT);
+        }
+
         try {
             const userMade = await createUser(
                 req.body.username,
                 req.body.password,
-                [req.body.physical, req.body.sensory, req.body.neurodivergent]
+                qualification
             );
 
             if (userMade) {
