@@ -713,7 +713,7 @@ const normalizeSearchQuery = (query) => {
     return removeDuplicates(qs);
 };
 
-const computeSearchMatchScore = async (normalizedQuery, placeData) => {
+const computeSearchMatchScore = (normalizedQuery, placeData) => {
     // Display names have expanded state names
     let totalMatches = 0;
 
@@ -722,7 +722,7 @@ const computeSearchMatchScore = async (normalizedQuery, placeData) => {
             continue;
         }
         against = normalizeSearchQuery(against);
-        totalMatches += normalizedQuery.reduce((acc, e) => (against.some((p) => p.indexOf(e) >= 0) ? 1 : 0), 0);
+        totalMatches += normalizedQuery.reduce((acc, e) => (against.some((p) => p.indexOf(e) >= 0) ? acc + 1 : acc), 0);
     }
 
     return totalMatches;
